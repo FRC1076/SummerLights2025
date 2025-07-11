@@ -4,8 +4,8 @@ Workspace for dynamic Neopixel animations using CircuitPython
 
 ABOUT CIRCUITPYTHON
 
-To run this code, you'll want a CircuitPython setup.    You'll need to download and install it on your computer,
-then download and install the appropriate CircuitPython disk image on the controller.
+To run this code, you'll want a CircuitPython setup.    You'll need to download the CircuitPython image for the processor that you are using and then drag it onto the boot disk image to install it on the processor, then download the MU Editor on your laptop (which will also install some local libraries for you when it installs.
+There is an additional library of the most common tools (including the NeoPixel library) that you'll need to download and then drag and drop into the "lib" directory on the processor disk image.
 
 All the information you need is at https://circuitpython.org/
 
@@ -18,7 +18,7 @@ Note, CircuitPython is similar, but DIFFERENT than MicroPython, and the online A
 
 ABOUT THE SOFTWARE ARCHITECTURE
 
-I believe that we can design the software to be a bit like graphics rendering, where the different effects can be background (drawn first), or foreground (overwriting portions of the background).   Perhaps even middle ground effects are possible with the proper restrictions.     Many effects could be active at the same time, but some care will have to taken to ensure that two foreground effects do not interfere with each other.   I think we can ensure this by requiring certain characteristics from the different effects.
+I believe that we can design the software to be a bit like graphics rendering, where the different effects can be background (drawn first), or foreground (overwriting portions of the background).   Perhaps even middle ground effects are possible with the proper restrictions.     Many effects could be active at the same time, but some care will have to be taken to ensure that two foreground effects do not interfere with each other.   I think we can ensure this by requiring certain characteristics from the different effects.
 
 Missing from this example code is some kind of triggering mechanism, but you might imagine that the effects orchestrator (the part of the software that chooses and directs the effects) might consider the current mode as well as any triggers before it picks a set of effects to run.    It could choose to ignore events until the effects were complete, or could allow them to be interrupted.
 

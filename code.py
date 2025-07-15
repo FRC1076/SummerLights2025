@@ -142,7 +142,8 @@ class MatrixDisplayMapper:
         r = MatrixDisplayMapper.clamp(coords[0], 0, self._num_rows-1)
         c = MatrixDisplayMapper.clamp(coords[1], 0, self._num_cols-1)
         
-        return r*self._num_cols+c
+        # snap row to integer grid so the math works
+        return int(round(r)*self._num_cols+c)
     
     def would_leave_screen(self, coords, vector):
         """
@@ -179,14 +180,14 @@ class MatrixDisplayMapper:
  
 class OnePixelBall:
    
-    def __init__(self, pixels, displaymap, color=BLUE, clear_on_init=False):
+    def __init__(self, pixels, displaymap, vect=(1, 1), color=BLUE, clear_on_init=False):
         """
         This bouncing ball effect works on a neopixel string or matrix that has a map
         The zero indexed pixel represents the origin at 0,0 (upper right)
         """
         self._pixels = pixels
         self._color = color
-        self._vect = (1, 1)
+        self._vect = vect
         self._rowcol = (0, 0)
         self._displaymap = displaymap
         self._repair_index = None
@@ -245,7 +246,7 @@ if __name__ == "__main__":
     Bouncing ball effect works in 2D space, so use a display mapper to manage the 2D space
     """
     neofeather = MatrixDisplayMapper(4, 8)
-    bounce_effect = OnePixelBall(pixels, displaymap=neofeather, color=ORANGE, clear_on_init=False)
+    bounce_effect = OnePixelBall(pixels, displaymap=neofeather, vect=(0.2, 0.3), color=ORANGE, clear_on_init=False)
     do_bouncing_ball = bounce_effect.runner()
     
     # Draw the background, then wait for a bit to create suspense
@@ -258,4 +259,4 @@ if __name__ == "__main__":
         next(do_bouncing_ball)
         pixels.show()
         time.sleep(0.02)
-
+    

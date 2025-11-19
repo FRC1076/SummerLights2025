@@ -62,7 +62,7 @@ class LightingEffect_Base:
                 pixels[p] = self._color
 
             for _ in range(self._slowness):
-                    yield
+                yield
 
             for p in range(self._start_index, self._start_index+self._num_pixels):
                 pixels[p] = OFF
@@ -147,7 +147,6 @@ class SqueezeFillEffect:
             """
             for p in range(self._start_index, self._start_index+self._num_pixels):
                 self._pixels[p] = OFF
-
 
     def make_generator(self):
         """
@@ -239,10 +238,14 @@ class OnePixelCar:
 
 class MatrixDisplayMapper:
     """
+    Here is the map.   Each element is (row, col)
+    --------------------------------------------------------------------------
     (0,0)              (0,1)             ...                   (0, num_cols-1)
+    (1,0)              (1,1)             ...                   (1, num_cols-1)
     ...
-    (num_rows-2, 0)
+    (num_rows-2, 0)    (num_rows-2, 1)   ...          (num_rows-2, num_cols-1)
     (num_rows-1, 0)    (num_rows-1, 1)   ...          (num_rows-1, num_cols-1)
+    --------------------------------------------------------------------------
     """
     
     def __init__(self, num_rows, num_cols):
@@ -266,7 +269,7 @@ class MatrixDisplayMapper:
     def would_leave_screen(self, coords, vector):
         """
         Return None if the point at coords would leave the screen.
-        Otherwise return the new vector resulting from a bounce at the edge
+        Otherwise return the new vector resulting from a bounce at the boundary
         """
         row_vect = None
         col_vect = None
@@ -344,7 +347,6 @@ class OnePixelBall:
             # run at designated speed
             for _ in range(slowness):
                 yield
-        
         
 
 if __name__ == "__main__":

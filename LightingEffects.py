@@ -1,3 +1,10 @@
+"""
+Lighting effects rely on some global kinds of configuration and some convenience
+variables.
+"""
+from NeoConfig import *
+
+
 class LightingEffect_Base:
     """
     To run a lighting effect, you need to (1) create the effect (associating it with all or
@@ -350,7 +357,10 @@ class OnePixelBall:
         
 
 if __name__ == "__main__":
-    
+
+    import time
+    import board
+    import neopixel
     
     # Initialize the neopixel model and clear it
     pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)

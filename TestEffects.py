@@ -13,9 +13,15 @@ NEON_PIXELS = 64
 NUM_PIXELS = FEATHER_WING_PIXELS
 
 # Useful global constants
-COLOR_INC = 255 / NUM_PIXELS                  # color increment to cycle through color range across all pixels
+
+# color increment ensures that we can cycle through a full
+# range of color intensities from the first to last pixels
+COLOR_INC = 255 / NUM_PIXELS
+
+# keep things dim to save power
 BRIGHTNESS = 0.1
 
+# some ready made colors (feel free to add more)
 OFF = (0, 0, 0)
 PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
@@ -24,7 +30,11 @@ BUTTERSCOTCH = (252, 186, 3)
 GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
 
+
 class EffectChooser:
+    """
+    
+    """
 
     def __init__(self, pixels):
         self._pixels = pixels
@@ -40,12 +50,10 @@ class EffectChooser:
         """
         Return a list of effects
         """
-        return [
-                   WipeFillEffect(pixels, 0, 8, color=PURPLE, slowness=1),
-                   WipeFillEffect(pixels, 8, 8, color=ORANGE, slowness=1),
-                   WipeFillEffect(pixels, 16, 8, color=PINK, slowness=1),
-                   WipeFillEffect(pixels, 24, 8, color=GREEN, slowness=1)
-        ]
+        return  [   WipeFillEffect(pixels, 0, 32, color=PINK, slowness=1),
+                    SqueezeFillEffect(pixels, 0, 16, color=PURPLE, slowness=10),
+                    SqueezeFillEffect(pixels, 16, 16, color=ORANGE, slowness=20) ]
+
 
 
 class WipeFillEffect:

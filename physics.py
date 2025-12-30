@@ -1,31 +1,37 @@
-class Particle:
-    def __init(self, s=[0,0], v=[0,0]):
+class Particle:    
+    def __init__(self, s, v):
+        """
+        Every particle has a vector position and velocity
+        """
         self._s=s
         self._v=v
-        return self
+        return
 
 class Physics:  
-    def __init__(self, time=0, g=(0.1,0), interval=0.02):
+    def __init__(self, time=0, g=(0,-0.3), interval=0.02):
         """
         
         """
         self._t0=time
         self._time=time
+        self._g=g
         self._interval=interval
         self._particles=[]
-        half_t_squared = self._interval*self._interval / 2
-        self.half_gt_squared=(g(0)*t_squared, g(1)*t_squared)
-        return self
+        return
 
     def add_particle(self, particle):
-        self._particles.add(particle)
+        self._particles.append(particle)
 
     def remove_a_particle(self):
         return self._particles.pop()
 
     def update_a_particle(self, p):
+        """
+        
+        """
         for d in (0,1):
-            p._s[d] = p._s[d] + p._v[d]*self._interval + self._half_gt_squared(d)
+            p._s[d] = p._s[d] + p._v[d]*self._interval
+            p._v[d] = p._v[d] + (self._g[d] * self._interval)
         
     def update_world(self):
         for p in self._particles:
@@ -34,9 +40,25 @@ class Physics:
 
     def dump(self):
         for p in self._particles:
-            print(format("%f.2, %f.2", p._s[0], p._s[1]))
+            print(f"{p._s[0]:.4f}, {p._s[1]:.4f}")
           
-          
+
+
+if __name__ == "__main__":
+
+
+    w = Physics()
+    origin = [0,0]
+    up_and_to_the_right = [0.1, 0.2]
+    p = Particle(origin,up_and_to_the_right)
+    
+    w.add_particle(p)
+
+    for _ in range(68):
+        w.update_world()
+        w.dump()
+
+
         
       
         

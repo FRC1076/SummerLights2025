@@ -6,8 +6,11 @@ class Compositor:
     def passThru(self, num_pixels):
         self._composition = [i for i in range(num_pixels)]
 
-    def featherColumns(self):
-        self._composition = [ [i for i in range(4*j-4,4*j)] for j in range(1,9) ]
+    def featherRows(self):
+        self._composition = [ [i for i in range(8*j-8,8*j)] for j in range(1,5) ]
+
+    def featherCols(self):
+        self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(8) ]
 
     def compose(pixel_buffer, neo_pixels):
         """
@@ -19,6 +22,9 @@ class Compositor:
             if isinstance(c, int):
                 neo_pixels[i] = pixel_buffer[i]
             elif isinstance(c, list):
+                """
+                Copy the same buffer value to all of the member pixels of the group
+                """
                 for j in c:
                     neo_pixels[j] = pixel_buffer[i]
                 

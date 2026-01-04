@@ -4,15 +4,18 @@ class Compositor:
         self._composition = None
 
     def passThru(self, num_pixels):
-        self._composition = [i for i in range(num_pixels)]
+        self._composition = [ i for i in range(num_pixels) ]
 
     def featherRows(self):
         self._composition = [ [i for i in range(8*j-8,8*j)] for j in range(1,5) ]
 
-    def featherCols(self):
-        self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(8) ]
+    def featherCols(self, cols):
+        self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(cols) ]
 
-    def compose(pixel_buffer, neo_pixels):
+    def __len__(self):
+        return len(self._composition)
+
+    def compose(self, pixel_buffer, neo_pixels):
         """
         Compose all of the pixel_buffer elements into the neo_pixels data model.
         The value at pixel_buffer[i] will get copied to neo_pixels[composition[i]] if composition[i] is a number.
@@ -27,4 +30,4 @@ class Compositor:
                 """
                 for j in c:
                     neo_pixels[j] = pixel_buffer[i]
-                
+

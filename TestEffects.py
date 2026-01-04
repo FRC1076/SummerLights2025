@@ -36,32 +36,32 @@ PINK = (248, 3, 252)
 
 class EffectChooser:
     """
-    
-    """
 
+    """
     def __init__(self, pixel_buffer):
-        self._pixels = pixel_buffer
+        self._pixel_buffer = pixel_buffer
         pass
 
     def get_chosen_effects(self):
         """
         Return a list of effects
+        return  [   WipeFillEffect(PixelBuffer(self._pixel_buffer[0:32]), color=PINK, slowness=1),
+                    SqueezeFillEffect(PixelBuffer(self._pixel_buffer[0:16]), color=PURPLE, slowness=10),
+                    SqueezeFillEffect(PixelBuffer(self._pixel_buffer[16:16]), color=ORANGE, slowness=20) ]
         """
-        return  [   WipeFillEffect(self._pixels[0:32], color=PINK, slowness=1),
-                    SqueezeFillEffect(self._pixels[0:16], color=PURPLE, slowness=10),
-                    SqueezeFillEffect(self._pixels[16:16], color=ORANGE, slowness=20) ]
+        return [ RainbowEffect(self._pixel_buffer, slowness=1) ]
 
 
-class RainbowEffect:    
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
+class RainbowEffect:
+    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS):
         self._pixel_buffer = pixel_buffer
         self._slowness = slowness
         self._brightness = brightness
 
     def make_generator(self):
         for j in range(255):
-            for i in range(self._pixel_buffer.len):
-                rc_index = (i * 256 // self._pixel_buffer.len) + j
+            for i in range(len(self._pixel_buffer)):
+                rc_index = (i * 256 // len(self._pixel_buffer)) + j
                 self._pixel_buffer[i] = colorwheel(rc_index & 255)
                 for _ in range(self._slowness):
                     yield
@@ -69,7 +69,7 @@ class RainbowEffect:
 
 class WipeFillEffect:
     """
-    
+
     """
     def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
         """
@@ -107,8 +107,9 @@ class WipeFillEffect:
 if __name__ == "__main__":
 
     # Initialize the neopixel model and clear it using compositor
-    compositor = Compositor().passThru(NUM_PIXELS)
-    pixel_buffer=PixelBuffer(NUM_PIXELS)
+    compositor = Compositor()
+    compositor.featherCols(FEATHER_WING_COLUMNS)
+    pixel_buffer=PixelBuffer(FEATHER_WING_COLUMNS)
     pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     compositor.compose(pixel_buffer, pixels)
     chooser = EffectChooser(pixel_buffer)
@@ -118,11 +119,11 @@ if __name__ == "__main__":
     next_do_effects = []
 
     while len(do_effects) > 0 or len(next_do_effects) > 0:
-        
+
         all_live_effects_have_run_once = False
-        
+
         while not all_live_effects_have_run_once:
-            
+
             try:
                 """
                 Remove the effect from the front of the list.  If it runs without stopping,

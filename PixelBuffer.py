@@ -1,6 +1,6 @@
 class PixelBuffer:
     OUT_OF_RANGE_BLACK = (0,0,0)
-    
+
     def __init__(self, num_pixels):
         # Store the underlying data in an internal list
         self.pixels = [PixelBuffer.OUT_OF_RANGE_BLACK] * num_pixels
@@ -31,9 +31,13 @@ class PixelBuffer:
         """
         return len(self.pixels)
 
+    def fill(self, value):
+        for i in range(len(self)):
+            self.pixels[i] = value
+
 
 if __name__ == "__main__":
-    
+
     # --- Usage ---
     # Create an instance with some data
     pixbuff = PixelBuffer(4)

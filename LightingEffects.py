@@ -3,7 +3,8 @@ Lighting effects rely on some global kinds of configuration and some convenience
 variables.
 """
 from NeoConfig import *
-
+from Physics import Particle,Physics
+import random
 
 class BlinkyEffect:
     """
@@ -112,6 +113,79 @@ class SqueezeFillEffect:
             """
             for _ in range(self._slowness):
                 yield
+
+class RainbowEffect:
+    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS):
+        self._pixel_buffer = pixel_buffer
+        self._slowness = slowness
+        self._brightness = brightness
+
+    def make_generator(self):
+        while True:
+            for j in range(255):
+                for i in range(len(self._pixel_buffer)):
+                    rc_index = (i * 256 // len(self._pixel_buffer)) + j
+                    self._pixel_buffer[i] = colorwheel(rc_index & 255)
+                    for _ in range(self._slowness):
+                        yield
+
+
+class DripEffect:
+    """
+    Use the physics engine to simulate particles dripping from the top
+    """
+    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS, bounce=True):
+        self._pixel_buffer = pixel_buffer
+        self._slowness = slowness
+        self._brightness = brightness
+        self._bounce = bounce
+
+    def make_generator(self, id):
+        """
+        Create a physics engine to drive movement of particles.
+        Regularly toss particles into the "top"
+        Map the particle index to a pixel
+        Blow up a pixel when it reaches the end of the buffer
+        String hangs down from 0 index, so gravity is a positive number
+        """
+        world = Physics(time=0, g=(0, 25), interval=0.02)
+        retire_index = len(self._pixel_buffer) - 1
+        while True:
+            """
+            About 2% of the time, create a random particle at 0 index
+            """
+            if (world.num_particles() == 0 and random.random() < 0.98):
+                Vinit = random.random()
+                world.add_particle(Particle([0,Vinit], [0,0]))
+
+            world.update_world()
+
+            if self._bounce:
+                for i in world.particle_indices(increasing=True):
+                    self._pixel_buffer[i] = BLUE
+                for i in world.particle_indices(increasing=False):
+                    self._pixel_buffer[i] = RED
+            else:
+                for i in world.particle_indices():
+                    self._pixel_buffer[i] = BLUE
+
+            # Have particle about to be retired flash RED for a cycle
+            if self._pixel_buffer[-1] == BLUE:
+                self._pixel_buffer[-1] = RED
+
+            for _ in range(self._slowness):
+                yield
+
+            if self._bounce:
+                world.bounce_at_limit(retire_index, rebound=0.8)
+
+            world.retire_particles(retire_index, speed_floor=2)
+
+            #print("ID: ", id, world.particle_indices())
+
+            # clear the buffer to redraw next cycle
+            for i in range(len(self._pixel_buffer)):
+                self._pixel_buffer[i] = OFF
 
 
 class InstantFillBackground:

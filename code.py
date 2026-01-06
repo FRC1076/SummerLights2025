@@ -6,6 +6,7 @@ from rainbowio import colorwheel
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
+from LightingEffects import WipeFillEffect
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -101,7 +102,7 @@ class DripEffect:
             About 2% of the time, create a random particle at 0 index
             """
             if (world.num_particles() == 0 and random.random() < 0.98):
-                Vinit = random.random()*6
+                Vinit = random.random()
                 world.add_particle(Particle([0,Vinit], [0,0]))
 
             world.update_world()
@@ -110,7 +111,7 @@ class DripEffect:
                 for i in world.particle_indices(increasing=True):
                     self._pixel_buffer[i] = BLUE
                 for i in world.particle_indices(increasing=False):
-                    self._pixel_buffer[i] = BLUE
+                    self._pixel_buffer[i] = RED
             else:
                 for i in world.particle_indices():
                     self._pixel_buffer[i] = BLUE
@@ -136,42 +137,6 @@ class DripEffect:
 
 
 
-
-class WipeFillEffect:
-    """
-
-    """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
-        """
-        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
-        Defaults are all PURPLE pixels at the global BRIGHTNESS.
-        The filling is done at 20hz using a python generator to break up the updates
-        """
-        self._pixel_buffer = pixel_buffer
-        self._color = color
-        self._slowness = slowness
-        self._brightness = brightness
-
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixel_buffer.fill(OFF)
-
-    def make_generator(self):
-        """
-        Need to decide how to set the brightness separately
-        maybe just scale the self._color on __init__?
-        or just agree to use the color passed in
-        """
-        for i in range(self._pixel_buffer.len):
-            self._pixel_buffer[i] = color
-            """
-            The yield command here, turns this function into a generator, so it returns after each
-            iteration of the loop.   Subsequent calls pick up where they left off.
-            """
-            for _ in range(self._slowness):
-                yield
 
 
 if __name__ == "__main__":

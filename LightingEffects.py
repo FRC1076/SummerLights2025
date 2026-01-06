@@ -1,82 +1,39 @@
 """
 Lighting effects rely on some global kinds of configuration and some convenience
-variables.   Import these explicitly to quiet the MU Editor "Check".
+variables.
 """
-from NeoConfig import NUM_PIXELS, BRIGHTNESS, OFF, RED, BLUE, PURPLE, ORANGE, BUTTERSCOTCH
+from NeoConfig import *
 
 
-class LightingEffect_Base:
+class BlinkyEffect:
     """
-    To run a lighting effect, you need to
-        (1) create the effect (associating it with all or
-            part of the light string)
-        (2) call the make_generator method to create the
-            generator object
-        (3) call next on the generator until it terminates.
-
-    import time
-    import board
-    import neopixel
-
-    pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS,
-                               brightness=BRIGHTNESS, auto_write=False)
-    pixels.fill((0,0,0))
-    # specify more to override default values
-    blinky_effect = LightingEffect_Base(pixels, 0, NUM_PIXELS)
-    blinky_gen = blinky_effect.make_generator()
-
-    finished = False
-    while not finished:
-        try:
-            next(blinky_gen)
-            pixels.show()
-            time.sleep(0.20)
-        except StopIteration:
-            finished = True
-
+    Blink all of the pixels in this buffer domain between color and OFF
     """
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE,
-                 brightness=BRIGHTNESS, slowness=5, clear_on_init=True):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=10, brightness=BRIGHTNESS):
         """
         Base class for lighting effects
-        Could be useful for documentation, or maybe actually used
-        as a base class.
+        Could be useful for documentation, or maybe actually used as a base class
+        Note, this relies on constants from elsewhere.    Should probably import them instead of assuming
+        they have been imported.
         """
-        self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = num_pixels
+        self._pixel_buffer = pixel_buffer
         self._color = color
-        self._brightness = brightness
         self._slowness = slowness
+        self._brightness = brightness
 
-        if clear_on_init:
-            self.clear_all_in_my_domain()
-
-    def clear_all(pixels, start, length):
-        """
-        Static function that any class can use.
-        """
-        for p in range(start, start+length):
-            pixels[p] = OFF
-
-    def clear_all_in_my_domain(self):
-        """
-        Zero out everything in our domain
-        """
-        LightingEffect_Base.clear_all(self._pixels, self._start_index, self._num_pixels)
 
     def make_generator(self):
         """
         Make blinky the default application
         """
         while True:
-            for p in range(self._start_index, self._start_index+self._num_pixels):
+            for p in range(self._pixel_buffer.len):
                 pixels[p] = self._color
 
             for _ in range(self._slowness):
                 yield
 
-            for p in range(self._start_index, self._start_index+self._num_pixels):
+            for p in range(self._pixel_buffer.len):
                 pixels[p] = OFF
 
             for _ in range(self._slowness):
@@ -85,35 +42,24 @@ class LightingEffect_Base:
 
 class WipeFillEffect:
     """
-    Fills num_pixels starting at start_index with the specified color.
-    *
-    **
-    ***
-    ...
-    ***********
 
-    The effect yields after every frame, so the wipe is animated.
     """
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE,
-                 brightness=BRIGHTNESS,  slowness=2, clear_on_init=True):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
         """
-        Create a lighting effect that fills PIXELS in the specified range
-        with the specified color.
+        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
-        The filling is done at 50hz using a python generator to break up the updates
+        The filling is done at 20hz using a python generator to break up the updates
         """
-        self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = num_pixels
+        self._pixel_buffer = pixel_buffer
         self._color = color
-        self._brightness = brightness
         self._slowness = slowness
+        self._brightness = brightness
 
         if clear_on_init:
             """
             But, do not display, just zero out everything
             """
-            pixels.fill(OFF)
+            pixel_buffer.fill(OFF)
 
     def make_generator(self):
         """
@@ -121,14 +67,11 @@ class WipeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        p = self._start_index
-        for _ in range(self._num_pixels):
-            self._pixels[p] = self._color
-            p += 1
+        for i in range(self._pixel_buffer.len):
+            self._pixel_buffer[i] = color
             """
-            The yield command here, turns this function into a generator
-            so it returns after each iteration of the loop.
-            Subsequent calls pick up where they left off.
+            The yield command here, turns this function into a generator, so it returns after each
+            iteration of the loop.   Subsequent calls pick up where they left off.
             """
             for _ in range(self._slowness):
                 yield
@@ -143,27 +86,16 @@ class SqueezeFillEffect:
     ****  ****
     **********
     """
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE,
-                 brightness=BRIGHTNESS, slowness=2, clear_on_init=True):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS):
         """
-        Create a lighting effect that fills PIXELS in the specified range
-        with the specified color.
+        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
         The filling is done at 20hz using a python generator to break up the updates
         """
-        self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = num_pixels
+        self._pixel_buffer = pixel_buffer
         self._color = color
-        self._brightness = brightness
         self._slowness = slowness
-
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything in our domain
-            """
-            for p in range(self._start_index, self._start_index+self._num_pixels):
-                self._pixels[p] = OFF
+        self._brightness = brightness
 
     def make_generator(self):
         """
@@ -171,15 +103,12 @@ class SqueezeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        p = self._start_index
-        for _ in range(self._num_pixels/2):
-            self._pixels[p] = self._color
-            self._pixels[self._num_pixels - 1 - p] = self._color
-            p += 1
+        for i in range(self._pixel_buffer.len):
+            self._pixel_buffer[i] = self._color
+            self._pixel_buffer[-(i+1)] = self._color
             """
-            The yield command here, turns this function into a generator,
-            so it returns after each iteration of the loop.
-            Subsequent calls pick up where they left off.
+            The yield command here, turns this function into a generator, so it returns after each
+            iteration of the loop.   Subsequent calls pick up where they left off.
             """
             for _ in range(self._slowness):
                 yield
@@ -187,18 +116,16 @@ class SqueezeFillEffect:
 
 class InstantFillBackground:
 
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE,
-                 brightness=BRIGHTNESS, slowness=0, clear_on_init=True):
+    def __init__(self, pixels, start_index, num_pixels, color=PURPLE, brightness=BRIGHTNESS, slowness=0, clear_on_init=True):
         """
-        Create a lighting effect that fills PIXELS in the specified range
-        with the specified color.
+        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
-        The filling is done all in one shot, suitable for use as a
-        background for some other effect.
+        The filling is done all in one shot, suitable for use as a background for some other effect.
         """
         self._pixels = pixels
         self._start_index = start_index
         self._num_pixels = num_pixels
+        self._pixel_range = pixel_range
         self._color = color
         self._brightness = brightness
 
@@ -208,14 +135,17 @@ class InstantFillBackground:
             """
             pixels.fill(OFF)
 
-    def run(self):
+    def make_generator(self):
         """
         Need to decide how to set the brightness separately
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        for p in range(self._start_index, self._num_pixels+self._start_index):
+        p = 0
+        for p in self._pixel_range:
             self._pixels[p] = self._color
+
+
 
 class OnePixelCar:
     """
@@ -223,12 +153,10 @@ class OnePixelCar:
     This effect does it's own repair of the background.
     That could be a service provided by the graphics buffer.
     """
-    def __init__(self, pixels, start_index, num_pixels,
-                 color=BLUE, clear_on_init=False):
+    def __init__(self, pixels, pixel_range=range(NUM_PIXELS), color=BLUE, clear_on_init=False):
         self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = self._num_pixels
         self._color = color
+        self._pixel_range = pixel_range
         self._repair_index = None
         self._repair_value = None
 
@@ -237,10 +165,10 @@ class OnePixelCar:
         Car can run slower, e.g. slowness = 50 to run 1 pixel per second
         Slowess=1 is a bit too hard to see
         """
-        for carpos in range(self._start_index, self._num_pixels):
+        for carpos in self._pixel_range:
 
             # repair the damage from the previous frame
-            if self._repair_index is not None:
+            if self._repair_index != None:
                 self._pixels[self._repair_index] = self._repair_value
 
             # before we draw the car at carpos, save the repair info
@@ -275,6 +203,7 @@ class MatrixDisplayMapper:
     def clamp(value, min_val, max_val):
         """Clamps a value within a specified range."""
         return max(min(value, max_val), min_val)
+
 
     def rowcol_to_ndx(self, coords):
         # make sure the row and column are in bounds (between 0 and N-1)
@@ -319,8 +248,7 @@ class MatrixDisplayMapper:
 
 class OnePixelBall:
 
-    def __init__(self, pixels, displaymap, vect=(1, 1),
-                 color=BLUE, clear_on_init=False):
+    def __init__(self, pixels, displaymap, vect=(1, 1), color=BLUE, clear_on_init=False):
         """
         This bouncing ball effect works on a neopixel string or matrix that has a map
         The zero indexed pixel represents the origin at 0,0 (upper right)
@@ -333,14 +261,14 @@ class OnePixelBall:
         self._repair_index = None
         self._repair_value = None
 
-    def make_generator(self, slowness=1):
+    def runner(self, slowness=2):
         #
         #  Ball bounces around forever.
         #
         while True:
 
             # repair the damage from the previous frame
-            if self._repair_index is not None:
+            if self._repair_index != None:
                 self._pixels[self._repair_index] = self._repair_value
 
             # before we draw the ball at rowcol, save the repair info
@@ -351,8 +279,7 @@ class OnePixelBall:
             # draw the ball at the computed index
             self._pixels[ndx] = self._color
 
-            # see if the ball can move to the next location,
-            # or if it bounces at the boundary
+            # see if the ball can move to the next location, or if it bounces at the boundary
             next_vect = self._displaymap.would_leave_screen(self._rowcol, self._vect)
 
             # if there is a collision, update the new vector
@@ -376,62 +303,30 @@ if __name__ == "__main__":
     import neopixel
 
     # Initialize the neopixel model and clear it
-    pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS,
-                               brightness=BRIGHTNESS, auto_write=False)
+    pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
+    pixels.fill((0,0,0))
 
     """
     One time setup with solid PURPLE
     """
     print("Display background once")
-    purple_background_effect = InstantFillBackground(pixels, start_index=0,
-                                                     num_pixels=32, color=PURPLE)
+    purple_background_effect = InstantFillBackground(pixels, color=OFF)
 
     """
-    Bouncing ball effect works in 2D space, so use a display mapper
-    to manage the 2D space
+    Bouncing ball effect works in 2D space, so use a display mapper to manage the 2D space
     """
     neofeather = MatrixDisplayMapper(4, 8)
-    bounce_effect = OnePixelBall(pixels, displaymap=neofeather, vect=(0.4, 0.6),
-                                 color=ORANGE, clear_on_init=False)
-    bouncing_gen = bounce_effect.make_generator()
+    bounce_effect = OnePixelBall(pixels, displaymap=neofeather, vect=(0.2, 0.3), color=ORANGE, clear_on_init=False)
+    do_bouncing_ball = bounce_effect.runner()
 
-    """
-    The default effect for the LightingEffect_Base is an all-pixel blinky
-    """
-    blinky_effect = LightingEffect_Base(pixels, 0, NUM_PIXELS, color=PURPLE)
-    blinky_gen = blinky_effect.make_generator()
+    # Draw the background, then wait for a bit to create suspense
+    purple_background_effect.run()
+    pixels.show()
+    time.sleep(3)
 
-    """
-    The low-to-high index swipe fill effect
-    """
-    wipefill_effect = WipeFillEffect(pixels, 0, NUM_PIXELS, color=RED)
-    wipefill_gen = wipefill_effect.make_generator()
-
-    """
-    Fill from both ends of the pixel range SqueezeFillEffect
-    """
-    squeezefill_effect = SqueezeFillEffect(pixels, 0, NUM_PIXELS, color=BUTTERSCOTCH)
-    squeezefill_gen = squeezefill_effect.make_generator()
-
-    """
-    For testing purposes, SET THE CHOSEN GENERATOR HERE.   The following code
-    should test the one you chose.
-    """
-    chosen_gen = squeezefill_gen
-
-    if chosen_gen == bouncing_gen:
-        # Draw the background, then wait for a bit to create suspense
-        purple_background_effect.run()
+    while True:
+        # bouncing ball effect runs forever
+        next(do_bouncing_ball)
         pixels.show()
-        time.sleep(3)
-
-    finished = False
-    while not finished:
-        try:
-            next(chosen_gen)
-            pixels.show()
-            time.sleep(0.20)
-        except StopIteration:
-            finished = True
-
+        time.sleep(0.02)
 

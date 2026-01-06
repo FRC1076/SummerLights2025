@@ -1,7 +1,12 @@
+from PixelBuffer import PixelBuffer
+
 class Compositor:
 
     def __init__(self):
         self._composition = None
+
+    def bufferList(self, list_of_buffers):
+        self._composition = list_of_buffers
 
     def passThru(self, num_pixels):
         self._composition = [ i for i in range(num_pixels) ]
@@ -21,13 +26,23 @@ class Compositor:
         The value at pixel_buffer[i] will get copied to neo_pixels[composition[i]] if composition[i] is a number.
         If the composition[i] is a list, then the value at pixel_buffer[i] will be copied to all neo_pixels[j] for j in composition[i]
         """
+        global_index=0
         for i,c in enumerate(self._composition):
             if isinstance(c, int):
                 neo_pixels[i] = pixel_buffer[i]
+            elif isinstance(c, PixelBuffer):
+                """
+                Concatenate each PixelBuffer into the neo_pixels, one after another
+                """
+                for j in range(len(c)):
+                    #print(f"neopixels[{(j+global_index):d}]=c[{i}][{j:d}]={c[j]}")
+                    neo_pixels[j+global_index] = c[j]
+                global_index += len(c)
             elif isinstance(c, list):
                 """
                 Copy the same buffer value to all of the member pixels of the group
                 """
                 for j in c:
                     neo_pixels[j] = pixel_buffer[i]
+
 

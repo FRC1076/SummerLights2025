@@ -11,7 +11,7 @@ class BlinkyEffect:
     """
     Blink all of the pixels in this buffer domain between color and OFF
     """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=10, brightness=BRIGHTNESS):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS):
         """
         Base class for lighting effects
         Could be useful for documentation, or maybe actually used as a base class
@@ -29,14 +29,14 @@ class BlinkyEffect:
         Make blinky the default application
         """
         while True:
-            for p in range(self._pixel_buffer.len):
-                pixels[p] = self._color
+            for p in range(len(self._pixel_buffer)):
+                self._pixel_buffer[p] = self._color
 
             for _ in range(self._slowness):
                 yield
 
-            for p in range(self._pixel_buffer.len):
-                pixels[p] = OFF
+            for p in range(len(self._pixel_buffer)):
+                self._pixel_buffer[p] = OFF
 
             for _ in range(self._slowness):
                 yield

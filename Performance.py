@@ -84,7 +84,7 @@ class EffectChooser:
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[0:16]), color=PURPLE, slowness=10),
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[16:16]), color=ORANGE, slowness=20) ]
         """
-        return [ SqueezeFillEffect(self._pixel_buffer, slowness=1) ]
+        return [ BlinkyEffect(self._pixel_buffer, slowness=10) ]
 
 
 

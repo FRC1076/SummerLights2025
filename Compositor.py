@@ -27,6 +27,11 @@ class Compositor:
         If the composition[i] is a list, then the value at pixel_buffer[i] will be copied to all neo_pixels[j] for j in composition[i]
         """
         global_index=0
+
+        if isinstance(self._composition[0], int):
+            for i in range(len(self._composition)):
+                neo_pixels[i] = pixel_buffer[i]
+        return
         for i,c in enumerate(self._composition):
             if isinstance(c, int):
                 neo_pixels[i] = pixel_buffer[i]

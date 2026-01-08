@@ -1,4 +1,4 @@
-import adafruit_circuitplayground.bluefruit as cp
+from adafruit_circuitplayground import cp
 import board
 #import neopixel
 import random
@@ -84,7 +84,7 @@ class EffectChooser:
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[0:16]), color=PURPLE, slowness=10),
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[16:16]), color=ORANGE, slowness=20) ]
         """
-        return [ DripEffect(self._pixel_buffer, slowness=1, bounce=True) ]
+        return [ SqueezeFillEffect(self._pixel_buffer, slowness=1) ]
 
 
 
@@ -94,17 +94,26 @@ class EffectChooser:
 
 if __name__ == "__main__":
 
+    start_time_ns = time.monotonic_ns()
     # Initialize the neopixel model and clear it using compositor
     compositor = Compositor()
     pixel_buffer = PixelBuffer(NUM_PIXELS)
     compositor.passThru(NUM_PIXELS)
 
+    #Note: for internal pixels on CircuitPlayground import of cp takes care of this
     #pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
-    compositor.compose(pixel_buffer, cp.pixels)
+    pixels = cp.pixels
+    pixels.auto_write = False
+    compositor.compose(pixel_buffer, pixels)
     chooser = EffectChooser(pixel_buffer=pixel_buffer)
 
     effects = chooser.get_chosen_effects()
-    do_effects = [ effect.make_generator(id) for id,effect in enumerate(effects) ]
+    do_effects = [ effect.make_generator() for effect in effects ]
+    current_time_ns = time.monotonic_ns()
+    elapsed_time_ns = current_time_ns - start_time_ns
+    start_time_ns = current_time_ns
+    print("Setup took", elapsed_time_ns / 1000000, "milliseconds")
+
     next_do_effects = []
     while len(do_effects) > 0 or len(next_do_effects) > 0:
 
@@ -130,7 +139,16 @@ if __name__ == "__main__":
                 next_do_effects = []
                 all_live_effects_have_run_once = True
 
+
         compositor.compose(pixel_buffer, pixels)
         pixels.show()
-        time.sleep(0.02)
+        current_time_ns = time.monotonic_ns()
+        elapsed_time_ns = current_time_ns - start_time_ns
+        start_time_ns = current_time_ns
+        adjust = elapsed_time_ns / 1000000000
+        if adjust < 0.02:
+            time.sleep(0.02-adjust)
+            print("INFO: Adjust ", adjust, "seconds")
+        else:
+            print("WARNING: Slip of  ", adjust-0.2, "seconds")
 # Write your code here :-)

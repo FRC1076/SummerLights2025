@@ -4,6 +4,7 @@ variables.
 """
 from NeoConfig import *
 from Physics import Particle,Physics
+from TapDetector import TapDetector
 import random
 
 class BlinkyEffect:
@@ -104,7 +105,7 @@ class SqueezeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        for i in range(self._pixel_buffer.len):
+        for i in range(len(self._pixel_buffer)):
             self._pixel_buffer[i] = self._color
             self._pixel_buffer[-(i+1)] = self._color
             """
@@ -148,14 +149,17 @@ class DripEffect:
         Blow up a pixel when it reaches the end of the buffer
         String hangs down from 0 index, so gravity is a positive number
         """
-        world = Physics(time=0, g=(0, 25), interval=0.02)
+        world = Physics(time=0, g=(0, 35), interval=0.02)
+        td = TapDetector()
         retire_index = len(self._pixel_buffer) - 1
         while True:
             """
             About 2% of the time, create a random particle at 0 index
             """
-            if (world.num_particles() == 0 and random.random() < 0.98):
-                Vinit = random.random()
+            #if (world.num_particles() == 0 and random.random() < 0.98):
+            td.sense()
+            if td.gotTapped():
+                Vinit = random.random()/2
                 world.add_particle(Particle([0,Vinit], [0,0]))
 
             world.update_world()
@@ -180,8 +184,6 @@ class DripEffect:
                 world.bounce_at_limit(retire_index, rebound=0.8)
 
             world.retire_particles(retire_index, speed_floor=2)
-
-            #print("ID: ", id, world.particle_indices())
 
             # clear the buffer to redraw next cycle
             for i in range(len(self._pixel_buffer)):

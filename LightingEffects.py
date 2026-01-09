@@ -5,6 +5,7 @@ variables.
 from NeoConfig import *
 from Physics import Particle,Physics
 from TapDetector import TapDetector
+from rainbowio import colorwheel
 import random
 
 class BlinkyEffect:
@@ -124,9 +125,13 @@ class RainbowEffect:
     def make_generator(self):
         while True:
             for j in range(255):
-                for i in range(len(self._pixel_buffer)):
-                    rc_index = (i * 256 // len(self._pixel_buffer)) + j
-                    self._pixel_buffer[i] = colorwheel(rc_index & 255)
+                # Do the cycle in six sections to get close to the desired loop deadline
+                num_sections = 6
+                section_size = len(self._pixel_buffer) // num_sections
+                for s in range(num_sections):
+                    for i in range(s*section_size, (s+1)*section_size):
+                        rc_index = i * 256 // len(self._pixel_buffer) + j
+                        self._pixel_buffer[len(self._pixel_buffer) - 1 - i] = colorwheel(rc_index & 255)
                     for _ in range(self._slowness):
                         yield
 
@@ -141,7 +146,7 @@ class DripEffect:
         self._brightness = brightness
         self._bounce = bounce
 
-    def make_generator(self, id):
+    def make_generator(self):
         """
         Create a physics engine to drive movement of particles.
         Regularly toss particles into the "top"
@@ -149,16 +154,16 @@ class DripEffect:
         Blow up a pixel when it reaches the end of the buffer
         String hangs down from 0 index, so gravity is a positive number
         """
-        world = Physics(time=0, g=(0, 35), interval=0.02)
-        td = TapDetector()
+        world = Physics(time=0, g=(0, 30), interval=0.02)
+        #td = TapDetector()
         retire_index = len(self._pixel_buffer) - 1
         while True:
             """
             About 2% of the time, create a random particle at 0 index
             """
-            #if (world.num_particles() == 0 and random.random() < 0.98):
-            td.sense()
-            if td.gotTapped():
+            if random.random() > 0.99:
+                #td.sense()
+                #if td.gotTapped():
                 Vinit = random.random()/2
                 world.add_particle(Particle([0,Vinit], [0,0]))
 

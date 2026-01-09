@@ -17,6 +17,17 @@ class Compositor:
     def featherCols(self, cols):
         self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(cols) ]
 
+
+    def eightHorizontal(self, rows):
+        lc = 66
+        rc = lc + 2
+        first_part = [ [ lc-2*i, lc-2*i+1, rc+2*i, rc+2*i+1 ] for i in range(14) ]
+        second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
+        third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
+
+        self._composition = first_part + second_part + third_part
+        print(self._composition)
+
     def __len__(self):
         return len(self._composition)
 
@@ -28,10 +39,10 @@ class Compositor:
         """
         global_index=0
 
-        if isinstance(self._composition[0], int):
-            for i in range(len(self._composition)):
-                neo_pixels[i] = pixel_buffer[i]
-        return
+        #if isinstance(self._composition[0], int):
+        #    for i in range(len(self._composition)):
+        #        neo_pixels[i] = pixel_buffer[i]
+        #return
         for i,c in enumerate(self._composition):
             if isinstance(c, int):
                 neo_pixels[i] = pixel_buffer[i]

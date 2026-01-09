@@ -6,7 +6,7 @@ import time
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
-from LightingEffects import WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect
+from LightingEffects import WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -65,22 +65,22 @@ class Presentation:
     def playgroundBuiltIn(self):
         self._buffer = PixelBuffer(CP_PIXELS)
         self._compositor.passThru(CP_PIXELS)
-
+        
     def sideLight(self):
         self._buffer = PixelBuffer(SIDELIGHT_PIXELS)
         self._compositor.passThru(SIDELIGHT_PIXELS)
-
+        
     def sideLight7Segment(self):
         sections = 24
         self._buffer = PixelBuffer(sections)
         self._compositor.eightHorizontal(sections)
-
+        
     def compositor(self):
         return self._compositor
-
+        
     def pixel_buffer_list(self):
         return self._buffer_list
-
+        
     def pixel_buffer(self):
         return self._buffer
 
@@ -107,7 +107,7 @@ class EffectChooser:
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[0:16]), color=PURPLE, slowness=10),
                     SqueezeFillEffect(PixelBuffer(self._pixel_buffer[16:16]), color=ORANGE, slowness=20) ]
         """
-        return [ DripEffect(self._pixel_buffer, slowness=1) ]
+        return [ ClapEffect(self._pixel_buffer, slowness=1) ]
 
 
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     start_time_ns = time.monotonic_ns()
     # Initialize the neopixel model and clear it using compositor
     presentation = Presentation()
-    presentation.sideLight7Segment()
+    presentation.sideLight()
     compositor = presentation.compositor()
     pixel_buffer = presentation.pixel_buffer()
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     effects = chooser.get_chosen_effects()
     do_effects = [ effect.make_generator() for effect in effects ]
-
+        
     current_time_ns = time.monotonic_ns()
     elapsed_time_ns = current_time_ns - start_time_ns
     start_time_ns = current_time_ns
@@ -187,7 +187,7 @@ if __name__ == "__main__":
             #print("INFO: Adjust ", adjust, "milliseconds")
         else:
             print("WARNING: Slip of  ", adjust-20, "milliseconds")
-
+            
         # rebase start after sleep, since we do not want to count that
         start_time_ns = time.monotonic_ns()
 

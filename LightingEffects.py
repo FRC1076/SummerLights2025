@@ -193,6 +193,52 @@ class DripEffect:
             # clear the buffer to redraw next cycle
             for i in range(len(self._pixel_buffer)):
                 self._pixel_buffer[i] = OFF
+                
+
+class ClapEffect:
+    """
+    Use the physics engine to simulate particles dripping from the top
+    """
+    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS):
+        self._pixel_buffer = pixel_buffer
+        self._slowness = slowness
+        self._brightness = brightness
+
+    def clap(self):
+        # Build up to the clap event
+        # How many cycles should we take to do this?    (48 cps is nicely divisible)
+        for i in reversed(len(self._pixel_buffer)):
+            self._pixel_buffer[0] = ORANGE
+            self._pixel_buffer[i] = PURPLE
+            yield
+            self._pixel_buffer[0] = ORANGE
+            self._pixel_buffer.fill(OFF)
+            yield
+            
+        for i in range(len(self._pixel_buffer)):
+            self._pixel_buffer[i] = ORANGE
+        yield
+        yield
+        yield
+        yield
+        
+        self._pixel_buffer.fill(OFF)
+        yield
+            
+
+    def rest(self, duration):
+        for _ in range(duration):
+            yield
+        
+    def make_generator(self):
+        """
+        """
+        while True:
+            self._pixel_buffer[0] = ORANGE
+            yield
+            yield from self.clap()
+            yield from self.rest(15)
+    
 
 
 class InstantFillBackground:
@@ -410,4 +456,5 @@ if __name__ == "__main__":
         next(do_bouncing_ball)
         pixels.show()
         time.sleep(0.02)
+
 

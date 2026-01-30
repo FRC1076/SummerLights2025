@@ -11,12 +11,43 @@ class Compositor:
     def passThru(self, num_pixels):
         self._composition = [ i for i in range(num_pixels) ]
 
+    def groupsOfN(self, num_pixels, num_groups=2):
+        """
+        Group NUM_PIXELS pixels into NUM_GROUPS, producing NUM_PIXELS//NUM_GROUPS groups of pixels
+        each pixel in the group of pixels takes on the same value set on the group.
+
+        For example:
+            Compositor.GroupsOFN(120, 12)
+
+            Produces a Compositor that presents a 12 value pixel buffer, with each value controlling 10
+            successive neo_pixels.
+        """
+        assert (num_pixels % num_groups) == 0,  "Groups must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        group_size = num_pixels // num_groups
+        start_index = 0
+        group_list = [ ]
+        for i in range(num_groups):
+            group_list.append([ j for j in range(start_index, (i+1)*group_size) ])
+            start_index += group_size
+
+        self._composition = group_list
+
+
+    def divisionsOfN(self, num_pixels, num_divisions=2):
+        """
+        """
+        assert (num_pixels % num_divisions) == 0,  "Divisions must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        division_size = num_pixels // num_divisions
+        buffer_list = [ PixelBuffer(division_size) for i in range(num_divisions) ]
+
+        self._composition = buffer_list
+
+
     def featherRows(self):
         self._composition = [ [i for i in range(8*j-8,8*j)] for j in range(1,5) ]
 
     def featherCols(self, cols):
         self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(cols) ]
-
 
     def eightHorizontal(self, rows):
         lc = 66

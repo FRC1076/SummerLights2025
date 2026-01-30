@@ -3,7 +3,7 @@ class PixelBuffer:
 
     def __init__(self, num_pixels):
         # Store the underlying data in an internal list
-        self.pixels = [PixelBuffer.OUT_OF_RANGE_BLACK] * num_pixels
+        self.pixels = [ PixelBuffer.OUT_OF_RANGE_BLACK ] * num_pixels
 
     def __getitem__(self, index):
         """

@@ -8,6 +8,10 @@ from TapDetector import TapDetector
 from rainbowio import colorwheel
 import random
 
+# move these to NeoConfig to remove duplication
+TAP = 3
+NO_TAP = 2
+
 class BlinkyEffect:
     """
     Blink all of the pixels in this buffer domain between color and OFF
@@ -70,8 +74,8 @@ class WipeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        for i in range(self._pixel_buffer.len):
-            self._pixel_buffer[i] = color
+        for i in range(len(self._pixel_buffer)):
+            self._pixel_buffer[i] = self._color
             """
             The yield command here, turns this function into a generator, so it returns after each
             iteration of the loop.   Subsequent calls pick up where they left off.
@@ -140,11 +144,13 @@ class DripEffect:
     """
     Use the physics engine to simulate particles dripping from the top
     """
-    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS, bounce=True):
+    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS, bounce=True, tap=NO_TAP):
         self._pixel_buffer = pixel_buffer
         self._slowness = slowness
         self._brightness = brightness
         self._bounce = bounce
+        self._tap = tap
+        print("Drip: tap =", self._tap)
 
     def make_generator(self):
         """
@@ -154,16 +160,20 @@ class DripEffect:
         Blow up a pixel when it reaches the end of the buffer
         String hangs down from 0 index, so gravity is a positive number
         """
-        world = Physics(time=0, g=(0, 30), interval=0.02)
-        #td = TapDetector()
+        world = Physics(time=0, g=(0, 50), interval=0.02)
+        td = TapDetector()
         retire_index = len(self._pixel_buffer) - 1
         while True:
             """
+            Create a particle on tapping
             About 2% of the time, create a random particle at 0 index
             """
-            if random.random() > 0.99:
-                #td.sense()
-                #if td.gotTapped():
+            if self._tap == TAP:
+                td.sense()
+                if td.gotTapped():
+                    Vinit = random.random()/2
+                    world.add_particle(Particle([0,Vinit], [0,0]))
+            elif random.random() > 0.97:
                 Vinit = random.random()/2
                 world.add_particle(Particle([0,Vinit], [0,0]))
 
@@ -186,14 +196,14 @@ class DripEffect:
                 yield
 
             if self._bounce:
-                world.bounce_at_limit(retire_index, rebound=0.8)
+                world.bounce_at_limit(retire_index, rebound=0.3)
 
-            world.retire_particles(retire_index, speed_floor=2)
+            world.retire_particles(retire_index, speed_floor=4)
 
             # clear the buffer to redraw next cycle
             for i in range(len(self._pixel_buffer)):
                 self._pixel_buffer[i] = OFF
-                
+
 
 class ClapEffect:
     """
@@ -207,6 +217,7 @@ class ClapEffect:
     def clap(self):
         # Build up to the clap event
         # How many cycles should we take to do this?    (48 cps is nicely divisible)
+
         for i in reversed(len(self._pixel_buffer)):
             self._pixel_buffer[0] = ORANGE
             self._pixel_buffer[i] = PURPLE
@@ -214,22 +225,22 @@ class ClapEffect:
             self._pixel_buffer[0] = ORANGE
             self._pixel_buffer.fill(OFF)
             yield
-            
+
         for i in range(len(self._pixel_buffer)):
             self._pixel_buffer[i] = ORANGE
         yield
         yield
         yield
         yield
-        
+
         self._pixel_buffer.fill(OFF)
         yield
-            
+
 
     def rest(self, duration):
         for _ in range(duration):
             yield
-        
+
     def make_generator(self):
         """
         """
@@ -238,7 +249,7 @@ class ClapEffect:
             yield
             yield from self.clap()
             yield from self.rest(15)
-    
+
 
 
 class InstantFillBackground:
@@ -456,5 +467,4 @@ if __name__ == "__main__":
         next(do_bouncing_ball)
         pixels.show()
         time.sleep(0.02)
-
 

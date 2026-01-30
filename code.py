@@ -43,6 +43,29 @@ GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
 
+TAP = 3
+NO_TAP = 2
+
+ValidSpeeds =   {"slow" :   20,
+                 "medium" :  5,
+                 "fast" :    1,
+                 "tap" :     TAP,
+                 "no-tap" :  NO_TAP}
+
+ValidColors =   {"off": OFF,
+                 "purple" : PURPLE,
+                 "orange" : ORANGE,
+                 "butterscotch" : BUTTERSCOTCH,
+                 "blue" : BLUE,
+                 "red"  : RED
+                }
+
+ValidEffects = [ "clear",                 #  clear the display (shortcut with simple reset)
+                 "wipe",                  #  display purple on the whole string
+                 "rainbow",               #  rainbow effect on full string
+                 "drip",                  #  physics based particle animation
+                 "Quit" ]
+
 class Presentation:
     """
     A presentation is a collection and configuration of the components necessary to animate,
@@ -55,7 +78,6 @@ class Presentation:
         self._buffer = None
 
     def drippingFeatherSeparate(self):
-        self._compositor = Compositor()
         pixel_buffer = PixelBuffer(FEATHER_WING_COLUMNS)
         self._buffer_list = [ pixel_buffer ] * FEATHER_WING_ROWS
         #for i in range(FEATHER_WING_ROWS):
@@ -65,22 +87,36 @@ class Presentation:
     def playgroundBuiltIn(self):
         self._buffer = PixelBuffer(CP_PIXELS)
         self._compositor.passThru(CP_PIXELS)
-        
+
     def sideLight(self):
         self._buffer = PixelBuffer(SIDELIGHT_PIXELS)
         self._compositor.passThru(SIDELIGHT_PIXELS)
-        
+
+    def sideLightGroups(self, num_groups=2):
+        """
+        This should work cleanly with 2, 3, 5, 4, 6 and their products.
+        """
+        self._buffer = PixelBuffer(num_groups)
+        self._compositor.groupsOfN(SIDELIGHT_PIXELS, num_groups)
+
+    def sideLightDivisions(self, num_divisions=2):
+        """
+        This should work cleanly with 2, 3, 5, 4, 6 and their products.
+        """
+        self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in num_divisions ]
+        self._compositor.divisionsOfN(SIDELIGHT_PIXELS, num_divisions)
+
     def sideLight7Segment(self):
         sections = 24
         self._buffer = PixelBuffer(sections)
         self._compositor.eightHorizontal(sections)
-        
+
     def compositor(self):
         return self._compositor
-        
+
     def pixel_buffer_list(self):
         return self._buffer_list
-        
+
     def pixel_buffer(self):
         return self._buffer
 
@@ -96,98 +132,171 @@ class EffectChooser:
         there will be a list of buffers that could be passed to the effect.    Can specify only 1 or a list.
         Not both.
         """
+        assert pixel_buffer is None or pixel_buffer_list is None, "Specify buffer or buffer_list, not both"
         self._pixel_buffer = pixel_buffer
         self._pixel_buffer_list = pixel_buffer_list
         pass
 
-    def get_chosen_effects(self):
+    def get_effect_name(self, effect_cmd):
+        try:
+            name = effect_cmd.split(' ')[0]
+        except:
+            name = None
+        return name
+
+    def get_effect_comp_name(self, effect_cmd):
+        try:
+            name = effect_cmd.split(' ')[1]
+        except:
+            name = None
+        return name
+
+    def get_effect_color(self, effect_cmd):
+        try:
+            name = effect_cmd.split(' ')[2]
+            color = ValidColors[name]
+        except:
+            color = PURPLE
+        return color
+
+    def get_effect_speed(self, effect_cmd):
+        try:
+            name = effect_cmd.split(' ')[3]
+            speed = ValidSpeeds[name]
+        except:
+            speed = 1
+        return speed
+
+    def get_chosen_effects(self, effect_cmd):
         """
-        Return a list of effects
-        return  [   WipeFillEffect(PixelBuffer(self._pixel_buffer[0:32]), color=PINK, slowness=1),
-                    SqueezeFillEffect(PixelBuffer(self._pixel_buffer[0:16]), color=PURPLE, slowness=10),
-                    SqueezeFillEffect(PixelBuffer(self._pixel_buffer[16:16]), color=ORANGE, slowness=20) ]
+        Return a list of effects to run simultaneously.
         """
-        return [ ClapEffect(self._pixel_buffer, slowness=1) ]
+        effect_name = self.get_effect_name(effect_cmd)
+        comp_name = self.get_effect_comp_name(effect_cmd)
+        color = self.get_effect_color(effect_cmd)
+        speed = self.get_effect_speed(effect_cmd)
+        print("Name:", effect_name, "Comp:", comp_name, "Color:", color, "Speed:", speed)
 
-
-
+        if effect_name == "wipe" and comp_name == "full":
+            return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "clear" and comp_name == "all":
+            return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
+        elif effect_name == "rainbow" and comp_name == "full":
+            return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
+        elif effect_name == "drip" and comp_name == "full":
+            """
+            borrow the speed part of the command to enable tap on drip
+            """
+            return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+        else:
+            return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 
 
 
 
 if __name__ == "__main__":
 
-    start_time_ns = time.monotonic_ns()
-    # Initialize the neopixel model and clear it using compositor
-    presentation = Presentation()
-    presentation.sideLight()
-    compositor = presentation.compositor()
-    pixel_buffer = presentation.pixel_buffer()
-
-    #Note: for internal pixels on CircuitPlayground import of cp takes care of this
+    #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(board.D10, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     #pixels = cp.pixels
     pixels.auto_write = False
-    compositor.compose(pixel_buffer, pixels)
-    chooser = EffectChooser(pixel_buffer=pixel_buffer)
 
-    effects = chooser.get_chosen_effects()
-    do_effects = [ effect.make_generator() for effect in effects ]
-        
-    current_time_ns = time.monotonic_ns()
-    elapsed_time_ns = current_time_ns - start_time_ns
-    start_time_ns = current_time_ns
-    print("Setup took", elapsed_time_ns / 1000000, "milliseconds")
-    loop_time_max_ms = 0
-    show_time_max_ms = 0
-    next_do_effects = []
-    while len(do_effects) > 0 or len(next_do_effects) > 0:
+    cmd = ""
+    while cmd.split(' ')[0] not in ValidEffects:
+        cmd = input("Effect? ")
 
-        all_live_effects_have_run_once = False
+    start_time_ns = time.monotonic_ns()
 
-        while not all_live_effects_have_run_once:
+    while cmd != "Quit":
 
-            try:
-                """
-                Remove the effect from the front of the list.  If it runs without stopping,
-                put it at the end of the list to be used on the next pass through the effects
-                """
-                do_effect = do_effects.pop(0)
-                try:
-                    next(do_effect)
-                    next_do_effects.append(do_effect)
-                except StopIteration:
-                    pass
-            except IndexError:
-                # at the end of the list
-                # restore it with the list for the next pass
-                do_effects = next_do_effects
-                next_do_effects = []
-                all_live_effects_have_run_once = True
+        presentation = Presentation()
+        try:
+            comp = cmd.split(' ')[1]
+        except:
+            comp = "full"
 
-        current_time_ns = time.monotonic_ns()
-        elapsed_time_ns = current_time_ns - start_time_ns
-        start_time_ns = current_time_ns
-        loop_time_ms = elapsed_time_ns / 1000000
-        if loop_time_ms > loop_time_max_ms:
-            loop_time_max_ms = loop_time_ms
-            print("Max Looptime: ", loop_time_max_ms, "ms")
-        compositor.compose(pixel_buffer, pixels)
-        pixels.show()
-        current_time_ns = time.monotonic_ns()
-        elapsed_time_ns = current_time_ns - start_time_ns
-        start_time_ns = current_time_ns
-        show_time_ms = elapsed_time_ns / 1000000
-        if show_time_ms > show_time_max_ms:
-            show_time_max_ms = show_time_ms
-            print("Max Showtime: ", show_time_max_ms, "ms")
-        adjust = loop_time_ms + show_time_ms
-        if adjust < 20:
-            time.sleep((20 - adjust)/1000.0)
-            #print("INFO: Adjust ", adjust, "milliseconds")
+        if comp == "groups":
+            presentation.sideLightGroups(12)          #  12 groups controlled with indices in range(12)
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "sections":
+            pass
         else:
-            print("WARNING: Slip of  ", adjust-20, "milliseconds")
-            
-        # rebase start after sleep, since we do not want to count that
-        start_time_ns = time.monotonic_ns()
+            presentation.sideLight()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+
+
+        effects = chooser.get_chosen_effects(cmd)
+        do_effects = [ effect.make_generator() for effect in effects ]
+
+        current_time_ns = time.monotonic_ns()
+        elapsed_time_ns = current_time_ns - start_time_ns
+        start_time_ns = current_time_ns
+        print("Setup took", elapsed_time_ns / 1000000, "milliseconds")
+        loop_time_max_ms = 0
+        show_time_max_ms = 0
+        next_do_effects = []
+        while len(do_effects) > 0 or len(next_do_effects) > 0:
+
+            all_live_effects_have_run_once = False
+
+            while not all_live_effects_have_run_once:
+
+                try:
+                    """
+                    Remove the effect from the front of the list.  If it runs without stopping,
+                    put it at the end of the list to be used on the next pass through the effects
+                    """
+                    do_effect = do_effects.pop(0)
+                    try:
+                        next(do_effect)
+                        next_do_effects.append(do_effect)
+                    except StopIteration:
+                        pass
+                except IndexError:
+                    # at the end of the list
+                    # restore it with the list for the next pass
+                    do_effects = next_do_effects
+                    next_do_effects = []
+                    all_live_effects_have_run_once = True
+
+            current_time_ns = time.monotonic_ns()
+            elapsed_time_ns = current_time_ns - start_time_ns
+            start_time_ns = current_time_ns
+            loop_time_ms = elapsed_time_ns / 1000000
+            if loop_time_ms > loop_time_max_ms:
+                loop_time_max_ms = loop_time_ms
+                print("Max Looptime: ", loop_time_max_ms, "ms")
+            compositor.compose(pixel_buffer, pixels)
+            pixels.show()
+            current_time_ns = time.monotonic_ns()
+            elapsed_time_ns = current_time_ns - start_time_ns
+            start_time_ns = current_time_ns
+            show_time_ms = elapsed_time_ns / 1000000
+            if show_time_ms > show_time_max_ms:
+                show_time_max_ms = show_time_ms
+                print("Max Showtime: ", show_time_max_ms, "ms")
+            adjust = loop_time_ms + show_time_ms
+            if adjust < 20:
+                time.sleep((20 - adjust)/1000.0)
+                #print("INFO: Adjust ", adjust, "milliseconds")
+            else:
+                print("WARNING: Slip of  ", adjust-20, "milliseconds")
+
+            # rebase start after sleep, since we do not want to count that
+            start_time_ns = time.monotonic_ns()
+
+        # prompt for another effect
+        cmd = ""
+        while cmd.split(' ')[0] not in ValidEffects:
+            cmd = input("3ffect? ")
+
+
 

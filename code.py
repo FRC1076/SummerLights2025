@@ -19,7 +19,10 @@ NEON_PIXELS = 64
 CP_PIXELS = 10
 
 # Sidelight120
-SIDELIGHT_PIXELS = 120
+# SIDELIGHT_PIXELS = 120
+
+# Sidelight60
+SIDELIGHT_PIXELS = 60
 
 # Choose which we are using
 NUM_PIXELS = SIDELIGHT_PIXELS
@@ -197,7 +200,7 @@ class EffectChooser:
 if __name__ == "__main__":
 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
-    pixels = neopixel.NeoPixel(board.D10, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
+    pixels = neopixel.NeoPixel(board.D2, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     #pixels = cp.pixels
     pixels.auto_write = False
 

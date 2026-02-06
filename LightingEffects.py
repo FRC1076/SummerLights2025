@@ -4,7 +4,7 @@ variables.
 """
 from NeoConfig import *
 from Physics import Particle,Physics
-from TapDetector import TapDetector
+#from TapDetector import TapDetector
 from rainbowio import colorwheel
 import random
 
@@ -161,7 +161,7 @@ class DripEffect:
         String hangs down from 0 index, so gravity is a positive number
         """
         world = Physics(time=0, g=(0, 50), interval=0.02)
-        td = TapDetector()
+        #td = TapDetector()
         retire_index = len(self._pixel_buffer) - 1
         while True:
             """
@@ -169,10 +169,11 @@ class DripEffect:
             About 2% of the time, create a random particle at 0 index
             """
             if self._tap == TAP:
-                td.sense()
-                if td.gotTapped():
-                    Vinit = random.random()/2
-                    world.add_particle(Particle([0,Vinit], [0,0]))
+                pass
+                #td.sense()
+                #if td.gotTapped():
+                #    Vinit = random.random()/2
+                #    world.add_particle(Particle([0,Vinit], [0,0]))
             elif random.random() > 0.97:
                 Vinit = random.random()/2
                 world.add_particle(Particle([0,Vinit], [0,0]))

@@ -1,4 +1,4 @@
-from adafruit_circuitplayground import cp
+#from adafruit_circuitplayground import cp
 import board
 import neopixel
 import random
@@ -19,7 +19,7 @@ NEON_PIXELS = 64
 CP_PIXELS = 10
 
 # Sidelight120
-# SIDELIGHT_PIXELS = 120
+#SIDELIGHT_PIXELS = 120
 
 # Sidelight60
 SIDELIGHT_PIXELS = 60
@@ -41,7 +41,7 @@ OFF = (0, 0, 0)
 PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
 BLUE = (24, 30, 214)
-BUTTERSCOTCH = (252, 186, 3)
+BUTTERSCOTCH = (253, 100, 10)
 GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
@@ -68,6 +68,14 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "rainbow",               #  rainbow effect on full string
                  "drip",                  #  physics based particle animation
                  "Quit" ]
+
+
+ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
+                     "half",               #  split into two buffers half size, for two effects
+                     "quarter",            #  split into four buffers, laid out simply
+                     "tenth",              #  split into 10
+                     "2sections",          #  only 2 pixels each containing half of the string
+                     "15sections" ]        #  15 sections of 4 pixels each
 
 class Presentation:
     """
@@ -300,6 +308,10 @@ if __name__ == "__main__":
         cmd = ""
         while cmd.split(' ')[0] not in ValidEffects:
             cmd = input("3ffect? ")
+
+        # rebase start after reading, since we do not want to count that delay
+        start_time_ns = time.monotonic_ns()
+
 
 
 

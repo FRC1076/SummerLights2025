@@ -6,7 +6,7 @@ import time
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
-from LightingEffects import WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
+from LightingEffects import FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -64,6 +64,7 @@ ValidColors =   {"off": OFF,
                 }
 
 ValidEffects = [ "clear",                 #  clear the display (shortcut with simple reset)
+                 "flipflop",              #  switch between two adjacent lights
                  "wipe",                  #  display purple on the whole string
                  "rainbow",               #  rainbow effect on full string
                  "drip",                  #  physics based particle animation
@@ -190,6 +191,8 @@ class EffectChooser:
 
         if effect_name == "wipe" and comp_name == "full":
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "flipflop" and comp_name == "full":
+            return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
         elif effect_name == "rainbow" and comp_name == "full":
@@ -233,8 +236,13 @@ if __name__ == "__main__":
 
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "sections":
-            pass
+        elif comp in [ "2", "3", "4", "5", "6" ]:
+            print("Compositor has", comp, sections)
+            num_sections = int(comp)
+            section_size = NUM_PIXELS // num_sections
+            pixel_buffer_list = [ PixelBuffer(section_size) for sb in range(num_sections) ]
+
+
         else:
             presentation.sideLight()
             compositor = presentation.compositor()

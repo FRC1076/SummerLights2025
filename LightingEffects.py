@@ -12,6 +12,47 @@ import random
 TAP = 3
 NO_TAP = 2
 
+class FlipFlopEffect:
+    """
+    Alternate between half on and half off on the domain
+    """
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS):
+        """
+        Base class for lighting effects
+        Could be useful for documentation, or maybe actually used as a base class
+        Note, this relies on constants from elsewhere.    Should probably import them instead of assuming
+        they have been imported.
+        """
+        self._pixel_buffer = pixel_buffer
+        self._color = color
+        self._slowness = slowness
+        self._brightness = brightness
+
+    def make_generator(self):
+        """
+        Make blinky the default application
+        """
+        plen = len(self._pixel_buffer)
+        half_len = plen // 2
+        while True:
+            for p in range(half_len):
+                self._pixel_buffer[p] = self._color
+
+            for p in range(half_len, plen):
+                self._pixel_buffer[p] = OFF
+
+            for _ in range(self._slowness):
+                yield
+
+            for p in range(half_len):
+                self._pixel_buffer[p] = OFF
+
+            for p in range(half_len, plen):
+                self._pixel_buffer[p] = self._color
+
+            for _ in range(self._slowness):
+                yield
+
 class BlinkyEffect:
     """
     Blink all of the pixels in this buffer domain between color and OFF

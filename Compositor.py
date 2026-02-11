@@ -5,8 +5,11 @@ class Compositor:
     def __init__(self):
         self._composition = None
 
-    def bufferList(self, list_of_buffers):
+    def setBufferList(self, list_of_buffers):
         self._composition = list_of_buffers
+
+    def buffer_list(self):
+        return self._composition
 
     def passThru(self, num_pixels):
         self._composition = [ i for i in range(num_pixels) ]

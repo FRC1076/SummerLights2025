@@ -16,7 +16,7 @@ class FlipFlopEffect:
     """
     Alternate between half on and half off on the domain
     """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS, name="FlipFlop"):
         """
         Base class for lighting effects
         Could be useful for documentation, or maybe actually used as a base class
@@ -27,14 +27,16 @@ class FlipFlopEffect:
         self._color = color
         self._slowness = slowness
         self._brightness = brightness
+        self._name=name
 
     def make_generator(self):
         """
-        Make blinky the default application
+        Make flip and flop over half of the domain
         """
         plen = len(self._pixel_buffer)
         half_len = plen // 2
         while True:
+            print(self._name, "Flip")
             for p in range(half_len):
                 self._pixel_buffer[p] = self._color
 
@@ -43,6 +45,8 @@ class FlipFlopEffect:
 
             for _ in range(self._slowness):
                 yield
+
+            print(self._name, "Flop")
 
             for p in range(half_len):
                 self._pixel_buffer[p] = OFF
@@ -103,11 +107,6 @@ class WipeFillEffect:
         self._slowness = slowness
         self._brightness = brightness
 
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixel_buffer.fill(OFF)
 
     def make_generator(self):
         """
@@ -308,12 +307,6 @@ class InstantFillBackground:
         self._pixel_range = pixel_range
         self._color = color
         self._brightness = brightness
-
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixels.fill(OFF)
 
     def make_generator(self):
         """

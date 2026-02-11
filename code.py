@@ -60,7 +60,8 @@ ValidColors =   {"off": OFF,
                  "orange" : ORANGE,
                  "butterscotch" : BUTTERSCOTCH,
                  "blue" : BLUE,
-                 "red"  : RED
+                 "red"  : RED,
+                 "green" :  GREEN
                 }
 
 ValidEffects = [ "clear",                 #  clear the display (shortcut with simple reset)
@@ -70,13 +71,19 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "drip",                  #  physics based particle animation
                  "Quit" ]
 
+ValidDivisions = [   "2",                  #  2 divisions
+                     "3",                  #  3 divisions of equal size
+                     "4",                  #
+                     "5",                  #
+                     "6",                  #  6 sections of equal size
+                     "12"  ]               #  12 divisions of equal size
 
 ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
-                     "half",               #  split into two buffers half size, for two effects
-                     "quarter",            #  split into four buffers, laid out simply
-                     "tenth",              #  split into 10
-                     "2sections",          #  only 2 pixels each containing half of the string
-                     "15sections" ]        #  15 sections of 4 pixels each
+                     "1/2",                #  split into two buffers half size, for two effects
+                     "1/4",                #  split into four buffers, laid out simply
+                     "1/10" ] + ValidDivisions
+
+
 
 class Presentation:
     """
@@ -111,11 +118,13 @@ class Presentation:
         self._buffer = PixelBuffer(num_groups)
         self._compositor.groupsOfN(SIDELIGHT_PIXELS, num_groups)
 
+
     def sideLightDivisions(self, num_divisions=2):
         """
         This should work cleanly with 2, 3, 5, 4, 6 and their products.
         """
-        self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in num_divisions ]
+        #self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in range(num_divisions) ]
+        # Note: compositor creates the buffers
         self._compositor.divisionsOfN(SIDELIGHT_PIXELS, num_divisions)
 
     def sideLight7Segment(self):
@@ -127,7 +136,7 @@ class Presentation:
         return self._compositor
 
     def pixel_buffer_list(self):
-        return self._buffer_list
+        return self._compositor.buffer_list()
 
     def pixel_buffer(self):
         return self._buffer
@@ -183,6 +192,10 @@ class EffectChooser:
         """
         Return a list of effects to run simultaneously.
         """
+        if self._pixel_buffer_list is not None:
+            print("get_chosen_effects: len(buffer_list):", len(self._pixel_buffer_list))
+        if self._pixel_buffer is not None:
+            print("get_chosen_effects: len(buffer:", len(self._pixel_buffer))
         effect_name = self.get_effect_name(effect_cmd)
         comp_name = self.get_effect_comp_name(effect_cmd)
         color = self.get_effect_color(effect_cmd)
@@ -191,8 +204,15 @@ class EffectChooser:
 
         if effect_name == "wipe" and comp_name == "full":
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
-        elif effect_name == "flipflop" and comp_name == "full":
-            return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "flipflop":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                print("Flipflop divisions:", divs)
+                return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
+
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
         elif effect_name == "rainbow" and comp_name == "full":
@@ -224,6 +244,9 @@ if __name__ == "__main__":
     while cmd != "Quit":
 
         presentation = Presentation()
+        pixel_buffer = presentation.pixel_buffer()
+        pixel_buffer_list = presentation.pixel_buffer_list()
+
         try:
             comp = cmd.split(' ')[1]
         except:
@@ -236,13 +259,16 @@ if __name__ == "__main__":
 
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp in [ "2", "3", "4", "5", "6" ]:
-            print("Compositor has", comp, sections)
-            num_sections = int(comp)
-            section_size = NUM_PIXELS // num_sections
-            pixel_buffer_list = [ PixelBuffer(section_size) for sb in range(num_sections) ]
-
-
+        elif comp in ValidDivisions:
+            try:
+                num_divisions = int(comp)
+            except:
+                num_divisions = 2
+            presentation.sideLightDivisions(num_divisions)
+            compositor = presentation.compositor()
+            pixel_buffer_list = presentation.pixel_buffer_list()
+            compositor.compose(pixel_buffer_list, pixels)
+            chooser = EffectChooser(pixel_buffer_list=pixel_buffer_list)
         else:
             presentation.sideLight()
             compositor = presentation.compositor()
@@ -293,7 +319,10 @@ if __name__ == "__main__":
             if loop_time_ms > loop_time_max_ms:
                 loop_time_max_ms = loop_time_ms
                 print("Max Looptime: ", loop_time_max_ms, "ms")
-            compositor.compose(pixel_buffer, pixels)
+            if pixel_buffer_list is None:
+                compositor.compose(pixel_buffer, pixels)
+            else:
+                compositor.compose(pixel_buffer_list, pixels)
             pixels.show()
             current_time_ns = time.monotonic_ns()
             elapsed_time_ns = current_time_ns - start_time_ns

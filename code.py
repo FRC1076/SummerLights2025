@@ -6,7 +6,7 @@ import time
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
-from LightingEffects import FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
+from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -68,6 +68,8 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "flipflop",              #  switch between two adjacent lights
                  "wipe",                  #  display purple on the whole string
                  "rainbow",               #  rainbow effect on full string
+                 "runner",                #  zip back and forth
+                 "squeeze",               #  close the curtain
                  "drip",                  #  physics based particle animation
                  "Quit" ]
 
@@ -76,7 +78,9 @@ ValidDivisions = [   "2",                  #  2 divisions
                      "4",                  #
                      "5",                  #
                      "6",                  #  6 sections of equal size
-                     "12"  ]               #  12 divisions of equal size
+                     "12",                 #  12 divisions of equal size
+                     "30",                 #  30 divisions of 4
+                     "60"  ]               #  60 divisions of equal size
 
 ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
                      "1/2",                #  split into two buffers half size, for two effects
@@ -212,11 +216,25 @@ class EffectChooser:
                 divs = int(comp_name)
                 print("Flipflop divisions:", divs)
                 return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
+        elif effect_name == "squeeze":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ SqueezeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
         elif effect_name == "rainbow" and comp_name == "full":
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
+        elif effect_name == "runner":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip" and comp_name == "full":
             """
             borrow the speed part of the command to enable tap on drip

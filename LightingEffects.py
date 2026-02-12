@@ -36,7 +36,6 @@ class FlipFlopEffect:
         plen = len(self._pixel_buffer)
         half_len = plen // 2
         while True:
-            print(self._name, "Flip")
             for p in range(half_len):
                 self._pixel_buffer[p] = self._color
 
@@ -45,8 +44,6 @@ class FlipFlopEffect:
 
             for _ in range(self._slowness):
                 yield
-
-            print(self._name, "Flop")
 
             for p in range(half_len):
                 self._pixel_buffer[p] = OFF
@@ -269,10 +266,7 @@ class ClapEffect:
 
         for i in range(len(self._pixel_buffer)):
             self._pixel_buffer[i] = ORANGE
-        yield
-        yield
-        yield
-        yield
+        yield from self.rest(4)
 
         self._pixel_buffer.fill(OFF)
         yield
@@ -320,40 +314,58 @@ class InstantFillBackground:
 
 
 
-class OnePixelCar:
+class RunnerEffect:
     """
     One pixel car drives from low to high on the string.
     This effect does it's own repair of the background.
     That could be a service provided by the graphics buffer.
     """
-    def __init__(self, pixels, pixel_range=range(NUM_PIXELS), color=BLUE, clear_on_init=False):
+    def __init__(self, pixels, color=BLUE, brightness=100, slowness=2):
         self._pixels = pixels
         self._color = color
-        self._pixel_range = pixel_range
+        self._slowness = slowness
         self._repair_index = None
         self._repair_value = None
 
-    def make_generator(self, slowness=2):
+    def make_generator(self):
         """
         Car can run slower, e.g. slowness = 50 to run 1 pixel per second
         Slowess=1 is a bit too hard to see
         """
-        for carpos in self._pixel_range:
+        while True:
+            for carpos in range(len(self._pixels)):
 
-            # repair the damage from the previous frame
-            if self._repair_index != None:
-                self._pixels[self._repair_index] = self._repair_value
+                # repair the damage from the previous frame
+                if self._repair_index != None:
+                    self._pixels[self._repair_index] = self._repair_value
 
-            # before we draw the car at carpos, save the repair info
-            self._repair_index = carpos
-            self._repair_value = self._pixels[carpos]
+                # before we draw the car at carpos, save the repair info
+                self._repair_index = carpos
+                self._repair_value = self._pixels[carpos]
 
-            # draw the car
-            self._pixels[carpos] = self._color
+                # draw the car
+                self._pixels[carpos] = self._color
 
-            # run at designated speed
-            for _ in range(slowness):
-                yield
+                # run at designated speed
+                for _ in range(self._slowness):
+                    yield
+
+            for carpos in range(len(self._pixels), 0, -1):
+
+                # repair the damage from the previous frame
+                if self._repair_index != None:
+                    self._pixels[self._repair_index] = self._repair_value
+
+                # before we draw the car at carpos, save the repair info
+                self._repair_index = carpos
+                self._repair_value = self._pixels[carpos]
+
+                # draw the car
+                self._pixels[carpos] = self._color
+
+                # run at designated speed
+                for _ in range(self._slowness):
+                    yield
 
 
 class MatrixDisplayMapper:

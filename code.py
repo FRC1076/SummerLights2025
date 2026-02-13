@@ -259,11 +259,12 @@ class EffectChooser:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip":
-            if comp_name == "full":
+            if comp_name == "full" or comp_name == "oval":
                 """
                 borrow the speed part of the command to enable tap on drip
                 """
                 return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+
         elif effect_name == "fliprunner":
             if comp_name == "frameNcorners":
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]

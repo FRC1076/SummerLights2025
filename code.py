@@ -250,7 +250,6 @@ class EffectChooser:
                 return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "sound":
-            div_names = ValidDivisions
             if comp_name == "full":
                 return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in ValidDivisions:

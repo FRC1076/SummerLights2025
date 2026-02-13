@@ -60,7 +60,9 @@ class Compositor:
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
         self._composition = first_part + second_part + third_part
-        print(self._composition)
+
+    def oval(self, num_pixels, rows):
+        self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 
     def __len__(self):
         return len(self._composition)

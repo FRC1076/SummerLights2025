@@ -83,8 +83,10 @@ ValidDivisions = [   "2",                  #  2 divisions
                      "60"  ]               #  60 divisions of equal size
 
 ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
-                     "1/2",                #  split into two buffers half size, for two effects
-                     "1/4",                #  split into four buffers, laid out simply
+                     "oval",               #  sliced topology for oval with start/end at top
+                     "7segment",           #  sliced 7segment display (figure eight)
+                     "1/2",                #  split into two pixels
+                     "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions
 
 
@@ -132,9 +134,14 @@ class Presentation:
         self._compositor.divisionsOfN(SIDELIGHT_PIXELS, num_divisions)
 
     def sideLight7Segment(self):
-        sections = 24
-        self._buffer = PixelBuffer(sections)
-        self._compositor.eightHorizontal(sections)
+        groups = 24
+        self._buffer = PixelBuffer(groups)
+        self._compositor.eightHorizontal(groups)
+
+    def oval(self):
+        groups = NUM_PIXELS // 2
+        self._buffer = PixelBuffer(groups)
+        self._compositor.oval(NUM_PIXELS, groups)
 
     def compositor(self):
         return self._compositor
@@ -230,16 +237,17 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
-            if comp_name == "full":
+            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment":
                 return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-        elif effect_name == "drip" and comp_name == "full":
-            """
-            borrow the speed part of the command to enable tap on drip
-            """
-            return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+        elif effect_name == "drip":
+            if comp_name == "full":
+                """
+                borrow the speed part of the command to enable tap on drip
+                """
+                return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 
@@ -275,6 +283,18 @@ if __name__ == "__main__":
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
 
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "oval":
+            presentation.oval()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "7segment":
+            presentation.sideLight7Segment()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp in ValidDivisions:

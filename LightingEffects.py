@@ -12,6 +12,48 @@ import random
 TAP = 3
 NO_TAP = 2
 
+class FlipFlopEffect:
+    """
+    Alternate between half on and half off on the domain
+    """
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS, name="FlipFlop"):
+        """
+        Base class for lighting effects
+        Could be useful for documentation, or maybe actually used as a base class
+        Note, this relies on constants from elsewhere.    Should probably import them instead of assuming
+        they have been imported.
+        """
+        self._pixel_buffer = pixel_buffer
+        self._color = color
+        self._slowness = slowness
+        self._brightness = brightness
+        self._name=name
+
+    def make_generator(self):
+        """
+        Make flip and flop over half of the domain
+        """
+        plen = len(self._pixel_buffer)
+        half_len = plen // 2
+        while True:
+            for p in range(half_len):
+                self._pixel_buffer[p] = self._color
+
+            for p in range(half_len, plen):
+                self._pixel_buffer[p] = OFF
+
+            for _ in range(self._slowness):
+                yield
+
+            for p in range(half_len):
+                self._pixel_buffer[p] = OFF
+
+            for p in range(half_len, plen):
+                self._pixel_buffer[p] = self._color
+
+            for _ in range(self._slowness):
+                yield
+
 class BlinkyEffect:
     """
     Blink all of the pixels in this buffer domain between color and OFF
@@ -51,7 +93,7 @@ class WipeFillEffect:
     """
 
     """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=2):
         """
         Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
@@ -59,14 +101,8 @@ class WipeFillEffect:
         """
         self._pixel_buffer = pixel_buffer
         self._color = color
-        self._slowness = slowness
         self._brightness = brightness
-
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixel_buffer.fill(OFF)
+        self._slowness = slowness
 
     def make_generator(self):
         """
@@ -171,8 +207,8 @@ class DripEffect:
             if self._tap == TAP:
                 td.sense()
                 if td.gotTapped():
-                    Vinit = random.random()/2
-                    world.add_particle(Particle([0,Vinit], [0,0]))
+                     Vinit = random.random()/2
+                     world.add_particle(Particle([0,Vinit], [0,0]))
             elif random.random() > 0.97:
                 Vinit = random.random()/2
                 world.add_particle(Particle([0,Vinit], [0,0]))
@@ -209,18 +245,19 @@ class ClapEffect:
     """
     Use the physics engine to simulate particles dripping from the top
     """
-    def __init__(self, pixel_buffer, slowness=1, brightness=BRIGHTNESS):
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=1):
         self._pixel_buffer = pixel_buffer
-        self._slowness = slowness
+        self._color = color
         self._brightness = brightness
+        self._slowness = slowness
 
     def clap(self):
         # Build up to the clap event
         # How many cycles should we take to do this?    (48 cps is nicely divisible)
 
-        for i in reversed(len(self._pixel_buffer)):
+        for i in reversed(range(len(self._pixel_buffer))):
             self._pixel_buffer[0] = ORANGE
-            self._pixel_buffer[i] = PURPLE
+            self._pixel_buffer[i] = self._color
             yield
             self._pixel_buffer[0] = ORANGE
             self._pixel_buffer.fill(OFF)
@@ -228,10 +265,7 @@ class ClapEffect:
 
         for i in range(len(self._pixel_buffer)):
             self._pixel_buffer[i] = ORANGE
-        yield
-        yield
-        yield
-        yield
+        yield from self.rest(4)
 
         self._pixel_buffer.fill(OFF)
         yield
@@ -267,12 +301,6 @@ class InstantFillBackground:
         self._color = color
         self._brightness = brightness
 
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixels.fill(OFF)
-
     def make_generator(self):
         """
         Need to decide how to set the brightness separately
@@ -285,40 +313,58 @@ class InstantFillBackground:
 
 
 
-class OnePixelCar:
+class RunnerEffect:
     """
     One pixel car drives from low to high on the string.
     This effect does it's own repair of the background.
-    That could be a service provided by the graphics buffer.
+    That COULD be a service provided by the graphics buffer.
     """
-    def __init__(self, pixels, pixel_range=range(NUM_PIXELS), color=BLUE, clear_on_init=False):
+    def __init__(self, pixels, color=BLUE, brightness=100, slowness=2):
         self._pixels = pixels
         self._color = color
-        self._pixel_range = pixel_range
+        self._slowness = slowness
         self._repair_index = None
         self._repair_value = None
 
-    def make_generator(self, slowness=2):
+    def make_generator(self):
         """
         Car can run slower, e.g. slowness = 50 to run 1 pixel per second
         Slowess=1 is a bit too hard to see
         """
-        for carpos in self._pixel_range:
+        while True:
+            for carpos in range(len(self._pixels)):
 
-            # repair the damage from the previous frame
-            if self._repair_index != None:
-                self._pixels[self._repair_index] = self._repair_value
+                # repair the damage from the previous frame
+                if self._repair_index != None:
+                    self._pixels[self._repair_index] = self._repair_value
 
-            # before we draw the car at carpos, save the repair info
-            self._repair_index = carpos
-            self._repair_value = self._pixels[carpos]
+                # before we draw the car at carpos, save the repair info
+                self._repair_index = carpos
+                self._repair_value = self._pixels[carpos]
 
-            # draw the car
-            self._pixels[carpos] = self._color
+                # draw the car
+                self._pixels[carpos] = self._color
 
-            # run at designated speed
-            for _ in range(slowness):
-                yield
+                # run at designated speed
+                for _ in range(self._slowness):
+                    yield
+
+            for carpos in range(len(self._pixels), 0, -1):
+
+                # repair the damage from the previous frame
+                if self._repair_index != None:
+                    self._pixels[self._repair_index] = self._repair_value
+
+                # before we draw the car at carpos, save the repair info
+                self._repair_index = carpos
+                self._repair_value = self._pixels[carpos]
+
+                # draw the car
+                self._pixels[carpos] = self._color
+
+                # run at designated speed
+                for _ in range(self._slowness):
+                    yield
 
 
 class MatrixDisplayMapper:

@@ -6,7 +6,12 @@ import time
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
-from LightingEffects import WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
+from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
+
+
+KEYBOAR_PIN = board.D2
+PLAYGROUND_PIN = board.D10
+NEO_PIN = PLAYGROUND_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -41,7 +46,7 @@ OFF = (0, 0, 0)
 PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
 BLUE = (24, 30, 214)
-BUTTERSCOTCH = (252, 186, 3)
+BUTTERSCOTCH = (253, 100, 10)
 GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
@@ -60,21 +65,39 @@ ValidColors =   {"off": OFF,
                  "orange" : ORANGE,
                  "butterscotch" : BUTTERSCOTCH,
                  "blue" : BLUE,
-                 "red"  : RED
+                 "red"  : RED,
+                 "green" :  GREEN
                 }
 
 ValidEffects = [ "clear",                 #  clear the display (shortcut with simple reset)
+                 "flipflop",              #  switch between two adjacent lights
                  "wipe",                  #  display purple on the whole string
                  "rainbow",               #  rainbow effect on full string
+                 "runner",                #  zip back and forth
+                 "fliprunner",            #  for the frameNcorners (flip on corners, run sides)
+                 "squeeze",               #  close the curtain
+                 "multi",                 #  several effects on substrings
+                 "clap",
                  "drip",                  #  physics based particle animation
                  "Quit" ]
 
+ValidDivisions = [   "2",                  #  2 divisions
+                     "3",                  #  3 divisions of equal size
+                     "4",                  #
+                     "5",                  #
+                     "6",                  #  6 sections of equal size
+                     "12",                 #  12 divisions of equal size
+                     "30",                 #  30 divisions of 4
+                     "60"  ]               #  60 divisions of equal size
 
-ValidCompositor = [ "full",               #  pass-thru, single buffer, simplest layout
-                    "half",               #  split into two buffers half size, for two effects
-                    "quarters",           #  split into four buffers, laid out simply
-                    "2sections",          #  only 2 pixels each containing half of the string
-                    "15sections",         #  15 sections of 3 pixels each
+ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
+                     "oval",               #  sliced topology for oval with start/end at top
+                     "7segment",           #  sliced 7segment display (figure eight)
+                     "frameNcorners",      #  5-buffer layout with sides contiguous
+                     "1/2",                #  split into two pixels
+                     "1/4",                #  split into four pixels
+                     "1/10" ] + ValidDivisions
+
 
 class Presentation:
     """
@@ -109,23 +132,37 @@ class Presentation:
         self._buffer = PixelBuffer(num_groups)
         self._compositor.groupsOfN(SIDELIGHT_PIXELS, num_groups)
 
+
     def sideLightDivisions(self, num_divisions=2):
         """
         This should work cleanly with 2, 3, 5, 4, 6 and their products.
         """
-        self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in num_divisions ]
+        #self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in range(num_divisions) ]
+        # Note: compositor creates the buffers
         self._compositor.divisionsOfN(SIDELIGHT_PIXELS, num_divisions)
 
     def sideLight7Segment(self):
-        sections = 24
-        self._buffer = PixelBuffer(sections)
-        self._compositor.eightHorizontal(sections)
+        groups = 24
+        self._buffer = PixelBuffer(groups)
+        self._compositor.eightHorizontal(groups)
+
+    def oval(self):
+        groups = NUM_PIXELS // 2
+        self._buffer = PixelBuffer(groups)
+        self._compositor.oval(NUM_PIXELS, groups)
+
+    def frameNcorners(self):
+        """
+        This only works for 60 pixel string
+        """
+        self._buffer_list = [ PixelBuffer(5) for i in range(4) ] + [ PixelBuffer(40) ]
+        self._compositor.frameNCorners()
 
     def compositor(self):
         return self._compositor
 
     def pixel_buffer_list(self):
-        return self._buffer_list
+        return self._compositor.buffer_list()
 
     def pixel_buffer(self):
         return self._buffer
@@ -181,6 +218,10 @@ class EffectChooser:
         """
         Return a list of effects to run simultaneously.
         """
+        if self._pixel_buffer_list is not None:
+            print("get_chosen_effects: len(buffer_list):", len(self._pixel_buffer_list))
+        if self._pixel_buffer is not None:
+            print("get_chosen_effects: len(buffer:", len(self._pixel_buffer))
         effect_name = self.get_effect_name(effect_cmd)
         comp_name = self.get_effect_comp_name(effect_cmd)
         color = self.get_effect_color(effect_cmd)
@@ -189,15 +230,52 @@ class EffectChooser:
 
         if effect_name == "wipe" and comp_name == "full":
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "flipflop":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
+            elif comp_name == "oval":
+                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "squeeze":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ SqueezeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
+        elif effect_name == "clap" and comp_name == "full":
+            return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "multi" and comp_name == "4":
+            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
+                     WipeFillEffect(self._pixel_buffer_list[1], color=BUTTERSCOTCH, slowness=10),
+                     RunnerEffect(self._pixel_buffer_list[2], color=color, slowness=speed),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=ORANGE, slowness=10) ]
         elif effect_name == "rainbow" and comp_name == "full":
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
-        elif effect_name == "drip" and comp_name == "full":
-            """
-            borrow the speed part of the command to enable tap on drip
-            """
-            return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+        elif effect_name == "runner":
+            div_names = ValidDivisions
+            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment":
+                return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+        elif effect_name == "drip":
+            if comp_name == "full" or comp_name == "oval":
+                """
+                borrow the speed part of the command to enable tap on drip
+                """
+                return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+
+        elif effect_name == "fliprunner":
+            if comp_name == "frameNcorners":
+                re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
+                return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 
@@ -207,7 +285,7 @@ class EffectChooser:
 if __name__ == "__main__":
 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
-    pixels = neopixel.NeoPixel(board.D10, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
+    pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     #pixels = cp.pixels
     pixels.auto_write = False
 
@@ -220,6 +298,9 @@ if __name__ == "__main__":
     while cmd != "Quit":
 
         presentation = Presentation()
+        pixel_buffer = presentation.pixel_buffer()
+        pixel_buffer_list = presentation.pixel_buffer_list()
+
         try:
             comp = cmd.split(' ')[1]
         except:
@@ -232,8 +313,28 @@ if __name__ == "__main__":
 
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "sections":
-            pass
+        elif comp == "oval":
+            presentation.oval()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "7segment":
+            presentation.sideLight7Segment()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp in ValidDivisions:
+            try:
+                num_divisions = int(comp)
+            except:
+                num_divisions = 2
+            presentation.sideLightDivisions(num_divisions)
+            compositor = presentation.compositor()
+            pixel_buffer_list = presentation.pixel_buffer_list()
+            compositor.compose(pixel_buffer_list, pixels)
+            chooser = EffectChooser(pixel_buffer_list=pixel_buffer_list)
         else:
             presentation.sideLight()
             compositor = presentation.compositor()
@@ -284,7 +385,10 @@ if __name__ == "__main__":
             if loop_time_ms > loop_time_max_ms:
                 loop_time_max_ms = loop_time_ms
                 print("Max Looptime: ", loop_time_max_ms, "ms")
-            compositor.compose(pixel_buffer, pixels)
+            if pixel_buffer_list is None:
+                compositor.compose(pixel_buffer, pixels)
+            else:
+                compositor.compose(pixel_buffer_list, pixels)
             pixels.show()
             current_time_ns = time.monotonic_ns()
             elapsed_time_ns = current_time_ns - start_time_ns

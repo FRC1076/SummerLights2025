@@ -4,9 +4,13 @@ class Compositor:
 
     def __init__(self):
         self._composition = None
+        self._buffer_list = None
 
-    def bufferList(self, list_of_buffers):
+    def setBufferList(self, list_of_buffers):
         self._composition = list_of_buffers
+
+    def buffer_list(self):
+        return self._composition
 
     def passThru(self, num_pixels):
         self._composition = [ i for i in range(num_pixels) ]
@@ -42,6 +46,17 @@ class Compositor:
 
         self._composition = buffer_list
 
+    def frameNcorners(self):
+        #  [ [15*i+j+4] for i in range(4) for j in range(10) ]
+        top = [ [4], [5], [6], [7], [8], [9], [10], [11], [12], [13] ]
+        right = [ [19], [20], [21], [22], [23], [24], [25], [26], [27], [28] ]
+        btm = [ [34], [35], [36], [37], [38], [39], [40], [41], [42], [43] ]
+        left = [ [49], [50], [51], [52], [53], [54], [55], [56], [57], [58] ]
+        topleft = [ [58], [59], [0], [1], [2] ]
+        topright = [ [14], [15], [16], [17], [18] ]
+        btmright = [ [29], [30], [31], [32], [33] ]
+        btmleft = [ [44], [45], [46], [47], [48] ]
+        self._composition = top + right + btm + left + topleft + topright + btmright + btmleft
 
     def featherRows(self):
         self._composition = [ [i for i in range(8*j-8,8*j)] for j in range(1,5) ]
@@ -57,7 +72,9 @@ class Compositor:
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
         self._composition = first_part + second_part + third_part
-        print(self._composition)
+
+    def oval(self, num_pixels, rows):
+        self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 
     def __len__(self):
         return len(self._composition)

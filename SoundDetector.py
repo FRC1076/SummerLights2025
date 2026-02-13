@@ -10,6 +10,7 @@ import digitalio
 class SoundDetector:
 
     MAGNITUDE_SCALE = 0.1
+    PIXEL_SCALE = 120
 
     def __init__(self):
         self._mic = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA, sample_rate=16000, bit_depth=16)
@@ -18,7 +19,6 @@ class SoundDetector:
     # Remove DC bias before computing RMS.
     def mean(values):
         return sum(values) / len(values)
-
 
     def normalized_rms(values):
         minbuf = int(SoundDetector.mean(values))
@@ -35,8 +35,8 @@ class SoundDetector:
         """
         self._mic.record(self._samples, len(self._samples))
         magnitude = SoundDetector.normalized_rms(self._samples)
-        PixelScale = int(magnitude*SoundDetector.MAGNITUDE_SCALE)
-        return PixelScale
+        PixelPct = magnitude*SoundDetector.MAGNITUDE_SCALE / SoundDetector.PIXEL_SCALE
+        return PixelPct
 
 if __name__ == "__main__":
 
@@ -50,9 +50,10 @@ if __name__ == "__main__":
     pixels.show()
 
     while True:
-        PixelScale = sd.getLevel()
-        if PixelScale >= NUM_PIXELS:
-            PixelScale = NUM_PIXELS
+        PixelPct = sd.getLevel()
+        if PixelPct >= 1.0:
+            PixelPct = 1.0
+        PixelScale = int(PixelPct * len(pixels))
         print(PixelScale)
 
         pixels.fill((0,0,0))

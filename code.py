@@ -6,7 +6,8 @@ import time
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
-from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect, DripEffect, RainbowEffect, ClapEffect
+from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
+from LightingEffects import DripEffect, RainbowEffect, ClapEffect, SoundMeterEffect
 
 
 KEYBOAR_PIN = board.D2
@@ -79,6 +80,7 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "multi",                 #  several effects on substrings
                  "clap",
                  "drip",                  #  physics based particle animation
+                 "sound",                 #  sound response demo
                  "Quit" ]
 
 ValidDivisions = [   "2",                  #  2 divisions
@@ -246,6 +248,14 @@ class EffectChooser:
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+
+        elif effect_name == "sound":
+            div_names = ValidDivisions
+            if comp_name == "full":
+                return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in ValidDivisions:
+                divs = int(comp_name)
+                return [ SoundMeterEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]

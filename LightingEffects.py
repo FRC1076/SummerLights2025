@@ -5,6 +5,7 @@ variables.
 from NeoConfig import *
 from Physics import Particle,Physics
 from TapDetector import TapDetector
+from SoundDetector import SoundDetector
 from rainbowio import colorwheel
 import random
 
@@ -239,6 +240,61 @@ class DripEffect:
             # clear the buffer to redraw next cycle
             for i in range(len(self._pixel_buffer)):
                 self._pixel_buffer[i] = OFF
+
+
+class SoundMeterEffect:
+
+    LIFETIME = 10
+
+    def __init__(self, pixels, color=PURPLE, brightness=BRIGHTNESS, slowness=1):
+        """
+        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
+        Defaults are all PURPLE pixels at the global BRIGHTNESS.
+        The filling is done all in one shot, suitable for use as a background for some other effect.
+        """
+        self._pixels = pixels
+        self._color = color
+        self._brightness = brightness
+        self._slowness = slowness
+        self._maximum = 0
+        self._maxlifetime = 0
+
+    def make_generator(self):
+
+        print('SoundMeterEffect.make_generator')
+        sd = SoundDetector()
+
+        while True:
+
+            # get the current sound level from the mic
+            # scaled for our pixels
+            LevelAsPixels = sd.getLevel()
+
+            # Scale down based on the size of this effect
+            LevelAsPixels = LevelAsPixels // NUM_PIXELS * len(self._pixels)
+
+            #
+            # Keep track of maximums, and enforce the
+            # lifetime on the recent maximum
+            #
+            if LevelAsPixels > self._maximum:
+                self._maximum = LevelAsPixels-1
+                self._maxlifetime = SoundMeterEffect.LIFETIME
+            else:
+                if self._maxlifetime == 0:
+                    self._pixels[self._maximum] = OFF
+                    self._maximum = 0
+                else:
+                    self._maxlifetime-=1
+
+            for p in range(self._maximum):
+                self._pixels[p] = OFF
+            for p in range(LevelAsPixels):
+                self._pixels[p] = self._color
+
+            for _ in range(self._slowness):
+                yield
+
 
 
 class ClapEffect:

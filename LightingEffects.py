@@ -93,7 +93,7 @@ class WipeFillEffect:
     """
 
     """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=2):
         """
         Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
@@ -101,9 +101,8 @@ class WipeFillEffect:
         """
         self._pixel_buffer = pixel_buffer
         self._color = color
-        self._slowness = slowness
         self._brightness = brightness
-
+        self._slowness = slowness
 
     def make_generator(self):
         """

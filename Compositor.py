@@ -4,6 +4,7 @@ class Compositor:
 
     def __init__(self):
         self._composition = None
+        self._buffer_list = None
 
     def setBufferList(self, list_of_buffers):
         self._composition = list_of_buffers
@@ -45,6 +46,17 @@ class Compositor:
 
         self._composition = buffer_list
 
+    def frameNcorners(self):
+        #  [ [15*i+j+4] for i in range(4) for j in range(10) ]
+        top = [ [4], [5], [6], [7], [8], [9], [10], [11], [12], [13] ]
+        right = [ [19], [20], [21], [22], [23], [24], [25], [26], [27], [28] ]
+        btm = [ [34], [35], [36], [37], [38], [39], [40], [41], [42], [43] ]
+        left = [ [49], [50], [51], [52], [53], [54], [55], [56], [57], [58] ]
+        topleft = [ [58], [59], [0], [1], [2] ]
+        topright = [ [14], [15], [16], [17], [18] ]
+        btmright = [ [29], [30], [31], [32], [33] ]
+        btmleft = [ [44], [45], [46], [47], [48] ]
+        self._composition = top + right + btm + left + topleft + topright + btmright + btmleft
 
     def featherRows(self):
         self._composition = [ [i for i in range(8*j-8,8*j)] for j in range(1,5) ]

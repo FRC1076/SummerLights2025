@@ -19,10 +19,10 @@ NEON_PIXELS = 64
 CP_PIXELS = 10
 
 # Sidelight120
-#SIDELIGHT_PIXELS = 120
+SIDELIGHT_PIXELS = 120
 
 # Sidelight60
-SIDELIGHT_PIXELS = 60
+#SIDELIGHT_PIXELS = 60
 
 # Choose which we are using
 NUM_PIXELS = SIDELIGHT_PIXELS
@@ -69,7 +69,9 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "wipe",                  #  display purple on the whole string
                  "rainbow",               #  rainbow effect on full string
                  "runner",                #  zip back and forth
+                 "fliprunner",            #  for the frameNcorners (flip on corners, run sides)
                  "squeeze",               #  close the curtain
+                 "multi",                 #  several effects on substrings
                  "drip",                  #  physics based particle animation
                  "Quit" ]
 
@@ -85,6 +87,7 @@ ValidDivisions = [   "2",                  #  2 divisions
 ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
                      "oval",               #  sliced topology for oval with start/end at top
                      "7segment",           #  sliced 7segment display (figure eight)
+                     "frameNcorners",      #  5-buffer layout with sides contiguous
                      "1/2",                #  split into two pixels
                      "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions
@@ -142,6 +145,13 @@ class Presentation:
         groups = NUM_PIXELS // 2
         self._buffer = PixelBuffer(groups)
         self._compositor.oval(NUM_PIXELS, groups)
+
+    def frameNcorners(self):
+        """
+        This only works for 60 pixel string
+        """
+        self._buffer_list = [ PixelBuffer(5) for i in range(4) ] + [ PixelBuffer(40) ]
+        self._compositor.frameNCorners()
 
     def compositor(self):
         return self._compositor
@@ -221,8 +231,9 @@ class EffectChooser:
                 return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
-                print("Flipflop divisions:", divs)
                 return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
+            elif comp_name == "oval":
+                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "squeeze":
             div_names = ValidDivisions
             if comp_name == "full":
@@ -233,6 +244,11 @@ class EffectChooser:
 
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
+        elif effect_name == "multi" and comp_name == "4":
+            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
+                     WipeFillEffect(self._pixel_buffer_list[1], color=BUTTERSCOTCH, slowness=10),
+                     RunnerEffect(self._pixel_buffer_list[2], color=color, slowness=speed),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=ORANGE, slowness=10) ]
         elif effect_name == "rainbow" and comp_name == "full":
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
         elif effect_name == "runner":
@@ -248,6 +264,10 @@ class EffectChooser:
                 borrow the speed part of the command to enable tap on drip
                 """
                 return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
+        elif effect_name == "fliprunner":
+            if comp_name == "frameNcorners":
+                re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
+                return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 

@@ -47,7 +47,7 @@ PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
 BLUE = (24, 30, 214)
 BUTTERSCOTCH = (253, 100, 10)
-GREEN = (3, 252, 92)
+GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
 
@@ -253,11 +253,27 @@ class EffectChooser:
             return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "multi" and comp_name == "4":
             return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
-                     WipeFillEffect(self._pixel_buffer_list[1], color=BUTTERSCOTCH, slowness=10),
-                     RunnerEffect(self._pixel_buffer_list[2], color=color, slowness=speed),
-                     FlipFlopEffect(self._pixel_buffer_list[3], color=ORANGE, slowness=10) ]
+                     RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
+                     WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=10) ]
+        elif effect_name == "multi" and comp_name == "12":
+            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
+                     RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
+                     WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=10),
+                     RainbowEffect(self._pixel_buffer_list[4], slowness=5),
+                     RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed),
+                     WipeFillEffect(self._pixel_buffer_list[6], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[7], color=RED, slowness=10),
+                     RainbowEffect(self._pixel_buffer_list[8], slowness=5),
+                     RunnerEffect(self._pixel_buffer_list[9], color=color, slowness=speed),
+                     WipeFillEffect(self._pixel_buffer_list[10], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[11], color=RED, slowness=10) ]
         elif effect_name == "rainbow" and comp_name == "full":
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
+        elif effect_name == "rainbow" and comp_name in ValidDivisions:
+            divs = int(comp_name)
+            return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
             if comp_name == "full" or comp_name == "oval" or comp_name == "7segment":
@@ -271,7 +287,9 @@ class EffectChooser:
                 borrow the speed part of the command to enable tap on drip
                 """
                 return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
-
+            elif comp_name in ValidDivisions:
+                divs = int(comp_name)
+                return [ DripEffect(self._pixel_buffer_list[i], slowness=1, tap=speed) for i in range(divs) ]
         elif effect_name == "fliprunner":
             if comp_name == "frameNcorners":
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
@@ -401,7 +419,7 @@ if __name__ == "__main__":
             if adjust < 20:
                 time.sleep((20 - adjust)/1000.0)
                 #print("INFO: Adjust ", adjust, "milliseconds")
-            else:
+            elif adjust > 40:
                 print("WARNING: Slip of  ", adjust-20, "milliseconds")
 
             # rebase start after sleep, since we do not want to count that

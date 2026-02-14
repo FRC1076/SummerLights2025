@@ -5,15 +5,18 @@ import audiobusio
 import board
 import neopixel
 import digitalio
-#import circuitplayground as cp
+# We want to do our own thing with this.   Maybe it later
+#from adafruit_circuitplayground import cp
 
 class SoundDetector:
 
     MAGNITUDE_SCALE = 0.1
     PIXEL_SCALE = 120
 
+    Mic = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA, sample_rate=16000, bit_depth=16)
+
     def __init__(self):
-        self._mic = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA, sample_rate=16000, bit_depth=16)
+        self._mic = SoundDetector.Mic
         self._samples = array.array('H', [0] * 160)
 
     # Remove DC bias before computing RMS.

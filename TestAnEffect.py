@@ -2,12 +2,12 @@ import board
 import neopixel
 import time
 from PixelBuffer import PixelBuffer
-from LightingEffects import FlipFlopEffect
+from FlipFlopEffect import FlipFlopEffect
 
 
 KEYBOAR_PIN = board.D2
 PLAYGROUND_PIN = board.D10
-NEO_PIN = KEYBOAR_PIN
+NEO_PIN = PLAYGROUND_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -50,7 +50,7 @@ RED = (220, 0, 0)
 
 class EffectChooser:
     """
-    
+
     """
     def __init__(self, pixels):
         self._pixels = pixels
@@ -79,11 +79,11 @@ if __name__ == "__main__":
     next_do_effects = []
 
     while len(do_effects) > 0 or len(next_do_effects) > 0:
-        
+
         all_live_effects_have_run_once = False
-        
+
         while not all_live_effects_have_run_once:
-            
+
             try:
                 """
                 Remove the effect from the front of the list.  If it runs without stopping,

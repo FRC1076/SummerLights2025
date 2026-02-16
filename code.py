@@ -7,12 +7,12 @@ from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, ClapEffect, SoundMeterEffect
+from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect
 
-
-KEYBOAR_PIN = board.D2
-PLAYGROUND_PIN = board.D10
-NEO_PIN = PLAYGROUND_PIN
+PICO_PIN = board.GP15
+#KEYBOAR_PIN = board.D2
+#PLAYGROUND_PIN = board.D10
+NEO_PIN = PICO_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -31,7 +31,7 @@ SIDELIGHT_PIXELS = 120
 # SIDELIGHT_PIXELS = 60
 
 # Choose which we are using
-NUM_PIXELS = SIDELIGHT_PIXELS
+NUM_PIXELS = FEATHER_WING_PIXELS
 
 # Useful global constants
 
@@ -124,15 +124,15 @@ class Presentation:
         self._compositor.passThru(CP_PIXELS)
 
     def sideLight(self):
-        self._buffer = PixelBuffer(SIDELIGHT_PIXELS)
-        self._compositor.passThru(SIDELIGHT_PIXELS)
+        self._buffer = PixelBuffer(NUM_PIXELS)
+        self._compositor.passThru(NUM_PIXELS)
 
     def sideLightGroups(self, num_groups=2):
         """
         This should work cleanly with 2, 3, 5, 4, 6 and their products.
         """
         self._buffer = PixelBuffer(num_groups)
-        self._compositor.groupsOfN(SIDELIGHT_PIXELS, num_groups)
+        self._compositor.groupsOfN(NUM_PIXELS, num_groups)
 
 
     def sideLightDivisions(self, num_divisions=2):
@@ -141,7 +141,7 @@ class Presentation:
         """
         #self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in range(num_divisions) ]
         # Note: compositor creates the buffers
-        self._compositor.divisionsOfN(SIDELIGHT_PIXELS, num_divisions)
+        self._compositor.divisionsOfN(NUM_PIXELS, num_divisions)
 
     def sideLight7Segment(self):
         groups = 24

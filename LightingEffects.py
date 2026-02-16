@@ -5,7 +5,9 @@ variables.
 from NeoConfig import *
 from Physics import Particle,Physics
 #from TapDetector import TapDetector
-from SoundDetector import SoundDetector
+TapDetectorSupported = False
+#from SoundDetector import SoundDetector
+SoundDetectorSupported = False
 from rainbowio import colorwheel
 import random
 
@@ -198,14 +200,15 @@ class DripEffect:
         String hangs down from 0 index, so gravity is a positive number
         """
         world = Physics(time=0, g=(0, 50), interval=0.02)
-        td = TapDetector()
+        if TapDetectorSupported:
+            td = TapDetector()
         retire_index = len(self._pixel_buffer) - 1
         while True:
             """
             Create a particle on tapping
             About 2% of the time, create a random particle at 0 index
             """
-            if self._tap == TAP:
+            if TapDetectorSupported and self._tap == TAP:
                 td.sense()
                 if td.gotTapped():
                      Vinit = random.random()/2
@@ -244,7 +247,7 @@ class DripEffect:
 
 class SoundMeterEffect:
 
-    LIFETIME = 10
+    LIFETIME = 50
 
     def __init__(self, pixels, color=PURPLE, brightness=BRIGHTNESS, slowness=1):
         """
@@ -262,17 +265,30 @@ class SoundMeterEffect:
     def make_generator(self):
 
         print('SoundMeterEffect.make_generator')
-        #sd = SoundDetector()
+        if SoundDetectorSupported:
+            sd = SoundDetector()
+        else:
+            LevelAsPixels = len(self._pixels) // 2    # synthetic data starts at midpoint
 
         while True:
 
             # get the current sound level from the mic
             # scaled for our pixels
-            #LevelAsPixels = sd.getLevel()
-            LevelAsPixels = int(random()*NUM_PIXELS)
-
-            # Scale down based on the size of this effect
-            LevelAsPixels = LevelAsPixels // NUM_PIXELS * len(self._pixels)
+            if SoundDetectorSupported:
+                LevelAsPixels = round(sd.getLevelPct() * len(self._pixels))
+                if LevelAsPixels >= len(self._pixels):
+                    LevelAsPixels = len(self._pixels)-1
+            else:
+                coin3 = random.random()        # synthetic data.  Flip 3 sided coin.  Equal chance for up, down, same
+                if coin3 > 0.66:
+                    delta = 1
+                elif coin3 > 0.33:
+                    delta = -1
+                else:
+                    delta = 0
+                LevelAsPixels = LevelAsPixels + delta
+                if LevelAsPixels >= len(self._pixels):               # clamp to max pixel index
+                    LevelAsPixels = len(self._pixels) - 1
 
             #
             # Keep track of maximums, and enforce the

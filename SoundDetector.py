@@ -32,13 +32,15 @@ class SoundDetector:
 
         return math.sqrt(samples_sum / len(values))
 
-    def getLevel(self):
+    def getLevelPct(self):
         """
         Get the magnitude from the mic and convert it and return as pixel scale
         """
         self._mic.record(self._samples, len(self._samples))
         magnitude = SoundDetector.normalized_rms(self._samples)
         PixelPct = magnitude*SoundDetector.MAGNITUDE_SCALE / SoundDetector.PIXEL_SCALE
+        if PixelPct > 1.0:
+            PixelPct = 1.0
         return PixelPct
 
 if __name__ == "__main__":
@@ -53,9 +55,7 @@ if __name__ == "__main__":
     pixels.show()
 
     while True:
-        PixelPct = sd.getLevel()
-        if PixelPct >= 1.0:
-            PixelPct = 1.0
+        PixelPct = sd.getLevelPct()
         PixelScale = int(PixelPct * len(pixels))
         print(PixelScale)
 

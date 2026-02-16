@@ -1,1 +1,1 @@
-cp code.py Compositor.py LightingEffects.py NeoConfig.py Physics.py PixelBuffer.py TapDetector.py SoundDetector.py /Volumes/CIRCUITPY
+cp code.py Compositor.py FlipFlopEffect.py LightingEffects.py NeoConfig.py Physics.py PixelBuffer.py SoundDetector.py TapDetector.py TestAnEffect.py /Volumes/CIRCUITPY

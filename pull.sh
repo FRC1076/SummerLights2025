@@ -12,4 +12,4 @@
 # have to worry at all about copying back and forth.    My concern there is just
 # whether or not the contents of the could get corrupted, as a consequence lose
 # more code.   (I haven't thought about this much...)
-cp /Volumes/CIRCUITPY/code.py /Volumes/CIRCUITPY/Compositor.py /Volumes/CIRCUITPY/LightingEffects.py /Volumes/CIRCUITPY/NeoConfig.py /Volumes/CIRCUITPY/Physics.py /Volumes/CIRCUITPY/PixelBuffer.py /Volumes/CIRCUITPY/TapDetector.py /Volumes/CIRCUITPY/SoundDetector.py .
+cp /Volumes/CIRCUITPY/code.py /Volumes/CIRCUITPY/Compositor.py /Volumes/CIRCUITPY/FlipFlopEffect.py /Volumes/CIRCUITPY/LightingEffects.py /Volumes/CIRCUITPY/NeoConfig.py /Volumes/CIRCUITPY/Physics.py /Volumes/CIRCUITPY/PixelBuffer.py /Volumes/CIRCUITPY/SoundDetector.py /Volumes/CIRCUITPY/TapDetector.py /Volumes/CIRCUITPY/TestAnEffect.py .

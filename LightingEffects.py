@@ -4,7 +4,7 @@ variables.
 """
 from NeoConfig import *
 from Physics import Particle,Physics
-from TapDetector import TapDetector
+#from TapDetector import TapDetector
 from SoundDetector import SoundDetector
 from rainbowio import colorwheel
 import random
@@ -262,13 +262,14 @@ class SoundMeterEffect:
     def make_generator(self):
 
         print('SoundMeterEffect.make_generator')
-        sd = SoundDetector()
+        #sd = SoundDetector()
 
         while True:
 
             # get the current sound level from the mic
             # scaled for our pixels
-            LevelAsPixels = sd.getLevel()
+            #LevelAsPixels = sd.getLevel()
+            LevelAsPixels = int(random()*NUM_PIXELS)
 
             # Scale down based on the size of this effect
             LevelAsPixels = LevelAsPixels // NUM_PIXELS * len(self._pixels)

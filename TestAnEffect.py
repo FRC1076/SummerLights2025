@@ -1,6 +1,13 @@
 import board
 import neopixel
 import time
+from PixelBuffer import PixelBuffer
+from LightingEffects import FlipFlopEffect
+
+
+KEYBOAR_PIN = board.D2
+PLAYGROUND_PIN = board.D10
+NEO_PIN = KEYBOAR_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -9,8 +16,17 @@ FEATHER_WING_COLUMNS = 8
 FEATHER_WING_PIXELS = FEATHER_WING_ROWS * FEATHER_WING_COLUMNS
 NEON_PIXELS = 64
 
+# Playground onboard neopixels
+CP_PIXELS = 10
+
+# Sidelight120
+SIDELIGHT_PIXELS = 120
+
+# Sidelight60
+# SIDELIGHT_PIXELS = 60
+
 # Choose which we are using
-NUM_PIXELS = FEATHER_WING_PIXELS
+NUM_PIXELS = SIDELIGHT_PIXELS
 
 # Useful global constants
 
@@ -26,81 +42,37 @@ OFF = (0, 0, 0)
 PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
 BLUE = (24, 30, 214)
-BUTTERSCOTCH = (252, 186, 3)
-GREEN = (3, 252, 92)
+BUTTERSCOTCH = (253, 100, 10)
+GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
+RED = (220, 0, 0)
 
 
 class EffectChooser:
     """
     
     """
-
     def __init__(self, pixels):
         self._pixels = pixels
         pass
-
-    def get_chosen_effect(self):
-        """
-        Currently there is only one effect
-        """
-        return WipeFillEffect(pixels, 0, 8)
 
     def get_chosen_effects(self):
         """
         Return a list of effects
         """
-        return  [   WipeFillEffect(pixels, 0, 32, color=PINK, slowness=1),
-                    SqueezeFillEffect(pixels, 0, 16, color=PURPLE, slowness=10),
-                    SqueezeFillEffect(pixels, 16, 16, color=ORANGE, slowness=20) ]
+        return  [ FlipFlopEffect(self._pixels, color=RED, slowness=25) ]
 
-
-
-class WipeFillEffect:
-
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE, slowness=2, brightness=BRIGHTNESS, clear_on_init=True):
-        """
-        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
-        Defaults are all PURPLE pixels at the global BRIGHTNESS.
-        The filling is done at 20hz using a python generator to break up the updates
-        """
-        self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = num_pixels
-        self._color = color
-        self._slowness = slowness
-        self._brightness = brightness
-
-        if clear_on_init:
-            """
-            But, do not display, just zero out everything
-            """
-            pixels.fill(OFF)
-
-    def make_generator(self):
-        """
-        Need to decide how to set the brightness separately
-        maybe just scale the self._color on __init__?
-        or just agree to use the color passed in
-        """
-        p = self._start_index
-        for _ in range(self._num_pixels):
-            self._pixels[p] = self._color
-            p += 1
-            """
-            The yield command here, turns this function into a generator, so it returns after each
-            iteration of the loop.   Subsequent calls pick up where they left off.
-            """
-            for _ in range(self._slowness):
-                yield
 
 
 if __name__ == "__main__":
 
     # Initialize the neopixel model and clear it
-    pixels = neopixel.NeoPixel(board.GP6, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
+    pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     pixels.fill((0,0,0))
-    chooser = EffectChooser(pixels)
+    pixels.show()
+
+    pixel_buffer = PixelBuffer(NUM_PIXELS)
+    chooser = EffectChooser(pixel_buffer)
 
     effects = chooser.get_chosen_effects()
     do_effects = [ effect.make_generator() for effect in effects ]
@@ -130,5 +102,7 @@ if __name__ == "__main__":
                 next_do_effects = []
                 all_live_effects_have_run_once = True
 
+        for i in range(len(pixel_buffer)):
+            pixels[i]=pixel_buffer[i]
         pixels.show()
         time.sleep(0.02)

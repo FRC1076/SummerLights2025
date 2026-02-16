@@ -17,7 +17,7 @@ class FlipFlopEffect:
     """
     Alternate between half on and half off on the domain
     """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=100, brightness=BRIGHTNESS, name="FlipFlop"):
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=50, name="FlipFlop"):
         """
         Base class for lighting effects
         Could be useful for documentation, or maybe actually used as a base class

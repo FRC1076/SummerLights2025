@@ -264,20 +264,20 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
                      WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=10) ]
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25) ]
         elif effect_name == "multi" and comp_name == "12":
             return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
                      WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=10),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25),
                      RainbowEffect(self._pixel_buffer_list[4], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed),
                      WipeFillEffect(self._pixel_buffer_list[6], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[7], color=RED, slowness=10),
+                     FlipFlopEffect(self._pixel_buffer_list[7], color=RED, slowness=25),
                      RainbowEffect(self._pixel_buffer_list[8], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[9], color=color, slowness=speed),
                      WipeFillEffect(self._pixel_buffer_list[10], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[11], color=RED, slowness=10) ]
+                     FlipFlopEffect(self._pixel_buffer_list[11], color=RED, slowness=25) ]
         elif effect_name == "rainbow" and comp_name == "full":
             return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
         elif effect_name == "rainbow" and comp_name in ValidDivisions:

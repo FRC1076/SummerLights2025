@@ -9,10 +9,10 @@ from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect
 
-PICO_PIN = board.GP15
-#KEYBOAR_PIN = board.D2
+#PICO_PIN = board.GP15
+KEYBOAR_PIN = board.D2
 #PLAYGROUND_PIN = board.D10
-NEO_PIN = PICO_PIN
+NEO_PIN = KEYBOAR_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -31,7 +31,7 @@ SIDELIGHT_PIXELS = 120
 # SIDELIGHT_PIXELS = 60
 
 # Choose which we are using
-NUM_PIXELS = FEATHER_WING_PIXELS
+NUM_PIXELS = SIDELIGHT_PIXELS
 
 # Useful global constants
 
@@ -81,7 +81,8 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "clap",
                  "drip",                  #  physics based particle animation
                  "sound",                 #  sound response demo
-                 "Quit" ]
+                 "Quit",
+                 "help" ]
 
 ValidDivisions = [   "2",                  #  2 divisions
                      "3",                  #  3 divisions of equal size
@@ -99,6 +100,28 @@ ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest
                      "1/2",                #  split into two pixels
                      "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions
+
+def show_help():
+
+    print("effect compositor color [speed | other options]")
+    print("Example: flipflop 12 green slow")
+    print("Example: drip full blue fast")
+
+    print("\nEFFECTS")
+    for effect_cmd in ValidEffects:
+        print("   ", effect_cmd)
+
+    print("\nCOMPOSITORS")
+    for c in ValidCompositors:
+        print("   ", c)
+
+    print("\nCOLORS")
+    for c in ValidColors.keys():
+        print("   ", c)
+
+    print("OPTIONS")
+    for opt in ValidSpeeds:
+        print("   ", opt)
 
 
 class Presentation:
@@ -220,6 +243,9 @@ class EffectChooser:
         """
         Return a list of effects to run simultaneously.
         """
+        if effect_cmd == "help":
+            show_help()
+
         if self._pixel_buffer_list is not None:
             print("get_chosen_effects: len(buffer_list):", len(self._pixel_buffer_list))
         if self._pixel_buffer is not None:

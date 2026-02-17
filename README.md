@@ -11,6 +11,9 @@ All the information you need is at https://circuitpython.org/
 
 I've used the MU Editor to do development.   It is an IDE (Integrated Development Environment) a bit like the Arduino IDE (aware of the hardware -- set it up using the Mode menu! -- that is connected to your laptop via a micro-USB cable), but not as sophisticated.   For example, if you are using a Raspberry Pi Pico, you want to set the mode to "Write MicroPython Directly on Raspberry Pi Pico".   (I've not been able to get the Pico to run correctly using the CircuitPython mode in MU Editor.)
 
+*NOTE for school laptops.    You won't be able to use the MU Editor for development.    However, if you have Chrome installed, you can use a web-based IDE to do your development.
+I've tried it out, and it works pretty well.    Try it here:   https://code.circuitpython.org/*
+
 The main way that CircuitPython operates is that it gets mounted as a disk on your laptop.   Whenever you save the code, it reruns the new version.
 
 Note, CircuitPython is similar, but DIFFERENT than MicroPython, and the online AIs sometimes mix-up or conflate them.

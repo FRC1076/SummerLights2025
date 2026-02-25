@@ -3,15 +3,18 @@
 Workspace for dynamic Neopixel animations using CircuitPython
 
 You may run a concept demo of the code using a virtual setup (with 32 virtual neopixels) by running the simulation at:
-https://wokwi.com/projects/456901156612637697
+    https://wokwi.com/projects/456901156612637697
+    
 If you type "help" at the Effect? prompt, it will offer you lists of the 4 kinds of command arguments.
 
 Some to try:
 
+```
 flipflop full red slow
 flipflop 8 blue slow
 drip full blue slow
 multi 4 blue fast
+```
 
 Not all combinations will work.   You can look in the code.py to get an idea of which ones do work.
 You may enhance the simulation by adding more pixels in a shape that interests you.   Be sure to modify the appropriate constants (e.g. NUM_PIXELS) to match your enhancements.

@@ -359,6 +359,9 @@ class EffectChooser:
             if comp_name == "frameNcorners":
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
+        elif effect_name == "gradient":
+            if comp_name == "full":
+                return [ GradientEffect(self._pixel_buffer, color=color,)]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 

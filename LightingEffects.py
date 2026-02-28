@@ -532,6 +532,44 @@ class MatrixDisplayMapper:
         else:
             return (new_row_vect, new_col_vect)
 
+class GradientEffect:
+   def __init__(self, pixels, color= FULL_RED, brightness=BRIGHTNESS, slowness=3):
+       self._pixels = pixels
+       self._brightness = brightness
+       self._color = color
+       self._step = 0 
+       self._slowness=slowness
+
+   def nextColor(self):
+       increasePerPixel = int(255 / 2)
+       if self._step == 0:
+           newColor = (self._color[0],min(255, self._color[1] + increasePerPixel),self._color[2])
+           if self._color[1] == 255:
+               self._step = 1
+       elif self._step == 1:
+           newColor = (max(0,self._color[0] - increasePerPixel), self._color[1],self._color[2])
+           if self._color[0] == 0:
+               self._step = 2
+       elif self._step == 2:
+           newColor = (self._color[0], self._color[1], min(255,self._color[2] + increasePerPixel))
+           if self._color[2] == 255:
+               self._step = 3
+       elif self._step == 3:
+           newColor = (self._color[0], max(0, self._color[1] - increasePerPixel),self._color[2])
+           if self._color[1] == 0:
+               self._step = 4
+       elif self._step == 4:
+           newColor = ( min(255, self._color[0] + increasePerPixel), self._color[1], self._color[2] )
+           if self._color[0] == 255:
+               self._step = 0
+               newColor = (255,0,0)
+       self._color = newColor
+   def make_generator(self):
+       for i in range(len(self._pixels)):
+           self._pixels[i]=self._color
+           self.nextColor()
+           for _ in range(self._slowness):
+                yield 
 
 class OnePixelBall:
 

@@ -33,16 +33,34 @@ import board
 import neopixel
 import random
 import time
+from LightingEffects import GradientEffect
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect
 
-#PICO_PIN = board.GP15
-KEYBOAR_PIN = board.D2
-#PLAYGROUND_PIN = board.D10
-NEO_PIN = KEYBOAR_PIN
+
+
+model = board.board_id
+print(model)
+
+#if a raspbarry pi pico set pin to GP15
+if model == "raspberry_pi_pico":
+    NEO_PIN = board.GP16
+#if a curcicit playground set pin to D10
+elif model == "circutplayground_express":
+    NEO_PIN = board.D10
+#if a kb2040 set pin to D2
+elif model == "adafruit_kb2040":
+    NEO_PIN = board.D2
+#if is a adafruit feather rp2040 set pin to gp D6
+elif model == "curcuitplayground_bluefruit":
+    NEO_PIN = board.D10
+elif model == "adafruit_feather_rp2040":
+    NEO_PIN = board.GP08
+
+
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -61,7 +79,7 @@ SIDELIGHT_PIXELS = 120
 # SIDELIGHT_PIXELS = 60
 
 # Choose which we are using
-NUM_PIXELS = SIDELIGHT_PIXELS
+NUM_PIXELS = FEATHER_WING_PIXELS
 
 # Useful global constants
 
@@ -111,6 +129,7 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "clap",
                  "drip",                  #  physics based particle animation
                  "sound",                 #  sound response demo
+                 "gradient",              # turns on indivudal pixels with a graident following the colors of the rainbow (red-purple)
                  "Quit",
                  "help" ]
 
@@ -119,7 +138,9 @@ ValidDivisions = [   "2",                  #  2 divisions
                      "4",                  #
                      "5",                  #
                      "6",                  #  6 sections of equal size
+                     "8",                  #  Okay with 32 neopixels
                      "12",                 #  12 divisions of equal size
+                     "16",
                      "30",                 #  30 divisions of 4
                      "60"  ]               #  60 divisions of equal size
 
@@ -362,8 +383,10 @@ class EffectChooser:
         elif effect_name == "gradient":
             if comp_name == "full":
                 return [ GradientEffect(self._pixel_buffer, color=color,)]
+
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
+        
 
 
 
@@ -500,7 +523,3 @@ if __name__ == "__main__":
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()
-
-
-
-

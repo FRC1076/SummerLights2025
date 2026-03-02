@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 
 Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 #from adafruit_circuitplayground import cp
+import gc
 import board
 import neopixel
 import random
@@ -37,12 +38,12 @@ from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect
+from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
 
 #PICO_PIN = board.GP15
-KEYBOAR_PIN = board.D2
-#PLAYGROUND_PIN = board.D10
-NEO_PIN = KEYBOAR_PIN
+#KEYBOAR_PIN = board.D2
+PLAYGROUND_PIN = board.D10
+NEO_PIN = PLAYGROUND_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -81,6 +82,7 @@ BUTTERSCOTCH = (253, 100, 10)
 GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
+FULL_RED = (255, 0, 0)
 
 TAP = 3
 NO_TAP = 2
@@ -97,6 +99,7 @@ ValidColors =   {"off": OFF,
                  "butterscotch" : BUTTERSCOTCH,
                  "blue" : BLUE,
                  "red"  : RED,
+                 "full-red" : FULL_RED,
                  "green" :  GREEN
                 }
 
@@ -107,6 +110,7 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "runner",                #  zip back and forth
                  "fliprunner",            #  for the frameNcorners (flip on corners, run sides)
                  "squeeze",               #  close the curtain
+                 "gradient",              #  Evan Besirli effect
                  "multi",                 #  several effects on substrings
                  "clap",
                  "drip",                  #  physics based particle animation
@@ -221,6 +225,37 @@ class Presentation:
 
     def pixel_buffer(self):
         return self._buffer
+
+
+class SyntheticDemoer:
+
+    NANO_SECONDS_PER_SECOND = 1000000000
+    INTERVAL_SECS = 10
+    INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
+
+    def __init__(self):
+        self._cmds =   [ "gradient full butterscotch medium",
+                         "gradient full blue medium",
+                         "gradient full green medium",
+                         "gradient full red medium"
+                         "Quit" ]
+        self._ndx = 0
+        self._interval_timer = None
+
+    def nextCommand(self):
+
+        cmd = None
+        gc.collect()
+        print("Memory free:", gc.mem_free())
+
+        # first time
+        #if self._interval_timer == None or ((time.monotonic_ns() - self._interval_timer) > SyntheticDemoer.INTERVAL_NS):
+        #    self._interval_timer = time.monotonic_ns()
+
+        cmd = self._cmds[self._ndx]
+        self._ndx += 1 % len(self._cmds)    # wrap!
+
+        return cmd
 
 
 
@@ -370,6 +405,9 @@ class EffectChooser:
 
 if __name__ == "__main__":
 
+    demoer = None
+    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     #pixels = cp.pixels
@@ -377,7 +415,10 @@ if __name__ == "__main__":
 
     cmd = ""
     while cmd.split(' ')[0] not in ValidEffects:
-        cmd = input("Effect? ")
+        if not demoer is None:
+            cmd = demoer.nextCommand()
+        else:
+            cmd = input("Effect? ")
 
     start_time_ns = time.monotonic_ns()
 
@@ -496,7 +537,10 @@ if __name__ == "__main__":
         # prompt for another effect
         cmd = ""
         while cmd.split(' ')[0] not in ValidEffects:
-            cmd = input("3ffect? ")
+            if not demoer is None:
+                cmd = demoer.nextCommand()
+            else:
+                cmd = input("3ffect? ")
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()

@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 
 Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,19 @@ variables.
 """
 from NeoConfig import *
 from Physics import Particle,Physics
-#from TapDetector import TapDetector
-TapDetectorSupported = False
-#from SoundDetector import SoundDetector
-SoundDetectorSupported = False
+try:
+    from TapDetector import TapDetector
+    TapDetectorSupported = True
+except Exception:
+    print("TapDetector is not supported")
+    TapDetectorSupported = False
+
+try:
+    from SoundDetector import SoundDetector
+    SoundDetectorSupported = True
+except Exception:
+    print("SoundDetector is not supported")
+    SoundDetectorSupported = False
 from rainbowio import colorwheel
 import random
 
@@ -179,9 +188,10 @@ class SqueezeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        for i in range(len(self._pixel_buffer)):
+        plen = len(self._pixel_buffer)
+        for i in range(plen):
             self._pixel_buffer[i] = self._color
-            self._pixel_buffer[-(i+1)] = self._color
+            self._pixel_buffer[plen-i-1] = self._color
             """
             The yield command here, turns this function into a generator, so it returns after each
             iteration of the loop.   Subsequent calls pick up where they left off.
@@ -298,7 +308,7 @@ class SoundMeterEffect:
         if SoundDetectorSupported:
             sd = SoundDetector()
         else:
-            LevelAsPixels = len(self._pixels) // 2    # synthetic data starts at midpoint
+            LevelAsPixels = len(self._pixels) // 4    # synthetic data starts at midpoint
 
         while True:
 
@@ -310,9 +320,9 @@ class SoundMeterEffect:
                     LevelAsPixels = len(self._pixels)-1
             else:
                 coin3 = random.random()        # synthetic data.  Flip 3 sided coin.  Equal chance for up, down, same
-                if coin3 > 0.66:
+                if coin3 > 0.70:
                     delta = 1
-                elif coin3 > 0.33:
+                elif coin3 > 0.35:
                     delta = -1
                 else:
                     delta = 0
@@ -338,6 +348,7 @@ class SoundMeterEffect:
                 self._pixels[p] = OFF
             for p in range(LevelAsPixels):
                 self._pixels[p] = self._color
+
 
             for _ in range(self._slowness):
                 yield
@@ -537,7 +548,7 @@ class GradientEffect:
        self._pixels = pixels
        self._brightness = brightness
        self._color = color
-       self._step = 0 
+       self._step = 0
        self._slowness=slowness
 
    def nextColor(self):
@@ -569,7 +580,7 @@ class GradientEffect:
            self._pixels[i]=self._color
            self.nextColor()
            for _ in range(self._slowness):
-                yield 
+                yield
 
 class OnePixelBall:
 

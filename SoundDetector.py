@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import digitalio
 
 class SoundDetector:
 
-    MAGNITUDE_SCALE = 0.1
+    MAGNITUDE_SCALE = 0.01
     PIXEL_SCALE = 120
 
     Mic = audiobusio.PDMIn(board.MICROPHONE_CLOCK, board.MICROPHONE_DATA, sample_rate=16000, bit_depth=16)
@@ -68,6 +68,7 @@ class SoundDetector:
         """
         self._mic.record(self._samples, len(self._samples))
         magnitude = SoundDetector.normalized_rms(self._samples)
+        print("Magnitude =", magnitude)
         PixelPct = magnitude*SoundDetector.MAGNITUDE_SCALE / SoundDetector.PIXEL_SCALE
         if PixelPct > 1.0:
             PixelPct = 1.0

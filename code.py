@@ -237,8 +237,7 @@ class SyntheticDemoer:
         self._cmds =   [ "gradient full butterscotch medium",
                          "gradient full blue medium",
                          "gradient full green medium",
-                         "gradient full red medium"
-                         "Quit" ]
+                         "gradient full red fast" ]
         self._ndx = 0
         self._interval_timer = None
 

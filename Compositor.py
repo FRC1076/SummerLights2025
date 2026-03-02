@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 
 Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,20 @@ class Compositor:
         second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
-        self._composition = first_part + second_part + third_part
+    def digitOneHSlices(self, rows):
+        """
+        Horizontal slices to make grouped pixels for vertical effects
+        Works only for the 78 pixel One Digit
+        """
+        top = [ (31, 32, 33), (30, 34), (35,), (29, 36), (28,37), (27,38),
+                (39,), (26, 40, 53), (41, 52, 54), (25, 42, 51, 55 ), (24, 43, 50),
+                (23, 49, 56), (44, 48, 57), (22, 47), (45, 46, 58) ]
+        middle = [ (21-i, 59+i) for i in range(18) ]
+        bottom = [ (77,), (3,), (0, 1, 2) ]
+
+        self._composition = top + middle + bottom
+        print("digit1H", self._composition)
+        assert(len(self._composition) == rows)
 
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
@@ -133,7 +146,7 @@ class Compositor:
                     #print(f"neopixels[{(j+global_index):d}]=c[{i}][{j:d}]={c[j]}")
                     neo_pixels[j+global_index] = c[j]
                 global_index += len(c)
-            elif isinstance(c, list):
+            elif isinstance(c, list) or isinstance(c, tuple):
                 """
                 Copy the same buffer value to all of the member pixels of the group
                 """

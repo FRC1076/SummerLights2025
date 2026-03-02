@@ -87,6 +87,10 @@ FULL_RED = (255, 0, 0)
 TAP = 3
 NO_TAP = 2
 
+DIGIT_ONE_ROWS = 36
+DIGIT_ONE_NUM_PIXELS = 78
+NUM_PIXELS = 78
+
 ValidSpeeds =   {"slow" :   20,
                  "medium" :  5,
                  "fast" :    1,
@@ -131,6 +135,7 @@ ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest
                      "oval",               #  sliced topology for oval with start/end at top
                      "7segment",           #  sliced 7segment display (figure eight)
                      "frameNcorners",      #  5-buffer layout with sides contiguous
+                     "digit1H",            #  78 pixel, 36 row groupings
                      "1/2",                #  split into two pixels
                      "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions
@@ -210,6 +215,10 @@ class Presentation:
         self._buffer = PixelBuffer(groups)
         self._compositor.oval(NUM_PIXELS, groups)
 
+    def digitOneH(self):
+        self._buffer = PixelBuffer(DIGIT_ONE_ROWS)
+        self._compositor.digitOneHSlices(DIGIT_ONE_ROWS)
+
     def frameNcorners(self):
         """
         This only works for 60 pixel string
@@ -234,10 +243,7 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._cmds =   [ "gradient full butterscotch medium",
-                         "gradient full blue medium",
-                         "gradient full green medium",
-                         "gradient full red fast" ]
+        self._cmds =   [ "runner digit1H red fast" ]
         self._ndx = 0
         self._interval_timer = None
 
@@ -375,13 +381,13 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
-            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment":
+            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment" or comp_name == "digit1H":
                 return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip":
-            if comp_name == "full" or comp_name == "oval":
+            if comp_name == "full" or comp_name == "oval" or comp_name == "digit1H":
                 """
                 borrow the speed part of the command to enable tap on drip
                 """
@@ -394,7 +400,7 @@ class EffectChooser:
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         elif effect_name == "gradient":
-            if comp_name == "full":
+            if comp_name == "full" or comp_name == "digit1H":
                 return [ GradientEffect(self._pixel_buffer, color=color,)]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
@@ -441,6 +447,12 @@ if __name__ == "__main__":
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "oval":
             presentation.oval()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digit1H":
+            presentation.digitOneH()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)

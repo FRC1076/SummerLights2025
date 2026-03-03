@@ -40,8 +40,8 @@ class PushButton:
     def __init__(self, board_pin):
         self._pin = digitalio.DigitalInOut(board_pin)
         self._pin.direction = digitalio.Direction.INPUT
-        self._pin.pull = digitalio.Pull.DOWN
-        self._button = Button(self._pin, value_when_pressed=True)
+        self._pin.pull = digitalio.Pull.UP
+        self._button = Button(self._pin, value_when_pressed=False)
     
     def pressed(self):
         """
@@ -86,6 +86,9 @@ class RotarySelector:
 
     def button_released(self):
         return self._button.released()
+
+    def button_update(self):
+        self._button.update()
 
 
 def rowcol_to_index(rows, columns, position):
@@ -147,6 +150,7 @@ chooser = RotarySelector(board.GP18, board.GP19, board.GP12, 2, name="Vert", sen
 pixels = neopixel.NeoPixel(board.GP15, NUM_PIXELS, brightness=1.0, auto_write=False)
 pixels.fill(INACTIVE_PIXEL_COLOR)
 pit_lights = neopixel.NeoPixel(board.GP6, NUM_PIT_PIXELS, brightness=1.0, auto_write=False)
+alt_button = PushButton(board.GP28)
 #cursor = Cursor(pixels)
 
 def display_glyph(pixels, glyph, color=PURPLE):
@@ -208,13 +212,6 @@ class Aura:
         if self._frame_index == 0:
             self._state = None       
 
-#for c in range(FEATHER_COLUMNS):
-#    for r in range(FEATHER_ROWS):
-#        print((r,c), "=>", rowcol_to_index(FEATHER_ROWS, FEATHER_COLUMNS, (r,c)))
-
-display_glyph(pixels, purple_glyph, PURPLE)
-display_glyph(pixels, white_glyph, WHITE)
-
 auras = [ None ] * 2
 auras[0] = Aura(pixels, purple_aura, LT_GREEN, MED_GREEN)
 auras[1] = Aura(pixels, white_aura, LT_GREEN, MED_GREEN)
@@ -222,27 +219,41 @@ auras[1] = Aura(pixels, white_aura, LT_GREEN, MED_GREEN)
 last_choice = None
 
 while True:
-    choice = chooser.selection()    # either 0 or 1
 
-    if choice != last_choice:
-        print("Last choice:", last_choice, "current:", choice)
-        if not last_choice == None:
-            auras[last_choice].deselect()
-        auras[choice].select()
+    chooser.button_update()
+    if chooser.button_pressed():
 
-    auras[choice].animate()
+        selecting_effect = True
+        display_glyph(pixels, purple_glyph, PURPLE)
+        display_glyph(pixels, white_glyph, WHITE)
 
-    pixels.show()
 
-    if choice != last_choice:
-        for i in range(len(pit_lights)):
-            pit_lights[i] = COLOR_CHOICE[choice]
-        pit_lights.show()
+        while selecting_effect:
+            choice = chooser.selection()    # either 0 or 1
 
-    if random.random() > 0.95:
-        print("chooser.button_pressed()=", chooser.button_pressed())
+            if choice != last_choice:
+                print("Last choice:", last_choice, "current:", choice)
+                if not last_choice == None:
+                    auras[last_choice].deselect()
+                auras[choice].select()
 
-    
+            auras[choice].animate()
 
-    last_choice = choice
-    time.sleep(0.02)
+            pixels.show()
+
+            if choice != last_choice:
+                for i in range(len(pit_lights)):
+                    pit_lights[i] = COLOR_CHOICE[choice]
+                pit_lights.show()
+
+            time.sleep(0.02)
+            last_choice = choice
+            chooser.button_update()
+            if chooser.button_pressed():
+                selecting_effect = False
+                time.sleep(0.02)
+                pixels.fill(OFF)
+                pixels.show()
+
+
+

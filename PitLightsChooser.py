@@ -9,15 +9,23 @@ import neopixel
 import random
 import rotaryio
 import digitalio
-from adafruit_debouncer import Debouncer
+from adafruit_debouncer import Debouncer, Button
 
 FEATHER_COLUMNS = 4
 FEATHER_ROWS = 8
 NUM_PIXELS = FEATHER_ROWS*FEATHER_COLUMNS
+NUM_PIT_PIXELS = 24
+
 PURPLE = (255, 0, 255)
 WHITE = (255, 255, 255)
-LT_GREEN = (0, 50, 0)
-MED_GREEN = (0, 150, 0)
+LT_GREEN = (0, 25, 0)
+MED_GREEN = (0, 75, 0)
+CURSOR_COLOR = (0, 0, 100)
+ACTIVE_PIXEL_COLOR = (0, 100, 0)
+INACTIVE_PIXEL_COLOR = (100, 0, 0)
+OFF = (0, 0, 0)
+COLOR_CHOICE = [ PURPLE, WHITE ]
+
 
 def signum(n):
     if n > 0:
@@ -29,24 +37,24 @@ def signum(n):
 
 class PushButton:
 
-    def __init__(self, button_pin):
-        self._button = digitalio.DigitalInOut(button_pin)
-        self._button.direction = digitalio.Direction.INPUT
-        self._button.pull = digitalio.Pull.UP
-        self._debouncer = Debouncer(self._button)
+    def __init__(self, board_pin):
+        self._pin = digitalio.DigitalInOut(board_pin)
+        self._pin.direction = digitalio.Direction.INPUT
+        self._pin.pull = digitalio.Pull.DOWN
+        self._button = Button(self._pin, value_when_pressed=True)
     
     def pressed(self):
         """
         Button is connected to ground, so when it is pressed, the value on the pin
         is 0, which equates to False
         """
-        return self._debouncer.fell
+        return self._button.pressed
 
     def released(self):
-        return self._debouncer.rose
+        return self._button.released
 
     def update(self):
-        self._debouncer.update()
+        self._button.update()
 
 class RotarySelector:
 
@@ -76,12 +84,16 @@ class RotarySelector:
     def button_pressed(self):
         return self._button.pressed()
 
-
+    def button_released(self):
+        return self._button.released()
 
 
 def rowcol_to_index(rows, columns, position):
     """
-    If column is even, then mapping is easy
+    Given ROWS, COLUMNS dimension, convert the (r,c) value
+    into a pixel index
+    This is zig-zag matrix arrangment with 0,0 as the
+    data input pin.
     """
     if position[1] % 2 == 0:
         ndx = position[1]*rows + position[0]
@@ -90,10 +102,6 @@ def rowcol_to_index(rows, columns, position):
     return ndx
 
 
-CURSOR_COLOR = (0, 0, 100)
-ACTIVE_PIXEL_COLOR = (0, 100, 0)
-INACTIVE_PIXEL_COLOR = (100, 0, 0)
-OFF = (0, 0, 0)
 
 class Cursor:
     """
@@ -136,10 +144,10 @@ class Cursor:
 
 
 chooser = RotarySelector(board.GP18, board.GP19, board.GP12, 2, name="Vert", sense=1)
-horiz = RotarySelector(board.GP16, board.GP17, board.GP13, FEATHER_COLUMNS, name="Horiz", sense=1)
 pixels = neopixel.NeoPixel(board.GP15, NUM_PIXELS, brightness=1.0, auto_write=False)
 pixels.fill(INACTIVE_PIXEL_COLOR)
-cursor = Cursor(pixels)
+pit_lights = neopixel.NeoPixel(board.GP6, NUM_PIT_PIXELS, brightness=1.0, auto_write=False)
+#cursor = Cursor(pixels)
 
 def display_glyph(pixels, glyph, color=PURPLE):
     for pos in glyph:
@@ -149,6 +157,12 @@ def display_glyph(pixels, glyph, color=PURPLE):
 
 def translate(glyph, displacement):
     return [ (r+displacement[0],c+displacement[1]) for (r,c) in glyph ]
+
+#
+# The menu offers two glyphs surrounded by a selection auro
+# 2-D coordinates made this a bit easier to map out.
+# Could convert these to indexes to elimate the extra indirection,
+# but maybe not worth it.
 
 purple_glyph = [ (1, 1), (1, 2), (2, 1), (2, 2) ]
 white_glyph = translate(purple_glyph, (4,0))
@@ -188,9 +202,9 @@ class Aura:
                 self._state = self._colorA
 
     def deselect(self):
-        pixel_index = rowcol_to_index(FEATHER_ROWS, FEATHER_COLUMNS, self._glyph[self._frame_index])
-        self._pixels[pixel_index] = OFF
-        self._frame_index = (self._frame_index + 1) % len(self._glyph)
+        for pixel_rc in self._glyph:
+            pixel_index = rowcol_to_index(FEATHER_ROWS, FEATHER_COLUMNS, pixel_rc)
+            self._pixels[pixel_index] = OFF
         if self._frame_index == 0:
             self._state = None       
 
@@ -208,30 +222,27 @@ auras[1] = Aura(pixels, white_aura, LT_GREEN, MED_GREEN)
 last_choice = None
 
 while True:
-    choice = 1     # either 0 or 1
-
-    if random.random() > 0.88:
-        if choice == 0:
-            choice = 1
-        else:
-            choice = 0
+    choice = chooser.selection()    # either 0 or 1
 
     if choice != last_choice:
-        try:
-            aura[last_choice].deselect()
-        except:
-            pass
+        print("Last choice:", last_choice, "current:", choice)
+        if not last_choice == None:
+            auras[last_choice].deselect()
         auras[choice].select()
 
     auras[choice].animate()
 
     pixels.show()
 
-    if chooser.button_pressed():
-        time.sleep(0.1)
-        while not chooser.button_released():
-            time.sleep(0.1)
-        print("Activated selection:", choice)
+    if choice != last_choice:
+        for i in range(len(pit_lights)):
+            pit_lights[i] = COLOR_CHOICE[choice]
+        pit_lights.show()
+
+    if random.random() > 0.95:
+        print("chooser.button_pressed()=", chooser.button_pressed())
+
+    
 
     last_choice = choice
     time.sleep(0.02)

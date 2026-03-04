@@ -24,7 +24,7 @@ CURSOR_COLOR = (0, 0, 100)
 ACTIVE_PIXEL_COLOR = (0, 100, 0)
 INACTIVE_PIXEL_COLOR = (100, 0, 0)
 OFF = (0, 0, 0)
-COLOR_CHOICE = [ PURPLE, WHITE ]
+COLOR_CHOICES = [ PURPLE, WHITE ]
 
 
 def signum(n):
@@ -130,7 +130,7 @@ class Cursor:
 
     def move_to(self, position):
         """
-        Restore the underpixel and to the new position
+        Restore the underpixel and move to the new position
         """
         pixels[self._under_pixel_index] = self._under_pixel
         self._index = rowcol_to_index(self._rows, self._columns, position)
@@ -146,20 +146,11 @@ class Cursor:
             self._under_pixel = ACTIVE_PIXEL_COLOR
 
 
-chooser = RotarySelector(board.GP18, board.GP19, board.GP12, 2, name="Vert", sense=1)
-pixels = neopixel.NeoPixel(board.GP15, NUM_PIXELS, brightness=1.0, auto_write=False)
-pixels.fill(INACTIVE_PIXEL_COLOR)
-pit_lights = neopixel.NeoPixel(board.GP6, NUM_PIT_PIXELS, brightness=1.0, auto_write=False)
-alt_button = PushButton(board.GP28)
-#cursor = Cursor(pixels)
-
-def display_glyph(pixels, glyph, color=PURPLE):
-    for pos in glyph:
-        ndx = rowcol_to_index(FEATHER_ROWS, FEATHER_COLUMNS, pos)
-        pixels[ndx]=color
-
-
 def translate(glyph, displacement):
+    """
+    Return a new glyph that is the original move by
+    DISPLACEMENT.
+    """
     return [ (r+displacement[0],c+displacement[1]) for (r,c) in glyph ]
 
 #
@@ -167,9 +158,15 @@ def translate(glyph, displacement):
 # 2-D coordinates made this a bit easier to map out.
 # Could convert these to indexes to elimate the extra indirection,
 # but maybe not worth it.
-
+#
 purple_glyph = [ (1, 1), (1, 2), (2, 1), (2, 2) ]
 white_glyph = translate(purple_glyph, (4,0))
+"""
+This points for the aura are scrambled a bit so that they
+circle around the square when colored in index order.   The shape
+of the array in the code is just to suggest what shape
+if makes if you color all of the points.
+"""
 purple_aura = [ (0,0), (0,1), (0,2), (0,3),
                 (1,3),               (2,3),
                 (3,3),               (3,2),
@@ -179,7 +176,6 @@ white_aura = translate(purple_aura, (4,0))
 def display_glyph(pixels, glyph, color=PURPLE):
     for pos in glyph:
         ndx = rowcol_to_index(FEATHER_ROWS, FEATHER_COLUMNS, pos)
-        print("pixels at", ndx, "=", color)
         pixels[ndx]=color
 
 class Aura:
@@ -212,48 +208,68 @@ class Aura:
         if self._frame_index == 0:
             self._state = None       
 
-auras = [ None ] * 2
-auras[0] = Aura(pixels, purple_aura, LT_GREEN, MED_GREEN)
-auras[1] = Aura(pixels, white_aura, LT_GREEN, MED_GREEN)
 
-last_choice = None
+if __name__ == "__main__":
 
-while True:
+    chooser = RotarySelector(board.GP18, board.GP19, board.GP12, 2, name="Vert", sense=1)
+    pixels = neopixel.NeoPixel(board.GP15, NUM_PIXELS, brightness=1.0, auto_write=False)
+    pixels.fill(INACTIVE_PIXEL_COLOR)
+    pit_lights = neopixel.NeoPixel(board.GP6, NUM_PIT_PIXELS, brightness=1.0, auto_write=False)
+    alt_button = PushButton(board.GP28)
+    #cursor = Cursor(pixels)
 
-    chooser.button_update()
-    if chooser.button_pressed():
+    auras = [ None ] * 2
+    auras[0] = Aura(pixels, purple_aura, LT_GREEN, MED_GREEN)
+    auras[1] = Aura(pixels, white_aura, LT_GREEN, MED_GREEN)
 
-        selecting_effect = True
-        display_glyph(pixels, purple_glyph, PURPLE)
-        display_glyph(pixels, white_glyph, WHITE)
+    last_choice = None
 
+    while True:
 
-        while selecting_effect:
-            choice = chooser.selection()    # either 0 or 1
+        chooser.button_update()
+        if chooser.button_pressed():
+            """
+            When the selection process begins, the choices are display
+            on the screen and the current selection is highlighted by
+            a surrounding aura.
+            """
+            selecting_effect = True
+            display_glyph(pixels, purple_glyph, PURPLE)
+            display_glyph(pixels, white_glyph, WHITE)
 
-            if choice != last_choice:
-                print("Last choice:", last_choice, "current:", choice)
-                if not last_choice == None:
-                    auras[last_choice].deselect()
-                auras[choice].select()
+            while selecting_effect:
+                choice = chooser.selection()    # either 0 or 1
 
-            auras[choice].animate()
+                if choice != last_choice:
+                    if not last_choice == None:
+                        auras[last_choice].deselect()
+                    auras[choice].select()
 
-            pixels.show()
-
-            if choice != last_choice:
-                for i in range(len(pit_lights)):
-                    pit_lights[i] = COLOR_CHOICE[choice]
-                pit_lights.show()
-
-            time.sleep(0.02)
-            last_choice = choice
-            chooser.button_update()
-            if chooser.button_pressed():
-                selecting_effect = False
-                time.sleep(0.02)
-                pixels.fill(OFF)
+                # animate the choose aura around the choice
+                auras[choice].animate()
                 pixels.show()
+
+                if choice != last_choice:
+                    """
+                    Any time the choice changes, the new color should
+                    be display on the pit lights.
+                    """
+                    for i in range(len(pit_lights)):
+                        pit_lights[i] = COLOR_CHOICES[choice]
+                    pit_lights.show()
+
+                time.sleep(0.02)
+                last_choice = choice
+                chooser.button_update()
+                if chooser.button_pressed():
+                    """
+                    Button press ends the selection process and clears the
+                    small controller display.
+                    """
+                    selecting_effect = False
+                    time.sleep(0.02)
+                    pixels.fill(OFF)
+                    pixels.show()
 
 
 

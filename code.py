@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 
 Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 #from adafruit_circuitplayground import cp
+import gc
 import board
 import neopixel
 import random
@@ -37,12 +38,12 @@ from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect
+from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
 
 #PICO_PIN = board.GP15
-KEYBOAR_PIN = board.D2
-#PLAYGROUND_PIN = board.D10
-NEO_PIN = KEYBOAR_PIN
+#KEYBOAR_PIN = board.D2
+PLAYGROUND_PIN = board.D10
+NEO_PIN = PLAYGROUND_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -81,9 +82,14 @@ BUTTERSCOTCH = (253, 100, 10)
 GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
+FULL_RED = (255, 0, 0)
 
 TAP = 3
 NO_TAP = 2
+
+DIGIT_ONE_ROWS = 36
+DIGIT_ONE_NUM_PIXELS = 78
+NUM_PIXELS = 78
 
 ValidSpeeds =   {"slow" :   20,
                  "medium" :  5,
@@ -97,6 +103,7 @@ ValidColors =   {"off": OFF,
                  "butterscotch" : BUTTERSCOTCH,
                  "blue" : BLUE,
                  "red"  : RED,
+                 "full-red" : FULL_RED,
                  "green" :  GREEN
                 }
 
@@ -107,6 +114,7 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "runner",                #  zip back and forth
                  "fliprunner",            #  for the frameNcorners (flip on corners, run sides)
                  "squeeze",               #  close the curtain
+                 "gradient",              #  Evan Besirli effect
                  "multi",                 #  several effects on substrings
                  "clap",
                  "drip",                  #  physics based particle animation
@@ -127,6 +135,7 @@ ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest
                      "oval",               #  sliced topology for oval with start/end at top
                      "7segment",           #  sliced 7segment display (figure eight)
                      "frameNcorners",      #  5-buffer layout with sides contiguous
+                     "digit1H",            #  78 pixel, 36 row groupings
                      "1/2",                #  split into two pixels
                      "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions
@@ -206,6 +215,10 @@ class Presentation:
         self._buffer = PixelBuffer(groups)
         self._compositor.oval(NUM_PIXELS, groups)
 
+    def digitOneH(self):
+        self._buffer = PixelBuffer(DIGIT_ONE_ROWS)
+        self._compositor.digitOneHSlices(DIGIT_ONE_ROWS)
+
     def frameNcorners(self):
         """
         This only works for 60 pixel string
@@ -221,6 +234,33 @@ class Presentation:
 
     def pixel_buffer(self):
         return self._buffer
+
+
+class SyntheticDemoer:
+
+    NANO_SECONDS_PER_SECOND = 1000000000
+    INTERVAL_SECS = 10
+    INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
+
+    def __init__(self):
+        self._cmds =   [ "runner digit1H red fast" ]
+        self._ndx = 0
+        self._interval_timer = None
+
+    def nextCommand(self):
+
+        cmd = None
+        gc.collect()
+        print("Memory free:", gc.mem_free())
+
+        # first time
+        #if self._interval_timer == None or ((time.monotonic_ns() - self._interval_timer) > SyntheticDemoer.INTERVAL_NS):
+        #    self._interval_timer = time.monotonic_ns()
+
+        cmd = self._cmds[self._ndx]
+        self._ndx += 1 % len(self._cmds)    # wrap!
+
+        return cmd
 
 
 
@@ -341,13 +381,13 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
-            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment":
+            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment" or comp_name == "digit1H":
                 return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip":
-            if comp_name == "full" or comp_name == "oval":
+            if comp_name == "full" or comp_name == "oval" or comp_name == "digit1H":
                 """
                 borrow the speed part of the command to enable tap on drip
                 """
@@ -359,6 +399,9 @@ class EffectChooser:
             if comp_name == "frameNcorners":
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
+        elif effect_name == "gradient":
+            if comp_name == "full" or comp_name == "digit1H":
+                return [ GradientEffect(self._pixel_buffer, color=color,)]
         else:
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 
@@ -367,6 +410,9 @@ class EffectChooser:
 
 if __name__ == "__main__":
 
+    demoer = None
+    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
     #pixels = cp.pixels
@@ -374,7 +420,10 @@ if __name__ == "__main__":
 
     cmd = ""
     while cmd.split(' ')[0] not in ValidEffects:
-        cmd = input("Effect? ")
+        if not demoer is None:
+            cmd = demoer.nextCommand()
+        else:
+            cmd = input("Effect? ")
 
     start_time_ns = time.monotonic_ns()
 
@@ -398,6 +447,12 @@ if __name__ == "__main__":
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "oval":
             presentation.oval()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digit1H":
+            presentation.digitOneH()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
@@ -493,7 +548,10 @@ if __name__ == "__main__":
         # prompt for another effect
         cmd = ""
         while cmd.split(' ')[0] not in ValidEffects:
-            cmd = input("3ffect? ")
+            if not demoer is None:
+                cmd = demoer.nextCommand()
+            else:
+                cmd = input("3ffect? ")
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()

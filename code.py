@@ -258,7 +258,7 @@ class SyntheticDemoer:
         #    self._interval_timer = time.monotonic_ns()
 
         cmd = self._cmds[self._ndx]
-        self._ndx += 1 % len(self._cmds)    # wrap!
+        self._ndx = (self._ndx + 1) % len(self._cmds)    # wrap!
 
         return cmd
 

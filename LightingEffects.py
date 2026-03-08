@@ -399,34 +399,6 @@ class ClapEffect:
             yield from self.rest(15)
 
 
-
-class InstantFillBackground:
-
-    def __init__(self, pixels, start_index, num_pixels, color=PURPLE, brightness=BRIGHTNESS, slowness=0, clear_on_init=True):
-        """
-        Create a lighting effect that fills PIXELS in the specified range, with the specified color.
-        Defaults are all PURPLE pixels at the global BRIGHTNESS.
-        The filling is done all in one shot, suitable for use as a background for some other effect.
-        """
-        self._pixels = pixels
-        self._start_index = start_index
-        self._num_pixels = num_pixels
-        self._pixel_range = pixel_range
-        self._color = color
-        self._brightness = brightness
-
-    def make_generator(self):
-        """
-        Need to decide how to set the brightness separately
-        maybe just scale the self._color on __init__?
-        or just agree to use the color passed in
-        """
-        p = 0
-        for p in self._pixel_range:
-            self._pixels[p] = self._color
-
-
-
 class RunnerEffect:
     """
     One pixel car drives from low to high on the string.

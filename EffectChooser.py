@@ -1,9 +1,8 @@
 from NeoConfig import *
-from PixelBuffer import PixelBuffer
-from Compositor import Compositor
-from Physics import Physics, Particle
+from DemoCommands import ValidEffects,ValidDivisions,ValidCompositors,ValidColors,ValidSpeeds,TAP,NO_TAP,show_help
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
+
 class EffectChooser:
     """
 

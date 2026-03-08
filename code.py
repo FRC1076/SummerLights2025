@@ -34,23 +34,26 @@ import board
 import neopixel
 import random
 import time
-from NeoConfig import*
+from NeoConfig import *
 from PixelBuffer import PixelBuffer
 from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
 from EffectChooser import EffectChooser
-
+from DemoCommands import ValidEffects,ValidDivisions,ValidCompositors,ValidColors,ValidSpeeds,show_help
 
 PICO_PIN = board.GP15
 #KEYBOAR_PIN = board.D2
-#PLAYGROUND_PIN = board.D10
+#PLAYGROUND_PIN = board.GP15
 NEO_PIN = PICO_PIN
 
+FEATHER_WING_ROWS = 4
+FEATHER_WING_COLUMNS = 8
 
-
-# LED strings removes as duplicate in NeoConfig
+# Two choices for strings
+FEATHER_WING_PIXELS = FEATHER_WING_ROWS * FEATHER_WING_COLUMNS
+NEON_PIXELS = 64
 
 # Playground onboard neopixels
 CP_PIXELS = 10
@@ -68,39 +71,26 @@ NUM_PIXELS = SIDELIGHT_PIXELS
 
 # color increment ensures that we can cycle through a full
 # range of color intensities from the first to last pixels
+COLOR_INC = 255 / NUM_PIXELS
 
+# keep things dim to save power
+BRIGHTNESS = 0.1
 
-#colors and brightness were moves out of code.py beucase they are already imported into it from the NeoConfig file.
+# some ready made colors (feel free to add more)
+OFF = (0, 0, 0)
+PURPLE = (92, 50, 168)
+ORANGE = (235, 122, 52)
+BLUE = (24, 30, 214)
+BUTTERSCOTCH = (253, 100, 10)
+GREEN = (3, 252, 3)
+PINK = (248, 3, 252)
+RED = (220, 0, 0)
+FULL_RED = (255, 0, 0)
 
 
 
 DIGIT_ONE_ROWS = 36
 DIGIT_ONE_NUM_PIXELS = 78
-NUM_PIXELS = 78
-
-
-
-def show_help():
-
-    print("effect compositor color [speed | other options]")
-    print("Example: flipflop 12 green slow")
-    print("Example: drip full blue fast")
-
-    print("\nEFFECTS")
-    for effect_cmd in ValidEffects:
-        print("   ", effect_cmd)
-
-    print("\nCOMPOSITORS")
-    for c in ValidCompositors:
-        print("   ", c)
-
-    print("\nCOLORS")
-    for c in ValidColors.keys():
-        print("   ", c)
-
-    print("OPTIONS")
-    for opt in ValidSpeeds:
-        print("   ", opt)
 
 
 class Presentation:
@@ -119,7 +109,7 @@ class Presentation:
         self._buffer_list = [ pixel_buffer ] * FEATHER_WING_ROWS
         #for i in range(FEATHER_WING_ROWS):
         #self._buffer_list[i] = PixelBuffer(FEATHER_WING_COLUMNS)
-        self._compositor.bufferList(list_of_buffers=buffer_list)
+        self._compositor.bufferList(list_of_buffers=self._buffer_list)
 
     def playgroundBuiltIn(self):
         self._buffer = PixelBuffer(CP_PIXELS)
@@ -183,7 +173,7 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._cmds =   [ "runner digit1H red fast" ]
+        self._cmds =   [ "gradient full red" ]
         self._ndx = 0
         self._interval_timer = None
 
@@ -212,7 +202,7 @@ class SyntheticDemoer:
 if __name__ == "__main__":
 
     demoer = None
-    #demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)

@@ -36,9 +36,9 @@ class OneColorEffect:
         Clear everything when wrapping around
         """
         if self._ndx == 0:
-            pixels.fill(ColorChooser.OFF)
+            self._pixels.fill(ColorChooser.OFF)
         if self._cycle == 0:
-            pixels[self._ndx] = self._color
+            self._pixels[self._ndx] = self._color
             self._ndx = (self._ndx + 1) % len(self._pixels)
 
         self._cycle = (self._cycle + 1) % OneColorEffect.CYCLES_PER_PIXEL
@@ -153,15 +153,16 @@ if __name__ == "__main__":
         print("Unable to initialize neopixels:", str(ve))
         print("Trying to free up the resource")
         try:
+            import adafruit_circuitplayground as cp
             cp.cp.pixels.deinit()
             pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1, auto_write=True)
         except NameError as ne:
             print("Unable to get a reference to free up the resource:", str(ne))
-            print("Things likely will not work...")
+            print("NeoPixels will likely not work.")
         else:
-            print("Neopixels initialized successfully!")
+            print("NeoPixels initialized successfully!")
     else:
-        print("Neopixels initialized successfully!")
+        print("NeoPixels initialized successfully!")
 
     # for the first time, we'll pretend it has been running for some time
     previous_index = int(random.random() * NUM_PIXELS) % NUM_PIXELS
@@ -192,3 +193,4 @@ if __name__ == "__main__":
     # Always try to cleanup, although this is not reachable
     self.deinit()
     
+# Write your code here :-)

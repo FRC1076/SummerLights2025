@@ -1,24 +1,15 @@
+"""
+SPDX-License-Identifier: BSD-3-Clause
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+https://github.com/FRC1076
+"""
 from adafruit_debouncer import Button
+import adafruit_circuitplayground as cp
 import time
 import board
 import neopixel
 import random
 import digitalio
-
-
-NUM_PIXELS=10
-
-#
-#   If the circuitplayground library has been initialized, the internal NEOPIXEL pin will
-#   be claimed.   We have to free it up before we can control it our own way.
-#
-try:
-    pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1, auto_write=True)
-except ValueError:
-    cp.pixels.deinit()
-    pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1, auto_write=True)
-
-
 
 class OneColorEffect:
 
@@ -35,11 +26,17 @@ class OneColorEffect:
         self._color = color
         self._cycle = 0
         self._ndx = 0
+        
+    def dump(self):
+        print("Index:", self._ndx, "Cycle:", self._cycle, "Color:", self._color)
 
     def animate(self):
         """
         Light a pixel on the beginning of the cycle
+        Clear everything when wrapping around
         """
+        if self._ndx == 0:
+            pixels.fill(ColorChooser.OFF)
         if self._cycle == 0:
             pixels[self._ndx] = self._color
             self._ndx = (self._ndx + 1) % len(self._pixels)
@@ -74,16 +71,14 @@ class ColorChooser():
 
             reinitialize_effects_with_index(active_effect_index)
     """
-    def __init__(self, pin_a_name, pin_b_name):
+    def __init__(self, pixels, pin_a_name, pin_b_name):
         """
         Initialize the neopixels and the buttons
         Initialize all of the working variables you need to track button state and current selection
         of the index.
         """
-        self._bcount = 0
-        self.color_capture = 0
-        self.color_change = 0
-        self.active_effect_index = 0
+        self.pixels = pixels
+        self.bcount = 0
         # initialize a button
         a_pin = digitalio.DigitalInOut(pin_a_name)
         a_pin.direction = digitalio.Direction.INPUT
@@ -99,35 +94,25 @@ class ColorChooser():
         b_pin.direction = digitalio.Direction.INPUT
         b_pin.pull = digitalio.Pull.DOWN
         self.b_button = Button(b_pin, value_when_pressed=True)
+        
+    def deinit(self):
+        try:
+            self.pixels.deinit()
+            self.a_button.deinit()
+            self.b_button.deinit()
+        except:
+            pass
 
     def new_effect_requested(self):
         """
         Debounce this.    Use button.released for the triggering event.
         """
+        return self.button_a_released()
+        
+    def button_a_released(self):
         self.a_button.update()
-        return self.a_button.pressed
-
-    def check_input_a(self):
-        self.a_button.update()
-        if self.a_button.pressed:
-            print("Button A pressed")
-            while self.a_button.pressed:
-                time.sleep(0.01)
-            print("Button A released")
-            self.color_capture = 1
-            return self.color_capture
-            #print("log, A")
-
-    def check_input_b(self):
-        self.b_button.update()
-        if self.b_button.pressed:
-            print("Button B pressed")
-            while self.b_button.pressed:
-                time.sleep(0.01)
-            print("Button B released")
-            self.color_change = 1
-            return self.color_change
-
+        return self.a_button.released
+        
     def chosen_color(self, active_effect_index):
         """
         Caller passes in the index of the current running effect.    This helps set up the chooser to start with the current
@@ -135,65 +120,75 @@ class ColorChooser():
         It also permits the caller to resume the currently active effect if no change is made by just pressing
         the end-selection button.
         """
+        self.b_count = active_effect_index         # start at the setting provided
+        update_pixels = True         # use this to force an update to the pixel ring
+        while not self.button_a_released():
 
-        #Flags
-        self.b_count = active_effect_index
-        self.color_capture = 0
-        self.color_change = 0
-        print("colorchoose(", active_effect_index, ") called.")
-
-        while not check_input_a(self):
-            print("log, b_count = " + str(b_count))
-            self.active_effect_index = b_count
-            if check_input_b(self):
-                b_count = (b_count + 1) % NUM_PIXELS
-            # Display the value of currently selected effect_index
-            pixels.fill(ColorChooser.OFF)
-            for i in range(active_effect_index+1):
-                pixels[i]=ColorChooser.colors[i]
+            self.b_button.update()
+            if self.b_button.released:
+                #  Update the index, and only update the pixels if something changes
+                self.b_count = (self.b_count + 1) % len(self.pixels)
+                update_pixels = True
+                
+            if update_pixels:
+                self.pixels.fill(ColorChooser.OFF)
+                for i in range(self.b_count+1):
+                    self.pixels[i]=ColorChooser.colors[i]
+                update_pixels = False      #  clear the display triggering
+            time.sleep(0.02)
         
-        return self._bcount
+        return self.b_count
+
 
 if __name__ == "__main__":
 
-    # firs time, we'll just start in a random spot to help with testing
-    last_choice = int(random.random() * 10)
-    effect = OneColorEffect(pixels, last_choice)
-
-
-    """
-    This effect can be used to test the control flow when the colorchoose function DOES NOT BLOCK.
-    """
-
-    cc = ColorChooser(board.BUTTON_A, board.BUTTON_B)
-    effect.reset(ColorChooser.colors[1])
-    while True:
-        if cc.new_effect_requested():
-            color_index = cc.chosen_color()
-            effect.reset(ColorChooser.colors[color_index])
-        for _ in range(NUM_PIXELS * OneColorEffect.CYCLES_PER_PIXEL):
-            effect.animate()
-            time.sleep(0.02)
-        time.sleep(0.02)
-
-
-    NUM_TESTS = 10
-    for _ in range(NUM_TESTS):
-        """
-        Note: colorchoose blocks execution
-        The main loop of our effects has to run every 20 milliseconds
-        unless it is interrupted.   We don't want to interrupt it each
-        cycle.
-        """
-        choice = colorchoose(last_choice)
-        print("Pikachu, I choose:", choice)
-        last_choice = choice
-
-
-    # Always try to cleanup
+    #
+    #   If the circuitplayground library has been initialized elsewhere, the internal NEOPIXEL pin will
+    #   be claimed.   We have to free it up before we can control it our own way.
+    #
+    NUM_PIXELS=10
     try:
-        pixels.deinit()
-        a_button.deinit()
-        b_button.deinit()
-    except:
-        pass
+        pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1, auto_write=True)
+    except ValueError as ve:
+        print("Unable to initialize neopixels:", str(ve))
+        print("Trying to free up the resource")
+        try:
+            cp.cp.pixels.deinit()
+            pixels = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1, auto_write=True)
+        except NameError as ne:
+            print("Unable to get a reference to free up the resource:", str(ne))
+            print("Things likely will not work...")
+        else:
+            print("Neopixels initialized successfully!")
+    else:
+        print("Neopixels initialized successfully!")
+
+    # for the first time, we'll pretend it has been running for some time
+    previous_index = int(random.random() * NUM_PIXELS) % NUM_PIXELS
+    effect = OneColorEffect(pixels, ColorChooser.colors[previous_index])
+
+    """
+    This effect can be used to test the control flow to make sure the colorchoose
+    function DOES NOT BLOCK unless the REQUEST button is released.
+    """
+    cc = ColorChooser(pixels, board.BUTTON_A, board.BUTTON_B)
+    
+    while True:
+        """
+        The effect always runs in this main loop, only ever interrupted by the chooser request
+        """
+        if cc.new_effect_requested():
+            chosen_index = cc.chosen_color(previous_index)
+            if previous_index != chosen_index:
+                print("Chose: ", chosen_index)
+                effect.reset(ColorChooser.colors[chosen_index])
+                previous_index = chosen_index
+            else:
+                print("Unchanged")
+        effect.animate()
+        time.sleep(0.02)
+    
+    
+    # Always try to cleanup, although this is not reachable
+    self.deinit()
+    

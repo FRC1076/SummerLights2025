@@ -85,6 +85,7 @@ GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
 FULL_RED = (255, 0, 0)
+TIMED = (1, 1, 1)
 
 TAP = 3
 NO_TAP = 2
@@ -114,16 +115,16 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "wipe",                  #  display purple on the whole string
                  "rainbow",               #  rainbow effect on full string
                  "runner",                #  zip back and forth
-                 "fliprunner",            #  for the frameNcorners (flip on corners, run sides)
+                 "fliprunner",            #  DOES NOT WORK (Needs richer compositor)
                  "squeeze",               #  close the curtain
                  "gradient",              #  Evan Besirli effect
                  "multi",                 #  several effects on substrings
-                 "clap",
+                 "clap",                  #  still experimental
                  "drip",                  #  physics based particle animation
                  "sound",                 #  sound response demo
-                 "Repeat",                #  repeat the sequence of effects
-                 "Wait",                  #  wait for a number of seconds
-                 "Quit",
+                 "Repeat",                #  repeat the previous sequence of effects
+                 "Wait",                  #  wait for a number of seconds  (fast=5, medium=25, slow=100)
+                 "Quit",                  #  end the sequence of effects
                  "help" ]
 
 ValidDivisions = [   "2",                  #  2 divisions
@@ -250,9 +251,11 @@ class SyntheticDemoer:
         self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
                          ( "wipe digit1H blue medium", "Wait full red fast", "wipe digit1H red medium", "Wait full red fast", "wipe digit1H purple medium", "Wait full red fast" ),
                          ( "flipflop digit1H red slow", ),
-                         ( "drip digit1H blue medium", ),
+                         ( "drip digit1H purple medium", ),
                          ( "flipflop 2 purple slow", ),
-                         ( "Wait full red fast", "drip digit1H blue tap" )
+                         ( "Wait full red fast", "drip digit1H blue tap" ),
+                         ( "gradient digit1H blue slow", "Wait full red fast", ),
+                         ( "sound digit1H blue fast", ),
                          ]
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice
@@ -594,7 +597,4 @@ if __name__ == "__main__":
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()
-
-
-
 

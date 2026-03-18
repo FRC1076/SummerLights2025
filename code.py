@@ -92,7 +92,7 @@ NO_TAP = 2
 
 DIGIT_ONE_ROWS = 36
 DIGIT_ONE_NUM_PIXELS = 78
-NUM_PIXELS = 80
+NUM_PIXELS = 60
 
 ValidSpeeds =   {"slow" :   20,
                  "medium" :  5,
@@ -250,7 +250,7 @@ class SyntheticDemoer:
     def __init__(self):
         self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
                          ( "wipe digit1H blue medium", "Wait full red fast", "wipe digit1H red medium", "Wait full red fast", "wipe digit1H purple medium", "Wait full red fast" ),
-                         ( "flipflop digit1H red slow", ),
+                         ( "flipflop 12 red slow", ),
                          ( "drip digit1H purple medium", ),
                          ( "flipflop 2 purple slow", ),
                          ( "Wait full red fast", "drip digit1H blue tap" ),

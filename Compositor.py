@@ -137,20 +137,29 @@ class Compositor:
         #return
         for i,c in enumerate(self._composition):
             if isinstance(c, int):
-                neo_pixels[i] = pixel_buffer[i]
+                try:
+                    neo_pixels[i] = pixel_buffer[i]
+                except IndexError:
+                    pass
             elif isinstance(c, PixelBuffer):
                 """
                 Concatenate each PixelBuffer into the neo_pixels, one after another
                 """
                 for j in range(len(c)):
                     #print(f"neopixels[{(j+global_index):d}]=c[{i}][{j:d}]={c[j]}")
-                    neo_pixels[j+global_index] = c[j]
+                    try:
+                        neo_pixels[j+global_index] = c[j]
+                    except IndexError:
+                        pass
                 global_index += len(c)
             elif isinstance(c, list) or isinstance(c, tuple):
                 """
                 Copy the same buffer value to all of the member pixels of the group
                 """
                 for j in c:
-                    neo_pixels[j] = pixel_buffer[i]
+                    try:
+                        neo_pixels[j] = pixel_buffer[i]
+                    except IndexError:
+                        pass
 
 

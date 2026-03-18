@@ -12,7 +12,12 @@ import random
 import digitalio
 
 class OneColorEffect:
-
+    """
+    This simple effect uses cycle counting and internal state to avoid sleeping
+    It relies on an external sleep for framing the effect.
+    It is here to test the ButtonChooser.
+    It relies on auto_write to be enabled in the NeoPixel model
+    """
     CYCLES_PER_PIXEL = 5
 
     def __init__(self, pixels, color):
@@ -32,8 +37,8 @@ class OneColorEffect:
 
     def animate(self):
         """
-        Light a pixel on the beginning of the cycle
-        Clear everything when wrapping around
+        Clear everything when wrapping around the indices
+        Light the next pixel at the beginning of each cycle
         """
         if self._ndx == 0:
             self._pixels.fill(ColorChooser.OFF)
@@ -61,6 +66,8 @@ class ColorChooser():
     colors = [ RED, WHITE, YELLOW, BROWN, CYAN, BLUE, PURPLE, ORANGE, GREEN, PINK]
 
     """
+        This is how the ColorChooser() can be used to choose a value from 0-9
+
         cc = ColorChooser()
 
         while running_FATAL_effects:
@@ -96,6 +103,9 @@ class ColorChooser():
         self.b_button = Button(b_pin, value_when_pressed=True)
         
     def deinit(self):
+        """
+        This frees up the hardware resources
+        """
         try:
             self.pixels.deinit()
             self.a_button.deinit()

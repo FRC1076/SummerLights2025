@@ -39,6 +39,8 @@ from Compositor import Compositor
 from Physics import Physics, Particle
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
+from ButtonChooser import ColorChooser
+from ControlEffects import WaitEffect
 
 #PICO_PIN = board.GP15
 #KEYBOAR_PIN = board.D2
@@ -89,7 +91,7 @@ NO_TAP = 2
 
 DIGIT_ONE_ROWS = 36
 DIGIT_ONE_NUM_PIXELS = 78
-NUM_PIXELS = 78
+NUM_PIXELS = 80
 
 ValidSpeeds =   {"slow" :   20,
                  "medium" :  5,
@@ -119,6 +121,8 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "clap",
                  "drip",                  #  physics based particle animation
                  "sound",                 #  sound response demo
+                 "Repeat",                #  repeat the sequence of effects
+                 "Wait",                  #  wait for a number of seconds
                  "Quit",
                  "help" ]
 
@@ -243,22 +247,56 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._cmds =   [ "runner digit1H red fast" ]
-        self._ndx = 0
+        self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
+                         ( "wipe digit1H blue medium", "Wait full red fast", "wipe digit1H red medium", "Wait full red fast", "wipe digit1H purple medium", "Wait full red fast" ),
+                         ( "flipflop digit1H red slow", ),
+                         ( "drip digit1H blue medium", ),
+                         ( "flipflop 2 purple slow", ),
+                         ( "Wait full red fast", "drip digit1H blue tap" )
+                         ]
+        self._show_ndx = None
+        self._previous_show_ndx = 0       # this kicks starts the first choice
+        self._cmd_ndx = 0
         self._interval_timer = None
+        try:
+            self._pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1, auto_write=True)
+        except ValueError as ve:
+            print("Unable to initialize neopixels:", str(ve))
+            print("Trying to free up the resource")
+            try:
+                import adafruit_circuitplayground as cp
+                cp.cp.pixels.deinit()
+                self._pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1, auto_write=True)
+            except NameError as ne:
+                print("Unable to get a reference to free up the resource:", str(ne))
+                print("NeoPixels will likely not work.")
+            else:
+                print("NeoPixels initialized successfully!")
+        else:
+            print("NeoPixels initialized successfully!")
+
+        self._button_chooser = ColorChooser(self._pixels, board.BUTTON_A, board.BUTTON_B)
+
+    def needsControl(self):
+        needs = self._button_chooser.new_effect_requested()
+        if needs:
+            # Let the demoer know that it is time for a new show!
+            self._show_ndx = None
+        return needs
 
     def nextCommand(self):
 
-        cmd = None
-        gc.collect()
-        print("Memory free:", gc.mem_free())
+        #
+        if self._show_ndx == None:
+            gc.collect()
+            print("Memory free:", gc.mem_free())
+            self._show_ndx = self._button_chooser.chosen_color(self._previous_show_ndx)
+            self._previous_show_ndx = self._show_ndx     # record for next time
+            self._cmds = self._shows[self._show_ndx]
+            self._cmd_ndx = 0
 
-        # first time
-        #if self._interval_timer == None or ((time.monotonic_ns() - self._interval_timer) > SyntheticDemoer.INTERVAL_NS):
-        #    self._interval_timer = time.monotonic_ns()
-
-        cmd = self._cmds[self._ndx]
-        self._ndx = (self._ndx + 1) % len(self._cmds)    # wrap!
+        cmd = self._cmds[self._cmd_ndx]
+        self._cmd_ndx = (self._cmd_ndx + 1) % len(self._cmds)    # wrap!
 
         return cmd
 
@@ -326,17 +364,17 @@ class EffectChooser:
         speed = self.get_effect_speed(effect_cmd)
         print("Name:", effect_name, "Comp:", comp_name, "Color:", color, "Speed:", speed)
 
-        if effect_name == "wipe" and comp_name == "full":
+        if effect_name == "wipe" and comp_name in [ "full", "oval", "digit1H" ]:
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "Wait" and comp_name == "full":
+            return [ WaitEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "flipflop":
             div_names = ValidDivisions
-            if comp_name == "full":
+            if comp_name in [ "full", "oval", "digit1H" ]:
                 return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
-            elif comp_name == "oval":
-                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "squeeze":
             div_names = ValidDivisions
             if comp_name == "full":
@@ -346,7 +384,7 @@ class EffectChooser:
                 return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "sound":
-            if comp_name == "full":
+            if comp_name in [ "full", "oval", "digit1H" ]:
                 return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in ValidDivisions:
                 divs = int(comp_name)
@@ -381,15 +419,15 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
-            if comp_name == "full" or comp_name == "oval" or comp_name == "7segment" or comp_name == "digit1H":
+            if comp_name in [ "full", "oval", "7segment", "digit1H" ]:
                 return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip":
-            if comp_name == "full" or comp_name == "oval" or comp_name == "digit1H":
+            if comp_name in [ "full", "oval", "digit1H" ]:
                 """
-                borrow the speed part of the command to enable tap on drip
+                KLUDGE ALERT: borrow the speed part of the command to enable tap on drip
                 """
                 return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
             elif comp_name in ValidDivisions:
@@ -400,9 +438,10 @@ class EffectChooser:
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         elif effect_name == "gradient":
-            if comp_name == "full" or comp_name == "digit1H":
+            if comp_name in [ "full", "digit1H", "oval", "7segment" ]:
                 return [ GradientEffect(self._pixel_buffer, color=color,)]
         else:
+            print(f"Command [{effect_cmd}] matches nothing.  Just gonna do a purple wipe")
             return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
 
 
@@ -492,7 +531,7 @@ if __name__ == "__main__":
         loop_time_max_ms = 0
         show_time_max_ms = 0
         next_do_effects = []
-        while len(do_effects) > 0 or len(next_do_effects) > 0:
+        while (len(do_effects) > 0 or len(next_do_effects)) and not demoer.needsControl() > 0:
 
             all_live_effects_have_run_once = False
 

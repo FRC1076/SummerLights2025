@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 """
 from adafruit_debouncer import Button
@@ -31,7 +31,7 @@ class OneColorEffect:
         self._color = color
         self._cycle = 0
         self._ndx = 0
-        
+
     def dump(self):
         print("Index:", self._ndx, "Cycle:", self._cycle, "Color:", self._color)
 
@@ -101,7 +101,7 @@ class ColorChooser():
         b_pin.direction = digitalio.Direction.INPUT
         b_pin.pull = digitalio.Pull.DOWN
         self.b_button = Button(b_pin, value_when_pressed=True)
-        
+
     def deinit(self):
         """
         This frees up the hardware resources
@@ -118,11 +118,11 @@ class ColorChooser():
         Debounce this.    Use button.released for the triggering event.
         """
         return self.button_a_released()
-        
+
     def button_a_released(self):
         self.a_button.update()
         return self.a_button.released
-        
+
     def chosen_color(self, active_effect_index):
         """
         Caller passes in the index of the current running effect.    This helps set up the chooser to start with the current
@@ -139,14 +139,18 @@ class ColorChooser():
                 #  Update the index, and only update the pixels if something changes
                 self.b_count = (self.b_count + 1) % len(self.pixels)
                 update_pixels = True
-                
+
             if update_pixels:
                 self.pixels.fill(ColorChooser.OFF)
                 for i in range(self.b_count+1):
-                    self.pixels[i]=ColorChooser.colors[i]
+                    try:
+                        self.pixels[i]=ColorChooser.colors[i]
+                    except IndexError as ie:
+                        print("Error:", str(ie))
+                        print("i:", i, "self.b_count:", self.b_count, "len(self.pixels):", len(self.pixels))
                 update_pixels = False      #  clear the display triggering
             time.sleep(0.02)
-        
+
         return self.b_count
 
 
@@ -183,7 +187,7 @@ if __name__ == "__main__":
     function DOES NOT BLOCK unless the REQUEST button is released.
     """
     cc = ColorChooser(pixels, board.BUTTON_A, board.BUTTON_B)
-    
+
     while True:
         """
         The effect always runs in this main loop, only ever interrupted by the chooser request
@@ -198,9 +202,9 @@ if __name__ == "__main__":
                 print("Unchanged")
         effect.animate()
         time.sleep(0.02)
-    
-    
+
+
     # Always try to cleanup, although this is not reachable
     self.deinit()
-    
+
 # Write your code here :-)

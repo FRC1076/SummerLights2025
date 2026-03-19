@@ -106,7 +106,7 @@ class Compositor:
             print("len(self._composition):", len(self._composition))
             print("columns:", columns)
 
-    def digitOneStroke(self, strokes):
+    def digitOneStrokes(self, strokes):
         """
         Slices to simulate a writing stroke (18)
         """

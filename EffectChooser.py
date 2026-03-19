@@ -71,13 +71,13 @@ class EffectChooser:
         speed = self.get_effect_speed(effect_cmd)
         print("Name:", effect_name, "Comp:", comp_name, "Color:", color, "Speed:", speed)
 
-        if effect_name == "wipe" and comp_name in [ "full", "oval", "digit1H" ]:
+        if effect_name == "wipe" and comp_name in [ "full", "oval", "digit1H", "digit1V", "digit1S" ]:
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed), WaitEffect(self._pixel_buffer, slowness=speed) ]
         elif effect_name == "Wait" and comp_name == "full":
             return [ WaitEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "flipflop":
             div_names = ValidDivisions
-            if comp_name in [ "full", "oval", "digit1H" ]:
+            if comp_name in [ "full", "oval", "digit1H", "digit1V", "digit1S" ]:
                 return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
@@ -91,7 +91,7 @@ class EffectChooser:
                 return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "sound":
-            if comp_name in [ "full", "oval", "digit1H" ]:
+            if comp_name in [ "full", "oval", "digit1H", "digit1V", "digit1S" ]:
                 return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in ValidDivisions:
                 divs = int(comp_name)
@@ -126,13 +126,13 @@ class EffectChooser:
             return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
         elif effect_name == "runner":
             div_names = ValidDivisions
-            if comp_name in [ "full", "oval", "7segment", "digit1H" ]:
+            if comp_name in [ "full", "oval", "7segment", "digit1H", "digit1V", "digit1S" ]:
                 return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
         elif effect_name == "drip":
-            if comp_name in [ "full", "oval", "digit1H" ]:
+            if comp_name in [ "full", "oval", "digit1H", "digit1V", "digit1S" ]:
                 """
                 KLUDGE ALERT: borrow the speed part of the command to enable tap on drip
                 """
@@ -145,7 +145,7 @@ class EffectChooser:
                 re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         elif effect_name == "gradient":
-            if comp_name in [ "full", "digit1H", "oval", "7segment" ]:
+            if comp_name in [ "full", "digit1H", "digit1V", "digit1S", "oval", "7segment" ]:
                 return [ GradientEffect(self._pixel_buffer, color=color,), WaitEffect(self._pixel_buffer, slowness=speed) ]
         else:
             print(f"Command [{effect_cmd}] matches nothing.  Just gonna do a purple wipe")

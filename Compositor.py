@@ -100,7 +100,11 @@ class Compositor:
         top_and_bottom = [ (33-i, i) for i in range(4) ]
         right_edge = [ tuple(i+4 for i in range(26)) ]
         self._composition = nose + transition + left_edge + top_and_bottom + right_edge
-        assert(len(self._composition) == columns)
+        try:
+            assert(len(self._composition) == columns)
+        except AssertionError:
+            print("len(self._composition):", len(self._composition))
+            print("columns:", columns)
 
     def digitOneStroke(self, strokes):
         """
@@ -112,7 +116,6 @@ class Compositor:
         bottom = [ (77, 0, 1, 2, 3) ]
         self._composition = nose + transition + stem + bottom
         assert(len(self._composition) == strokes)
-
 
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]

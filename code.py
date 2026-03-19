@@ -64,6 +64,8 @@ TAP = 3
 NO_TAP = 2
 
 DIGIT_ONE_ROWS = 36
+DIGIT_ONE_COLUMNS = 18
+DIGIT_ONE_STROKES = 36
 DIGIT_ONE_NUM_PIXELS = 78
 NUM_PIXELS = 60
 
@@ -124,6 +126,14 @@ class Presentation:
         self._buffer = PixelBuffer(DIGIT_ONE_ROWS)
         self._compositor.digitOneHSlices(DIGIT_ONE_ROWS)
 
+    def digitOneV(self):
+        self._buffer = PixelBuffer(DIGIT_ONE_COLUMNS)
+        self._compositor.digitOneVSlices(DIGIT_ONE_COLUMNS)
+
+    def digitOneH(self):
+        self._buffer = PixelBuffer(DIGIT_ONE_STROKES)
+        self._compositor.digitOneStrokes(DIGIT_ONE_STROKES)
+
     def frameNcorners(self):
         """
         This only works for 60 pixel string
@@ -155,7 +165,9 @@ class SyntheticDemoer:
                          ( "flipflop 2 purple slow", ),
                          ( "Wait full red fast", "drip digit1H blue tap" ),
                          ( "gradient digit1H blue slow", ),
-                         ( "sound digit1H blue fast", ),
+                         ( "gradient digit1V blue slow", ),
+                         ( "gradient digit1S blue slow", ),
+                         ( "runner digit1S purple fast", )
                          ]
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice
@@ -204,6 +216,9 @@ class SyntheticDemoer:
 
         cmd = self._cmds[self._cmd_ndx]
         self._cmd_ndx = (self._cmd_ndx + 1) % len(self._cmds)    # wrap!
+        if cmd == "Repeat":     # go to beginning skipping the Repeat directive
+            cmd = self._cmds[self._ndx]
+            self._ndx = (self._ndx + 1) % len(self._cmds)   # wrap!
 
         return cmd
 
@@ -253,6 +268,18 @@ if __name__ == "__main__":
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "digit1H":
             presentation.digitOneH()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digit1V":
+            presentation.digitOneV()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digit1S":
+            presentation.digitOneV()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)

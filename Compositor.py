@@ -2,33 +2,7 @@
 SPDX-License-Identifier: BSD-3-Clause
 Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
 from PixelBuffer import PixelBuffer
 
 class Compositor:
@@ -114,8 +88,31 @@ class Compositor:
         bottom = [ (77,), (3,), (0, 1, 2) ]
 
         self._composition = top + middle + bottom
-        print("digit1H", self._composition)
         assert(len(self._composition) == rows)
+
+    def digitOneVSlices(self, columns):
+        """
+        Vertical slices to support wipe from side to side. (36)
+        """
+        nose = [ (44,), (45,), (43,), (42,) ]
+        transition = [ (41-i, 46+i) for i in range(8) ]
+        left_edge = [ tuple(53+i for i in range(25)) ]
+        top_and_bottom = [ (33-i, i) for i in range(4) ]
+        right_edge = [ tuple(i+4 for i in range(26)) ]
+        self._composition = nose + transition + left_edge + top_and_bottom + right_edge
+        assert(len(self._composition) == columns)
+
+    def digitOneStroke(self, strokes):
+        """
+        Slices to simulate a writing stroke (18)
+        """
+        nose = [ (44-i, 45+i) for i in range(11) ]
+        transition = [ tuple(33-i for i in range(9)) ]
+        stem = [ (26-i, 54+i) for i in range(23) ]
+        bottom = [ (77, 0, 1, 2, 3) ]
+        self._composition = nose + transition + stem + bottom
+        assert(len(self._composition) == strokes)
+
 
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]

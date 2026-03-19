@@ -2,45 +2,18 @@
 SPDX-License-Identifier: BSD-3-Clause
 Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-#from adafruit_circuitplayground import cp
 import gc
 import board
 import neopixel
 import random
 import time
-from PixelBuffer import PixelBuffer
 from Compositor import Compositor
-from Physics import Physics, Particle
-from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
+from PixelBuffer import PixelBuffer
 from ButtonChooser import ColorChooser
 from ControlEffects import WaitEffect
+from EffectChooser import EffectChooser
+from DemoCommands import ValidEffects, ValidDivisions
 
 #PICO_PIN = board.GP15
 #KEYBOAR_PIN = board.D2
@@ -94,79 +67,6 @@ DIGIT_ONE_ROWS = 36
 DIGIT_ONE_NUM_PIXELS = 78
 NUM_PIXELS = 60
 
-ValidSpeeds =   {"slow" :   20,
-                 "medium" :  5,
-                 "fast" :    1,
-                 "tap" :     TAP,
-                 "no-tap" :  NO_TAP}
-
-ValidColors =   {"off": OFF,
-                 "purple" : PURPLE,
-                 "orange" : ORANGE,
-                 "butterscotch" : BUTTERSCOTCH,
-                 "blue" : BLUE,
-                 "red"  : RED,
-                 "full-red" : FULL_RED,
-                 "green" :  GREEN
-                }
-
-ValidEffects = [ "clear",                 #  clear the display (shortcut with simple reset)
-                 "flipflop",              #  switch between two adjacent lights
-                 "wipe",                  #  display purple on the whole string
-                 "rainbow",               #  rainbow effect on full string
-                 "runner",                #  zip back and forth
-                 "fliprunner",            #  DOES NOT WORK (Needs richer compositor)
-                 "squeeze",               #  close the curtain
-                 "gradient",              #  Evan Besirli effect
-                 "multi",                 #  several effects on substrings
-                 "clap",                  #  still experimental
-                 "drip",                  #  physics based particle animation
-                 "sound",                 #  sound response demo
-                 "Repeat",                #  repeat the previous sequence of effects
-                 "Wait",                  #  wait for a number of seconds  (fast=5, medium=25, slow=100)
-                 "Quit",                  #  end the sequence of effects
-                 "help" ]
-
-ValidDivisions = [   "2",                  #  2 divisions
-                     "3",                  #  3 divisions of equal size
-                     "4",                  #
-                     "5",                  #
-                     "6",                  #  6 sections of equal size
-                     "12",                 #  12 divisions of equal size
-                     "30",                 #  30 divisions of 4
-                     "60"  ]               #  60 divisions of equal size
-
-ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest layout
-                     "oval",               #  sliced topology for oval with start/end at top
-                     "7segment",           #  sliced 7segment display (figure eight)
-                     "frameNcorners",      #  5-buffer layout with sides contiguous
-                     "digit1H",            #  78 pixel, 36 row groupings
-                     "1/2",                #  split into two pixels
-                     "1/4",                #  split into four pixels
-                     "1/10" ] + ValidDivisions
-
-def show_help():
-
-    print("effect compositor color [speed | other options]")
-    print("Example: flipflop 12 green slow")
-    print("Example: drip full blue fast")
-
-    print("\nEFFECTS")
-    for effect_cmd in ValidEffects:
-        print("   ", effect_cmd)
-
-    print("\nCOMPOSITORS")
-    for c in ValidCompositors:
-        print("   ", c)
-
-    print("\nCOLORS")
-    for c in ValidColors.keys():
-        print("   ", c)
-
-    print("OPTIONS")
-    for opt in ValidSpeeds:
-        print("   ", opt)
-
 
 class Presentation:
     """
@@ -196,7 +96,7 @@ class Presentation:
 
     def sideLightGroups(self, num_groups=2):
         """
-        This should work cleanly with 2, 3, 5, 4, 6 and their products.
+        This should work cleanly with 2, 3, 4, 5, 6 and their products.
         """
         self._buffer = PixelBuffer(num_groups)
         self._compositor.groupsOfN(NUM_PIXELS, num_groups)
@@ -249,12 +149,12 @@ class SyntheticDemoer:
 
     def __init__(self):
         self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
-                         ( "wipe digit1H blue medium", "Wait full red fast", "wipe digit1H red medium", "Wait full red fast", "wipe digit1H purple medium", "Wait full red fast" ),
+                         ( "wipe digit1H blue medium", "wipe digit1H red medium", "wipe digit1H purple medium" ),
                          ( "flipflop 12 red slow", ),
                          ( "drip digit1H purple medium", ),
                          ( "flipflop 2 purple slow", ),
                          ( "Wait full red fast", "drip digit1H blue tap" ),
-                         ( "gradient digit1H blue slow", "Wait full red fast", ),
+                         ( "gradient digit1H blue slow", ),
                          ( "sound digit1H blue fast", ),
                          ]
         self._show_ndx = None
@@ -291,6 +191,10 @@ class SyntheticDemoer:
 
         #
         if self._show_ndx == None:
+            """
+            Take a break for user interaction, a little delay is fine for some gc
+            Recent reports are 78096 bytes free on the CircuitPlayground Bluefruit
+            """
             gc.collect()
             print("Memory free:", gc.mem_free())
             self._show_ndx = self._button_chooser.chosen_color(self._previous_show_ndx)
@@ -302,152 +206,6 @@ class SyntheticDemoer:
         self._cmd_ndx = (self._cmd_ndx + 1) % len(self._cmds)    # wrap!
 
         return cmd
-
-
-
-class EffectChooser:
-    """
-
-    """
-    def __init__(self, pixel_buffer=None, pixel_buffer_list=None):
-        """
-        Usually pass in a pixel_buffer, but when there are multiple buffers to be combined by the Compositor,
-        there will be a list of buffers that could be passed to the effect.    Can specify only 1 or a list.
-        Not both.
-        """
-        assert pixel_buffer is None or pixel_buffer_list is None, "Specify buffer or buffer_list, not both"
-        self._pixel_buffer = pixel_buffer
-        self._pixel_buffer_list = pixel_buffer_list
-        pass
-
-    def get_effect_name(self, effect_cmd):
-        try:
-            name = effect_cmd.split(' ')[0]
-        except:
-            name = None
-        return name
-
-    def get_effect_comp_name(self, effect_cmd):
-        try:
-            name = effect_cmd.split(' ')[1]
-        except:
-            name = None
-        return name
-
-    def get_effect_color(self, effect_cmd):
-        try:
-            name = effect_cmd.split(' ')[2]
-            color = ValidColors[name]
-        except:
-            color = PURPLE
-        return color
-
-    def get_effect_speed(self, effect_cmd):
-        try:
-            name = effect_cmd.split(' ')[3]
-            speed = ValidSpeeds[name]
-        except:
-            speed = 1
-        return speed
-
-    def get_chosen_effects(self, effect_cmd):
-        """
-        Return a list of effects to run simultaneously.
-        """
-        if effect_cmd == "help":
-            show_help()
-
-        if self._pixel_buffer_list is not None:
-            print("get_chosen_effects: len(buffer_list):", len(self._pixel_buffer_list))
-        if self._pixel_buffer is not None:
-            print("get_chosen_effects: len(buffer:", len(self._pixel_buffer))
-        effect_name = self.get_effect_name(effect_cmd)
-        comp_name = self.get_effect_comp_name(effect_cmd)
-        color = self.get_effect_color(effect_cmd)
-        speed = self.get_effect_speed(effect_cmd)
-        print("Name:", effect_name, "Comp:", comp_name, "Color:", color, "Speed:", speed)
-
-        if effect_name == "wipe" and comp_name in [ "full", "oval", "digit1H" ]:
-            return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
-        elif effect_name == "Wait" and comp_name == "full":
-            return [ WaitEffect(self._pixel_buffer, color=color, slowness=speed) ]
-        elif effect_name == "flipflop":
-            div_names = ValidDivisions
-            if comp_name in [ "full", "oval", "digit1H" ]:
-                return [ FlipFlopEffect(self._pixel_buffer, color=color, slowness=speed) ]
-            elif comp_name in div_names:
-                divs = int(comp_name)
-                return [ FlipFlopEffect(self._pixel_buffer_list[i], color=color, slowness=speed, name="FlipFlop"+str(i)) for i in range(divs) ]
-        elif effect_name == "squeeze":
-            div_names = ValidDivisions
-            if comp_name == "full":
-                return [ SqueezeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
-            elif comp_name in div_names:
-                divs = int(comp_name)
-                return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-
-        elif effect_name == "sound":
-            if comp_name in [ "full", "oval", "digit1H" ]:
-                return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
-            elif comp_name in ValidDivisions:
-                divs = int(comp_name)
-                return [ SoundMeterEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-
-        elif effect_name == "clear" and comp_name == "all":
-            return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
-        elif effect_name == "clap" and comp_name == "full":
-            return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
-        elif effect_name == "multi" and comp_name == "4":
-            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
-                     RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
-                     WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25) ]
-        elif effect_name == "multi" and comp_name == "12":
-            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
-                     RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
-                     WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25),
-                     RainbowEffect(self._pixel_buffer_list[4], slowness=5),
-                     RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed),
-                     WipeFillEffect(self._pixel_buffer_list[6], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[7], color=RED, slowness=25),
-                     RainbowEffect(self._pixel_buffer_list[8], slowness=5),
-                     RunnerEffect(self._pixel_buffer_list[9], color=color, slowness=speed),
-                     WipeFillEffect(self._pixel_buffer_list[10], color=BUTTERSCOTCH, slowness=5),
-                     FlipFlopEffect(self._pixel_buffer_list[11], color=RED, slowness=25) ]
-        elif effect_name == "rainbow" and comp_name == "full":
-            return [ RainbowEffect(self._pixel_buffer, slowness=10) ]
-        elif effect_name == "rainbow" and comp_name in ValidDivisions:
-            divs = int(comp_name)
-            return [ RainbowEffect(self._pixel_buffer_list[i], slowness=speed) for i in range(divs) ]
-        elif effect_name == "runner":
-            div_names = ValidDivisions
-            if comp_name in [ "full", "oval", "7segment", "digit1H" ]:
-                return [ RunnerEffect(self._pixel_buffer, color=color, slowness=speed) ]
-            elif comp_name in div_names:
-                divs = int(comp_name)
-                return [ RunnerEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-        elif effect_name == "drip":
-            if comp_name in [ "full", "oval", "digit1H" ]:
-                """
-                KLUDGE ALERT: borrow the speed part of the command to enable tap on drip
-                """
-                return [ DripEffect(self._pixel_buffer, slowness=1, tap=speed) ]
-            elif comp_name in ValidDivisions:
-                divs = int(comp_name)
-                return [ DripEffect(self._pixel_buffer_list[i], slowness=1, tap=speed) for i in range(divs) ]
-        elif effect_name == "fliprunner":
-            if comp_name == "frameNcorners":
-                re = [ RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed) ]
-                return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
-        elif effect_name == "gradient":
-            if comp_name in [ "full", "digit1H", "oval", "7segment" ]:
-                return [ GradientEffect(self._pixel_buffer, color=color,)]
-        else:
-            print(f"Command [{effect_cmd}] matches nothing.  Just gonna do a purple wipe")
-            return [ WipeFillEffect(self._pixel_buffer, color=PURPLE, slowness=1) ]
-
-
 
 
 if __name__ == "__main__":
@@ -534,7 +292,7 @@ if __name__ == "__main__":
         loop_time_max_ms = 0
         show_time_max_ms = 0
         next_do_effects = []
-        while (len(do_effects) > 0 or len(next_do_effects)) and not demoer.needsControl() > 0:
+        while (len(do_effects) > 0 or len(next_do_effects) > 0) and (demoer is None or not demoer.needsControl()):
 
             all_live_effects_have_run_once = False
 

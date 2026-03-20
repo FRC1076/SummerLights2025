@@ -76,7 +76,7 @@ class Compositor:
         second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
-    def digitOneHSlices(self, rows):
+    def digit1HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects
         Works only for the 78 pixel One Digit
@@ -88,9 +88,10 @@ class Compositor:
         bottom = [ (77,), (3,), (0, 1, 2) ]
 
         self._composition = top + middle + bottom
-        assert(len(self._composition) == rows)
+        rows = len(self._composition)
+        return rows
 
-    def digitOneVSlices(self, columns):
+    def digit1VSlices(self):
         """
         Vertical slices to support wipe from side to side. (36)
         """
@@ -100,13 +101,11 @@ class Compositor:
         top_and_bottom = [ (33-i, i) for i in range(4) ]
         right_edge = [ tuple(i+4 for i in range(26)) ]
         self._composition = nose + transition + left_edge + top_and_bottom + right_edge
-        try:
-            assert(len(self._composition) == columns)
-        except AssertionError:
-            print("len(self._composition):", len(self._composition))
-            print("columns:", columns)
 
-    def digitOneStrokes(self, strokes):
+        columns = len(self._composition)
+        return columns
+
+    def digit1Strokes(self):
         """
         Slices to simulate a writing stroke (18)
         """
@@ -115,7 +114,30 @@ class Compositor:
         stem = [ (26-i, 54+i) for i in range(23) ]
         bottom = [ (77, 0, 1, 2, 3) ]
         self._composition = nose + transition + stem + bottom
-        assert(len(self._composition) == strokes)
+
+        strokes = len(self._composition)
+        return strokes
+
+    def digit0HSlices(self):
+        pass
+    def digit0VSlices(self):
+        pass
+    def digit0Strokes(self):
+        pass
+
+    def digit7HSlices(self):
+        pass
+    def digit7VSlices(self):
+        pass
+    def digit7Strokes(self):
+        pass
+
+    def digit6HSlices(self):
+        pass
+    def digit6VSlices(self):
+        pass
+    def digit6Strokes(self):
+        pass
 
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]

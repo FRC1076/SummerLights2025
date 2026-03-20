@@ -53,9 +53,9 @@ ValidCompositors = [ "full",               #  pass-thru, single buffer, simplest
                      "oval",               #  sliced topology for oval with start/end at top
                      "7segment",           #  sliced 7segment display (figure eight)
                      "frameNcorners",      #  5-buffer layout with sides contiguous
-                     "digit1H",            #  78 pixel, 36 row groupings
-                     "digit1V",            #  78 pixels, 18 column groupings
-                     "digit1S",            #  78 pixels, 36 stroke groupings
+                     "digitH",             #  { 1: 78 pixel, 36 row groupings 0: something else  7: something else, 6: something... }
+                     "digitV",             #  { 1: 18 column groupings }
+                     "digitS",             #  { 1: 36 stroke groupings }
                      "1/2",                #  split into two pixels
                      "1/4",                #  split into four pixels
                      "1/10" ] + ValidDivisions

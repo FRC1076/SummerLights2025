@@ -63,9 +63,6 @@ TIMED = (1, 1, 1)
 TAP = 3
 NO_TAP = 2
 
-DIGIT_ONE_ROWS = 36
-DIGIT_ONE_COLUMNS = 18
-DIGIT_ONE_STROKES = 36
 DIGIT_ONE_NUM_PIXELS = 78
 NUM_PIXELS = 60
 
@@ -76,10 +73,11 @@ class Presentation:
     render, arrange, and present a responsive lighting effect.
     They include neopixel choice
     """
-    def __init__(self):
+    def __init__(self, my_digit_index):
         self._compositor = Compositor()
         self._buffer_list = None
         self._buffer = None
+        self._my_digit_index = my_digit_index       #  This is different for each digit
 
     def drippingFeatherSeparate(self):
         pixel_buffer = PixelBuffer(FEATHER_WING_COLUMNS)
@@ -103,7 +101,6 @@ class Presentation:
         self._buffer = PixelBuffer(num_groups)
         self._compositor.groupsOfN(NUM_PIXELS, num_groups)
 
-
     def sideLightDivisions(self, num_divisions=2):
         """
         This should work cleanly with 2, 3, 5, 4, 6 and their products.
@@ -122,17 +119,29 @@ class Presentation:
         self._buffer = PixelBuffer(groups)
         self._compositor.oval(NUM_PIXELS, groups)
 
-    def digitOneH(self):
-        self._buffer = PixelBuffer(DIGIT_ONE_ROWS)
-        self._compositor.digitOneHSlices(DIGIT_ONE_ROWS)
+    """
+    The topology oriented compositors pick from a list of the digit compositors
+    based on the known digit index.    Each digit has a unique HSlice, VSlice, and Stroke compositor.
+    Pick the appropriate compositor based on the index.
+    Call the creation function to build the compositor.
+    Use the returned value to allocate the correctly sized PixelBuffer
+    """
+    def digitCompositor(self, comp_functions):
+        my_comp_function = comp_functions[self._my_digit_index]
+        num_pixels = my_comp_function()
+        self._buffer = PixelBuffer(num_pixels)
 
-    def digitOneV(self):
-        self._buffer = PixelBuffer(DIGIT_ONE_COLUMNS)
-        self._compositor.digitOneVSlices(DIGIT_ONE_COLUMNS)
+    def digitH(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1HSlices, c.digit0HSlices, c.digit7HSlices, c.digit6HSlices ])
 
-    def digitOneH(self):
-        self._buffer = PixelBuffer(DIGIT_ONE_STROKES)
-        self._compositor.digitOneStrokes(DIGIT_ONE_STROKES)
+    def digitV(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1VSlices, c.digit0VSlices, c.digit7VSlices, c.digit6VSlices ])
+
+    def digitS(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1Strokes, c.digit0Strokes, c.digit7Strokes, c.digit6Strokes ])
 
     def frameNcorners(self):
         """
@@ -159,15 +168,15 @@ class SyntheticDemoer:
 
     def __init__(self):
         self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
-                         ( "wipe digit1H blue medium", "wipe digit1H red medium", "wipe digit1H purple medium" ),
+                         ( "wipe digitH blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
                          ( "flipflop 12 red slow", ),
-                         ( "drip digit1H purple medium", ),
+                         ( "drip digitH purple medium", ),
                          ( "flipflop 2 purple slow", ),
-                         ( "Wait full red fast", "drip digit1H blue tap" ),
-                         ( "gradient digit1H blue slow", ),
-                         ( "gradient digit1V blue slow", ),
-                         ( "gradient digit1S blue slow", ),
-                         ( "runner digit1S purple fast", )
+                         ( "Wait full red fast", "drip digitH blue tap" ),
+                         ( "gradient digitH blue slow", ),
+                         ( "gradient digitV blue slow", ),
+                         ( "gradient digitS blue slow", ),
+                         ( "runner digitS purple fast", )
                          ]
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice
@@ -244,7 +253,7 @@ if __name__ == "__main__":
 
     while cmd != "Quit":
 
-        presentation = Presentation()
+        presentation = Presentation(0)      #   Note: the index needs to be set by HardwareAwareness if using digit compositors
         pixel_buffer = presentation.pixel_buffer()
         pixel_buffer_list = presentation.pixel_buffer_list()
 
@@ -266,20 +275,20 @@ if __name__ == "__main__":
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "digit1H":
-            presentation.digitOneH()
+        elif comp == "digitH":
+            presentation.digitH()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "digit1V":
-            presentation.digitOneV()
+        elif comp == "digitV":
+            presentation.digitV()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "digit1S":
-            presentation.digitOneV()
+        elif comp == "digitS":
+            presentation.digitS()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)

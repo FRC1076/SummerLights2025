@@ -97,6 +97,14 @@ class Compositor:
         # assert(len(self.composition) == rows)
         return rows
 
+    def digit0VSlices(self):
+        self._composition = [ (0, 1, 2), (3, 4, 5), (6, 7, 8) ]
+        return len(self._composition)
+
+    def digit0Strokes(self):
+        self._composition = [ (0, 1, 2), (3, 4, 5), (6, 7, 8) ]
+        return len(self._composition)
+
     def digit1HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects
@@ -139,11 +147,13 @@ class Compositor:
         strokes = len(self._composition)
         return strokes
 
-    def digit0VSlices(self):
+    def digit6HSlices(self):
         pass
-    def digit0Strokes(self):
+    def digit6VSlices(self):
         pass
-
+    def digit6Strokes(self):
+        pass
+        
     def digit7HSlices(self):
         pass
     def digit7VSlices(self):
@@ -151,13 +161,7 @@ class Compositor:
     def digit7Strokes(self):
         pass
 
-    def digit6HSlices(self):
-        pass
-    def digit6VSlices(self):
-        pass
-    def digit6Strokes(self):
-        pass
-
+    
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 

@@ -76,6 +76,27 @@ class Compositor:
         second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
+    def digit0HSlices(self)
+        """
+        Horizontal slices to make grouped pixels for vertical effects
+        Works only for the 78 pixel Zero Digit
+        """
+        top = [ (20, 21, 22, 23, 24) ]
+        layer1 = [ (19-i, 25+i) for i in range(4) ]
+        layer2 = [ (15, 29, 90, 91, 92), (14, 30, 88, 89, 93, 94) ]
+        layer3 = [ (13-i, 31+i, 87-i, 95+i) for i in range(14) ]
+        layer4 = [ (109, 45), (110, 73) ]
+        layer5 = [ (72-i, 128-i, 111+i, 46+i) for i in range(6) ]
+        layer6 = [ (66, 121, 122, 117, 118, 52), (53, 65, 119, 120) ]
+        layer7 = [ (54+i, 64-i) for i in range (4) ]
+        bottom = [ (58, 59, 60) ]
+
+        self._composition = top + layer1 + layer2 + layer3 + layer4 + layer5 + layer6 + layer7 + bottom
+        rows = len(self._composition)
+        # print("digit0H", self._composition)
+        # assert(len(self.composition) == rows)
+        return rows
+
     def digit1HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects

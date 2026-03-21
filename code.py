@@ -63,10 +63,6 @@ TIMED = (1, 1, 1)
 TAP = 3
 NO_TAP = 2
 
-DIGIT_ONE_NUM_PIXELS = 78
-NUM_PIXELS = 60
-
-
 class Presentation:
     """
     A presentation is a collection and configuration of the components necessary to animate,
@@ -253,7 +249,7 @@ if __name__ == "__main__":
 
     while cmd != "Quit":
 
-        presentation = Presentation(0)      #   Note: the index needs to be set by HardwareAwareness if using digit compositors
+        presentation = Presentation(1)      #   Note: the index needs to be set by HardwareAwareness if using digit compositors
         pixel_buffer = presentation.pixel_buffer()
         pixel_buffer_list = presentation.pixel_buffer_list()
 

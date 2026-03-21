@@ -76,7 +76,7 @@ class Compositor:
         second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
         third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
 
-    def digit0HSlices(self)
+    def digit0HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects
         Works only for the 78 pixel Zero Digit
@@ -139,8 +139,6 @@ class Compositor:
         strokes = len(self._composition)
         return strokes
 
-    def digit0HSlices(self):
-        pass
     def digit0VSlices(self):
         pass
     def digit0Strokes(self):

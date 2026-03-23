@@ -2,46 +2,20 @@
 SPDX-License-Identifier: BSD-3-Clause
 Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-#from adafruit_circuitplayground import cp
 import gc
 import board
 import neopixel
 import random
 import time
-from PixelBuffer import PixelBuffer
 from Compositor import Compositor
-from Physics import Physics, Particle
-from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
-from EffectChooser import EffectChooser
-from DemoCommands import ValidEffects,ValidDivisions,ValidCompositors,ValidColors,ValidSpeeds
 from HardwareAwareness import HardwareAwareness
+from PixelBuffer import PixelBuffer
+from ButtonChooser import ColorChooser
+from ControlEffects import WaitEffect
+from EffectChooser import EffectChooser
+from DemoCommands import ValidEffects, ValidDivisions
+
 
 
 #NEO_PIN = PICO_PIN
@@ -84,36 +58,8 @@ GREEN = (3, 252, 3)
 PINK = (248, 3, 252)
 RED = (220, 0, 0)
 FULL_RED = (255, 0, 0)
+TIMED = (1, 1, 1)
 
-
-
-DIGIT_ONE_ROWS = 36
-DIGIT_ONE_NUM_PIXELS = 78
-NUM_PIXELS = 78
-
-
-
-def show_help():
-
-    print("effect compositor color [speed | other options]")
-    print("Example: flipflop 12 green slow")
-    print("Example: drip full blue fast")
-
-    print("\nEFFECTS")
-    for effect_cmd in ValidEffects:
-        print("   ", effect_cmd)
-
-    print("\nCOMPOSITORS")
-    for c in ValidCompositors:
-        print("   ", c)
-
-    print("\nCOLORS")
-    for c in ValidColors.keys():
-        print("   ", c)
-
-    print("OPTIONS")
-    for opt in ValidSpeeds:
-        print("   ", opt)
 
 
 class Presentation:
@@ -122,10 +68,11 @@ class Presentation:
     render, arrange, and present a responsive lighting effect.
     They include neopixel choice
     """
-    def __init__(self):
+    def __init__(self, my_digit_index):
         self._compositor = Compositor()
         self._buffer_list = None
         self._buffer = None
+        self._my_digit_index = my_digit_index       #  This is different for each digit
 
     def drippingFeatherSeparate(self):
         pixel_buffer = PixelBuffer(FEATHER_WING_COLUMNS)
@@ -144,11 +91,10 @@ class Presentation:
 
     def sideLightGroups(self, num_groups=2):
         """
-        This should work cleanly with 2, 3, 5, 4, 6 and their products.
+        This should work cleanly with 2, 3, 4, 5, 6 and their products.
         """
         self._buffer = PixelBuffer(num_groups)
         self._compositor.groupsOfN(NUM_PIXELS, num_groups)
-
 
     def sideLightDivisions(self, num_divisions=2):
         """
@@ -168,9 +114,29 @@ class Presentation:
         self._buffer = PixelBuffer(groups)
         self._compositor.oval(NUM_PIXELS, groups)
 
-    def digitOneH(self):
-        self._buffer = PixelBuffer(DIGIT_ONE_ROWS)
-        self._compositor.digitOneHSlices(DIGIT_ONE_ROWS)
+    """
+    The topology oriented compositors pick from a list of the digit compositors
+    based on the known digit index.    Each digit has a unique HSlice, VSlice, and Stroke compositor.
+    Pick the appropriate compositor based on the index.
+    Call the creation function to build the compositor.
+    Use the returned value to allocate the correctly sized PixelBuffer
+    """
+    def digitCompositor(self, comp_functions):
+        my_comp_function = comp_functions[self._my_digit_index]
+        num_pixels = my_comp_function()
+        self._buffer = PixelBuffer(num_pixels)
+
+    def digitH(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1HSlices, c.digit0HSlices, c.digit7HSlices, c.digit6HSlices ])
+
+    def digitV(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1VSlices, c.digit0VSlices, c.digit7VSlices, c.digit6VSlices ])
+
+    def digitS(self):
+        c = self._compositor
+        self.digitCompositor([ c.digit1Strokes, c.digit0Strokes, c.digit7Strokes, c.digit6Strokes ])
 
     def frameNcorners(self):
         """
@@ -196,30 +162,68 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._cmds =   [ "gradient full red" ]
-        self._ndx = 0
+        self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
+                         ( "wipe digitH blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
+                         ( "flipflop 12 red slow", ),
+                         ( "drip digitH purple medium", ),
+                         ( "flipflop 2 purple slow", ),
+                         ( "Wait full red fast", "drip digitH blue tap" ),
+                         ( "gradient digitH blue slow", ),
+                         ( "gradient digitV blue slow", ),
+                         ( "gradient digitS blue slow", ),
+                         ( "runner digitS purple fast", )
+                         ]
+        self._show_ndx = None
+        self._previous_show_ndx = 0       # this kicks starts the first choice
+        self._cmd_ndx = 0
         self._interval_timer = None
+        try:
+            self._pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1, auto_write=True)
+        except ValueError as ve:
+            print("Unable to initialize neopixels:", str(ve))
+            print("Trying to free up the resource")
+            try:
+                import adafruit_circuitplayground as cp
+                cp.cp.pixels.deinit()
+                self._pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1, auto_write=True)
+            except NameError as ne:
+                print("Unable to get a reference to free up the resource:", str(ne))
+                print("NeoPixels will likely not work.")
+            else:
+                print("NeoPixels initialized successfully!")
+        else:
+            print("NeoPixels initialized successfully!")
+
+        self._button_chooser = ColorChooser(self._pixels, board.BUTTON_A, board.BUTTON_B)
+
+    def needsControl(self):
+        needs = self._button_chooser.new_effect_requested()
+        if needs:
+            # Let the demoer know that it is time for a new show!
+            self._show_ndx = None
+        return needs
 
     def nextCommand(self):
+        #
+        if self._show_ndx == None:
+            """
+            Take a break for user interaction, a little delay is fine for some gc
+            Recent reports are 78096 bytes free on the CircuitPlayground Bluefruit
+            """
+            gc.collect()
+            print("Memory free:", gc.mem_free())
+            self._show_ndx = self._button_chooser.chosen_color(self._previous_show_ndx)
+            self._previous_show_ndx = self._show_ndx     # record for next time
+            self._cmds = self._shows[self._show_ndx]
+            self._cmd_ndx = 0
 
-        cmd = None
-        gc.collect()
-        print("Memory free:", gc.mem_free())
-
-        # first time
-        #if self._interval_timer == None or ((time.monotonic_ns() - self._interval_timer) > SyntheticDemoer.INTERVAL_NS):
-        #    self._interval_timer = time.monotonic_ns()
-
-        cmd = self._cmds[self._ndx]
-        self._ndx += 1 % len(self._cmds)    # wrap!
+        cmd = self._cmds[self._cmd_ndx]
+        self._cmd_ndx = (self._cmd_ndx + 1) % len(self._cmds)    # wrap!
+        if cmd == "Repeat":     # go to beginning skipping the Repeat directive
+            cmd = self._cmds[self._ndx]
+            self._ndx = (self._ndx + 1) % len(self._cmds)   # wrap!
 
         return cmd
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -243,7 +247,7 @@ if __name__ == "__main__":
 
     while cmd != "Quit":
 
-        presentation = Presentation()
+        presentation = Presentation(1)      #   Note: the index needs to be set by HardwareAwareness if using digit compositors
         pixel_buffer = presentation.pixel_buffer()
         pixel_buffer_list = presentation.pixel_buffer_list()
 
@@ -265,8 +269,20 @@ if __name__ == "__main__":
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
-        elif comp == "digit1H":
-            presentation.digitOneH()
+        elif comp == "digitH":
+            presentation.digitH()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digitV":
+            presentation.digitV()
+            compositor = presentation.compositor()
+            pixel_buffer = presentation.pixel_buffer()
+            compositor.compose(pixel_buffer, pixels)
+            chooser = EffectChooser(pixel_buffer=pixel_buffer)
+        elif comp == "digitS":
+            presentation.digitS()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
             compositor.compose(pixel_buffer, pixels)
@@ -306,7 +322,7 @@ if __name__ == "__main__":
         loop_time_max_ms = 0
         show_time_max_ms = 0
         next_do_effects = []
-        while len(do_effects) > 0 or len(next_do_effects) > 0:
+        while (len(do_effects) > 0 or len(next_do_effects) > 0) and (demoer is None or not demoer.needsControl()):
 
             all_live_effects_have_run_once = False
 
@@ -369,7 +385,4 @@ if __name__ == "__main__":
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()
-
-
-
 

@@ -79,7 +79,7 @@ class Compositor:
     def digit0HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects
-        Works only for the 78 pixel Zero Digit
+        Works only for the x pixel Zero Digit
         """
         top = [ (20, 21, 22, 23, 24) ]
         layer1 = [ (19-i, 25+i) for i in range(4) ]
@@ -98,12 +98,37 @@ class Compositor:
         return rows
 
     def digit0VSlices(self):
-        self._composition = [ (0, 1, 2), (3, 4, 5), (6, 7, 8) ]
-        return len(self._composition)
+        """
+        Vertical slices to make grouped pixels for vertical effects
+        Works only for the x pixel Zero Digit
+        """
+        left = [ (72, 73, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9), (70, 71, 10, 11), (68, 69, 12, 13), (66, 67, 14, 15), (65, 127, 128, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 16) ]
+        layer1 = [ (64, 124, 125, 126, 84, 85, 86, 17, 18), (63, 123, 87, 88, 19) ]
+        layer2 = [ (62-i, 122-i, 89+i, 20+i) for i in range (7) ]
+        layer3 = [ (55, 114, 115, 97, 98, 27), (54, 113, 112, 99, 98, 28), (53, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 29)]
+        layer4 = [ (52-i, 30+1) for i in range (4) ]
+        right = [ (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48) ]
+
+        self.composition = left + layer1 + layer2 + layer3 + layer4 + right
+        columns = len(self._composition)
+        return columns
 
     def digit0Strokes(self):
-        self._composition = [ (0, 1, 2), (3, 4, 5), (6, 7, 8) ]
-        return len(self._composition)
+        """
+        Slices to simulate a writing stroke 
+        """
+        start = [ (0+i, 74-i) for i in range(9) ]
+        layer1 = [ (9, 10, 83), (11, 84), (12, 13, 85), (14, 86), (15, 16, 87), (17, 18, 19, 88)]
+        layer2 = [ (20+i, 89+i) for i in range(4) ]
+        layer3 = [ (24, 25, 93), (26, 27, 94), (28, 29, 95), (30, 31, 96) ]
+        layer4 = [ (97+i, 32+i) for i in range(14) ]
+        layer5 = [ (111, 46, 47), (112, 48, 49), (113, 50), (114, 51), (115, 52, 53), (116, 54, 55), (117, 56), (118, 57, 58) ]
+        layer6 = [ (119+i, 59+i) for i in range(5) ]
+        end = [ (124, 64, 65), (125, 66, 67), (126, 68, 69), (127, 70, 71), (128, 72, 73) ]
+
+        self.composition = start + layer1 + layer2 + layer3 + layer4 + layer5 + layer6 + end
+        strokes = len(self._composition)
+        return strokes
 
     def digit1HSlices(self):
         """

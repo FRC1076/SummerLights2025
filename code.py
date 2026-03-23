@@ -79,7 +79,7 @@ class Presentation:
         self._buffer_list = [ pixel_buffer ] * FEATHER_WING_ROWS
         #for i in range(FEATHER_WING_ROWS):
         #self._buffer_list[i] = PixelBuffer(FEATHER_WING_COLUMNS)
-        self._compositor.bufferList(list_of_buffers=buffer_list)
+        self._compositor.bufferList(list_of_buffers=self._buffer_list)
 
     def playgroundBuiltIn(self):
         self._buffer = PixelBuffer(CP_PIXELS)

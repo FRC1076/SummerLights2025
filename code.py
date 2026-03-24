@@ -228,12 +228,16 @@ class SyntheticDemoer:
 
 if __name__ == "__main__":
 
-    demoer = None
-    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
     hdw = HardwareAwareness() 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = hdw.getPixels()
-    #pixels = cp.pixels
+    print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
+    
+    if hdw.getEnvironment() in ["demo", "wokwi"]:
+        demoer = None
+    else:
+        demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+
     pixels.auto_write = False
 
     cmd = ""

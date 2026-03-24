@@ -21,6 +21,7 @@ COLOR_INC = 255 / NUM_PIXELS
 
 # keep things dim to save power
 BRIGHTNESS = 0.1
+WOKWI_BRIGHTNESS = 1.0
 
 # some ready made colors (feel free to add more)
 OFF = (0, 0, 0)

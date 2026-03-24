@@ -247,7 +247,7 @@ if __name__ == "__main__":
 
     while cmd != "Quit":
 
-        presentation = Presentation(1)      #   Note: the index needs to be set by HardwareAwareness if using digit compositors
+        presentation = Presentation(hdw.getIndex())
         pixel_buffer = presentation.pixel_buffer()
         pixel_buffer_list = presentation.pixel_buffer_list()
 

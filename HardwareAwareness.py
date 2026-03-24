@@ -37,6 +37,10 @@ class HardwareAwareness:
         else:
             self.NEO_PIN=forceNeoPin
         self.pixels = neopixel.NeoPixel(self.NEO_PIN, self.num_pixels, brightness = BRIGHTNESS, auto_write = False)
+        print("BoardID:", self.boardID)
+        print("CPU.uid:", self._boardName)
+        print("Index:", self._index)
+        print("I am:", self._info["name"])
 
     # changes the value of NEO_PIN based off the model of the board
     def getNeoPinOrigin(self):
@@ -56,6 +60,9 @@ class HardwareAwareness:
 
     def getPixels(self):
         return self.pixels
+
+    def getIndex(self):
+        return self._index
 
 if __name__ == "__main__":
 

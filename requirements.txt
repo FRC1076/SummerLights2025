@@ -1,0 +1,6 @@
+neopixel
+adafruit_debouncer
+adafruit_ticks
+adafruit_circuitplayground
+adafruit_lis3dh
+adafruit_thermistor

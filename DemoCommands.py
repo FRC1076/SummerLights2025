@@ -35,6 +35,8 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "clap",                  #  still experimental
                  "drip",                  #  physics based particle animation
                  "sound",                 #  sound response demo
+                 "flashing",              #  flashing lights (Amber)
+                 "multicolor",            #  rainbow color (Amber)
                  "Repeat",                #  repeat the previous sequence of effects
                  "Wait",                  #  wait for a number of seconds  (fast=5, medium=25, slow=100)
                  "Quit",                  #  end the sequence of effects

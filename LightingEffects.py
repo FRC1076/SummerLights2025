@@ -606,6 +606,86 @@ class OnePixelBall:
             for _ in range(slowness):
                 yield
 
+class FlashingLightsEffect:
+    """
+    flashes lights in the rainbow order
+    """
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness = 2):
+        """
+        Base class for lighting effects
+        Could be useful for documentation, or maybe actually used as a base class
+        Note, this relies on constants from elsewhere.    Should probably import them instead of assuming
+        they have been imported.
+        """
+        self._pixel_buffer = pixel_buffer
+        self._color = color
+        self._slowness = slowness
+        self._brightness = brightness    
+
+    def make_generator(self):
+        plen = len(self._pixel_buffer)
+        quarter_len = plen // 4
+        half_len = plen // 2 
+        thirdquarter_len = plen * 3 // 4
+
+        YELLOW = (255, 255, 0)
+        CYAN = (0, 255, 232) 
+        MAGENTA = (255, 0, 252)
+
+        color_list = [ OFF, OFF, OFF, OFF ]
+        colors = [ RED, ORANGE, YELLOW, CYAN, MAGENTA, PURPLE ]
+
+        while True: 
+
+            for c in colors:
+                color_list.insert(0, c)
+                color_list.pop()
+
+                for p in range(quarter_len):
+                    self._pixel_buffer[p] = color_list[0]
+
+                for p in range(quarter_len, half_len):
+                    self._pixel_buffer[p] = color_list[1]
+
+                for p in range(half_len, thirdquarter_len):
+                    self._pixel_buffer[p] = color_list[2]
+
+                for p in range(thirdquarter_len, plen):
+                    self._pixel_buffer[p] = color_list[3]
+                        
+                for _ in range(self._slowness):
+                    yield
+
+class RainbowColorEffect:
+    """
+    Gradually fills in each color of the rainbow
+    """
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS):
+        """
+        Base class for lighting effects
+        Could be useful for documentation, or maybe actually used as a base class
+        Note, this relies on constants from elsewhere. Should probably import them instead of assuming
+        they have been imported.
+        """
+        self._pixel_buffer = pixel_buffer
+        self._color = color
+        self._slowness = slowness
+        self._brightness = brightness
+
+    def make_generator(self):
+        """
+        Make the rainbow color wipe application
+        """
+        YELLOW = (255, 255, 0)
+        INDIGO = (105, 0, 255)
+
+        color_list = [ RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, PURPLE]
+        while True:
+                for c in color_list:
+                    for p in range(len(self._pixel_buffer)):
+                        self._pixel_buffer[p] = c
+                        for _ in range(self._slowness):
+                            yield
 
 if __name__ == "__main__":
 

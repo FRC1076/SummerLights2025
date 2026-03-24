@@ -168,10 +168,10 @@ class SyntheticDemoer:
 
     def __init__(self):
         self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
-                         ( "wipe digitH blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
-                         ( "flipflop 12 red slow", ),
-                         ( "drip digitH purple medium", ),
-                         ( "flipflop 2 purple slow", ),
+                         ( "wipe digitS blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
+                         ( "flipflop digitV red slow", ),
+                         ( "drip digitS purple medium", ),
+                         ( "flipflop digitV purple slow", ),
                          ( "Wait full red fast", "drip digitH blue tap" ),
                          ( "gradient digitH blue slow", ),
                          ( "gradient digitV blue slow", ),
@@ -235,7 +235,7 @@ class SyntheticDemoer:
 if __name__ == "__main__":
 
     demoer = None
-    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+    #demoer = SyntheticDemoer()      # comment this out to accept commands from the console
 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)

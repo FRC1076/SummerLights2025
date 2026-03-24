@@ -6,7 +6,7 @@ https://github.com/FRC1076
 from NeoConfig import *
 from DemoCommands import ValidEffects,ValidDivisions,ValidCompositors,ValidColors,ValidSpeeds,TAP,NO_TAP,show_help
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
-from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect
+from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect, RainbowColorEffect, FlashingLightsEffect
 from ControlEffects import WaitEffect
 
 class EffectChooser:
@@ -91,6 +91,21 @@ class EffectChooser:
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ SqueezeFillEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+        elif effect_name == "flashing":
+            div_names = ValidDivisions
+            if comp_name in topo_comps:
+                return [ FlashingLightsEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ FlashingLightsEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+        elif effect_name == "multicolor":
+            div_names = ValidDivisions
+            if comp_name in topo_comps:
+                return [ RainbowColorEffect(self._pixel_buffer, color=color, slowness=speed) ]
+            elif comp_name in div_names:
+                divs = int(comp_name)
+                return [ RainbowColorEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
+
 
         elif effect_name == "sound":
             if comp_name in topo_comps:
@@ -104,9 +119,9 @@ class EffectChooser:
         elif effect_name == "clap" and comp_name == "full":
             return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "multi" and comp_name == "4":
-            return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
+            return [ RainbowColorEffect(self._pixel_buffer_list[0], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
-                     WipeFillEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
+                     FlashingLightsEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
                      FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25) ]
         elif effect_name == "multi" and comp_name == "12":
             return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),

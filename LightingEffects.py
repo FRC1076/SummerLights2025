@@ -638,7 +638,7 @@ class FlashingLightsEffect:
         while True: 
 
             for c in colors:
-               color_list.insert(0, c)
+                color_list.insert(0, c)
                 color_list.pop()
 
                 for p in range(quarter_len):
@@ -660,7 +660,7 @@ class RainbowColorEffect:
     """
     Gradually fills in each color of the rainbow
     """
-    def init(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS):
+    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS):
         """
         Base class for lighting effects
         Could be useful for documentation, or maybe actually used as a base class
@@ -684,8 +684,8 @@ class RainbowColorEffect:
                 for c in color_list:
                     for p in range(len(self._pixel_buffer)):
                         self._pixel_buffer[p] = c
-                          for _ in range(self._slowness):
-                               yield
+                        for _ in range(self._slowness):
+                            yield
 
 if __name__ == "__main__":
 

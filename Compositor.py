@@ -106,18 +106,18 @@ class Compositor:
         layer1 = [ (64, 124, 125, 126, 84, 85, 86, 17, 18), (63, 123, 87, 88, 19) ]
         layer2 = [ (62-i, 122-i, 89+i, 20+i) for i in range (7) ]
         layer3 = [ (55, 114, 115, 97, 98, 27), (54, 113, 112, 99, 98, 28), (53, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 29)]
-        layer4 = [ (52-i, 30+1) for i in range (4) ]
+        layer4 = [ (52-i, 30+i) for i in range (4) ]
         right = [ (34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48) ]
 
-        self.composition = left + layer1 + layer2 + layer3 + layer4 + right
+        self._composition = left + layer1 + layer2 + layer3 + layer4 + right
         columns = len(self._composition)
         return columns
 
     def digit0Strokes(self):
         """
-        Slices to simulate a writing stroke 
+        Slices to simulate a writing stroke
         """
-        start = [ (0+i, 74-i) for i in range(9) ]
+        start = [ (0+i, 74+i) for i in range(9) ]
         layer1 = [ (9, 10, 83), (11, 84), (12, 13, 85), (14, 86), (15, 16, 87), (17, 18, 19, 88)]
         layer2 = [ (20+i, 89+i) for i in range(4) ]
         layer3 = [ (24, 25, 93), (26, 27, 94), (28, 29, 95), (30, 31, 96) ]
@@ -126,7 +126,7 @@ class Compositor:
         layer6 = [ (119+i, 59+i) for i in range(5) ]
         end = [ (124, 64, 65), (125, 66, 67), (126, 68, 69), (127, 70, 71), (128, 72, 73) ]
 
-        self.composition = start + layer1 + layer2 + layer3 + layer4 + layer5 + layer6 + end
+        self._composition = start + layer1 + layer2 + layer3 + layer4 + layer5 + layer6 + end
         strokes = len(self._composition)
         return strokes
 
@@ -171,13 +171,6 @@ class Compositor:
 
         strokes = len(self._composition)
         return strokes
-
-    def digit0HSlices(self):
-        pass
-    def digit0VSlices(self):
-        pass
-    def digit0Strokes(self):
-        pass
 
     def digit7HSlices(self):
         pass

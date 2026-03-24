@@ -235,7 +235,7 @@ class SyntheticDemoer:
 if __name__ == "__main__":
 
     demoer = None
-    #demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+    demoer = SyntheticDemoer()      # comment this out to accept commands from the console
 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)

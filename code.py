@@ -9,16 +9,16 @@ import neopixel
 import random
 import time
 from Compositor import Compositor
+from HardwareAwareness import HardwareAwareness
 from PixelBuffer import PixelBuffer
 from ButtonChooser import ColorChooser
 from ControlEffects import WaitEffect
 from EffectChooser import EffectChooser
 from DemoCommands import ValidEffects, ValidDivisions
 
-#PICO_PIN = board.GP15
-#KEYBOAR_PIN = board.D2
-PLAYGROUND_PIN = board.D10
-NEO_PIN = PLAYGROUND_PIN
+
+
+#NEO_PIN = PICO_PIN
 
 FEATHER_WING_ROWS = 4
 FEATHER_WING_COLUMNS = 8
@@ -60,8 +60,7 @@ RED = (220, 0, 0)
 FULL_RED = (255, 0, 0)
 TIMED = (1, 1, 1)
 
-TAP = 3
-NO_TAP = 2
+
 
 class Presentation:
     """
@@ -80,7 +79,7 @@ class Presentation:
         self._buffer_list = [ pixel_buffer ] * FEATHER_WING_ROWS
         #for i in range(FEATHER_WING_ROWS):
         #self._buffer_list[i] = PixelBuffer(FEATHER_WING_COLUMNS)
-        self._compositor.bufferList(list_of_buffers=buffer_list)
+        self._compositor.bufferList(list_of_buffers=self._buffer_list)
 
     def playgroundBuiltIn(self):
         self._buffer = PixelBuffer(CP_PIXELS)
@@ -205,7 +204,6 @@ class SyntheticDemoer:
         return needs
 
     def nextCommand(self):
-
         #
         if self._show_ndx == None:
             """
@@ -232,9 +230,9 @@ if __name__ == "__main__":
 
     demoer = None
     demoer = SyntheticDemoer()      # comment this out to accept commands from the console
-
+    hdw = HardwareAwareness() 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
-    pixels = neopixel.NeoPixel(NEO_PIN, NUM_PIXELS, brightness = BRIGHTNESS, auto_write = False)
+    pixels = hdw.getPixels()
     #pixels = cp.pixels
     pixels.auto_write = False
 

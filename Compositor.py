@@ -172,6 +172,13 @@ class Compositor:
         strokes = len(self._composition)
         return strokes
 
+    def digit6HSlices(self):
+        pass
+    def digit6VSlices(self):
+        pass
+    def digit6Strokes(self):
+        pass
+        
     def digit7HSlices(self):
         pass
     def digit7VSlices(self):
@@ -179,13 +186,7 @@ class Compositor:
     def digit7Strokes(self):
         pass
 
-    def digit6HSlices(self):
-        pass
-    def digit6VSlices(self):
-        pass
-    def digit6Strokes(self):
-        pass
-
+    
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 

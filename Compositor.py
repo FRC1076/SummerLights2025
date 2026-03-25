@@ -82,6 +82,46 @@ class Compositor:
         else:
             return c
 
+    def digit7HSlices(self):
+        """
+        Horizontal slices to make grouped pixels for vertical effects
+        Works only for the x pixel Seven Digit
+        """
+        top = [ (77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93), (76, 94), (0, 75), (1, 74), (59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73), (58, 2, 3) ]
+        tail = [ (4+i, 57-i) for i in range(27) ]
+
+        self._composition = top + tail
+        rows = len(self._composition)
+        return rows
+
+    def digit7VSlices(self):
+        """
+        Vertical slices to make grouped pixels for vertical effects
+        Works only for the x pixel Seven Digit
+        """
+        left = [ (73, 74, 75, 76) ]
+        layer1 = [ (72-i, 77+i) for i in range(3) ]
+        layer2 = [ (32, 69, 80), (31, 33, 34, 35, 68, 81), (36, 67, 82), (30, 37, 38, 39, 66, 83), (29, 40, 41, 65, 84), (28, 27, 26, 42, 43, 44, 64, 85) ]
+        layer3 = [ (24, 25, 45, 46, 63, 86), (23, 22, 21, 20, 47, 48, 49, 50, 51, 62, 87, 88), (19, 18, 17, 52, 53, 54, 55, 60, 89), (13, 14, 15, 16, 56, 57, 58, 59, 90) ]
+        right = [ (10, 11, 12, 91), (8, 9, 92), (7, 5, 6, 93), (3, 4, 94), (0, 1, 2) ]
+
+        self._composition = left + layer1 + layer2 + layer3 + right
+        columns = len (self._composition)
+        return columns
+
+    def digit7Strokes(self):
+        """
+        Slices to simulate a writing stroke
+        """
+        start = [ (73, 74, 75, 76) ]
+        layer1 = [ (72-i, 77+i) for i in range(13) ]
+        layer2 = [ (59, 90, 91, 92, 93, 94), (58, 0, 1, 2, 3) ]
+        end = [ (4+i, 57-i) for i in range(27) ]
+
+        self._composition = start + layer1 + layer2 + end
+        strokes = len(self._composition)
+        return strokes
+
     def digit0HSlices(self):
         """
         Horizontal slices to make grouped pixels for vertical effects

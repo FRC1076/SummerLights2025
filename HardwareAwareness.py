@@ -67,6 +67,9 @@ class HardwareAwareness:
     def getPixels(self):
         return self.pixels
 
+    def getNumPixels(self):
+        return len(self.pixels)
+
     def getIndex(self):
         return self._index
 

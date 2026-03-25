@@ -68,11 +68,12 @@ class Presentation:
     render, arrange, and present a responsive lighting effect.
     They include neopixel choice
     """
-    def __init__(self, my_digit_index):
+    def __init__(self, my_digit_index, my_num_pixels):
         self._compositor = Compositor()
         self._buffer_list = None
         self._buffer = None
         self._my_digit_index = my_digit_index       #  This is different for each digit
+        self._my_num_pixels = my_num_pixels
 
     def drippingFeatherSeparate(self):
         pixel_buffer = PixelBuffer(FEATHER_WING_COLUMNS)
@@ -86,15 +87,15 @@ class Presentation:
         self._compositor.passThru(CP_PIXELS)
 
     def sideLight(self):
-        self._buffer = PixelBuffer(NUM_PIXELS)
-        self._compositor.passThru(NUM_PIXELS)
+        self._buffer = PixelBuffer(self._my_num_pixels)
+        self._compositor.passThru(self._my_num_pixels)
 
     def sideLightGroups(self, num_groups=2):
         """
         This should work cleanly with 2, 3, 4, 5, 6 and their products.
         """
         self._buffer = PixelBuffer(num_groups)
-        self._compositor.groupsOfN(NUM_PIXELS, num_groups)
+        self._compositor.groupsOfN(self._my_num_pixels, num_groups)
 
     def sideLightDivisions(self, num_divisions=2):
         """
@@ -102,7 +103,7 @@ class Presentation:
         """
         #self._buffer_list = [ PixelBuffer(SIDELIGHT_PIXELS // num_divisions) for i in range(num_divisions) ]
         # Note: compositor creates the buffers
-        self._compositor.divisionsOfN(NUM_PIXELS, num_divisions)
+        self._compositor.divisionsOfN(self._my_num_pixels, num_divisions)
 
     def sideLight7Segment(self):
         groups = 24
@@ -251,7 +252,7 @@ if __name__ == "__main__":
 
     while cmd != "Quit":
 
-        presentation = Presentation(hdw.getIndex())
+        presentation = Presentation(hdw.getIndex(), hdw.getNumPixels())
         pixel_buffer = presentation.pixel_buffer()
         pixel_buffer_list = presentation.pixel_buffer_list()
 

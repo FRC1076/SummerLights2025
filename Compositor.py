@@ -69,12 +69,18 @@ class Compositor:
     def featherCols(self, cols):
         self._composition = [ [ i, i+8, i+16, i+24 ] for i in range(cols) ]
 
-    def eightHorizontal(self, rows):
-        lc = 66
-        rc = lc + 2
-        first_part = [ [ lc-2*i, lc-2*i+1, rc+2*i, rc+2*i+1 ] for i in range(14) ]
-        second_part = [ [ lc-2*i, lc-2*i+1, 119-4*(i-14), 118-4*(i-14), 117-4*(i-14), 116-4*(i-14), 99+4*(i-14), 98+4*(i-14), 97+4*(i-14), 96+4*(i-14), 2*(i-14), 2*(i-14)+1 ] for i in range(14, 17) ]
-        third_part = [ [ 33-2*(i-17), 33-2*(i-17)-1, 6+2*(i-17), 6+2*(i-17)+1 ] for i in range(17, 24) ]
+    def Nple_pixels(self, pixel_size):
+        """
+        Double up or triple up pixels of a topological grouping composition
+        """
+        c = self._composition
+
+        if pixel_size == 2:
+            return [ c[i*2]+c[i*2+1] for i in range(len(c)//2) ]
+        elif pixel_size == 3:
+            return [ c[i*3]+c[i*3+1]+c[i*3+2] for i in range(len(c)//3) ]
+        else:
+            return c
 
     def digit0HSlices(self):
         """
@@ -130,7 +136,7 @@ class Compositor:
         strokes = len(self._composition)
         return strokes
 
-    def digit1HSlices(self):
+    def digit1HSlices(self, pixel_size=2):
         """
         Horizontal slices to make grouped pixels for vertical effects
         Works only for the 78 pixel One Digit
@@ -142,6 +148,7 @@ class Compositor:
         bottom = [ (77,), (3,), (0, 1, 2) ]
 
         self._composition = top + middle + bottom
+        self._composition = self.Nple_pixels(pixel_size)
         rows = len(self._composition)
         return rows
 
@@ -159,7 +166,7 @@ class Compositor:
         columns = len(self._composition)
         return columns
 
-    def digit1Strokes(self):
+    def digit1Strokes(self,pixel_size=3):
         """
         Slices to simulate a writing stroke (18)
         """
@@ -168,7 +175,7 @@ class Compositor:
         stem = [ (26-i, 54+i) for i in range(23) ]
         bottom = [ (77, 0, 1, 2, 3) ]
         self._composition = nose + transition + stem + bottom
-
+        self._composition = self.Nple_pixels(pixel_size)
         strokes = len(self._composition)
         return strokes
 

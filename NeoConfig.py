@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 """
 FEATHER_WING_ROWS = 4
@@ -22,6 +22,7 @@ COLOR_INC = 255 / NUM_PIXELS
 # keep things dim to save power
 BRIGHTNESS = 0.1
 WOKWI_BRIGHTNESS = 1.0
+DIGIT_COMP_BRIGHTNESS = 1.0
 
 # some ready made colors (feel free to add more)
 OFF = (0, 0, 0)

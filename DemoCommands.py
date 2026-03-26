@@ -37,10 +37,12 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "sound",                 #  sound response demo
                  "flashing",              #  flashing lights (Amber)
                  "multicolor",            #  rainbow color (Amber)
+                 "shoot",
                  "Repeat",                #  repeat the previous sequence of effects
                  "Wait",                  #  wait for a number of seconds  (fast=5, medium=25, slow=100)
                  "Quit",                  #  end the sequence of effects
-                 "help" ]
+                 "help",
+                 ]
 
 ValidDivisions = [   "2",                  #  2 divisions
                      "3",                  #  3 divisions of equal size

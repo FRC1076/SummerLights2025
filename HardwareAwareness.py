@@ -2,7 +2,7 @@ import board
 import microcontroller
 import binascii
 import neopixel
-from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS
+from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS, DIGIT_COMP_BRIGHTNESS
 
 
 class HardwareAwareness:
@@ -12,7 +12,7 @@ class HardwareAwareness:
     # what number is the board in (defulted to 300 as it's not a acceptable number )
 
     boardNumDictionary = {
-        "dfa90633b8e2ed5a" : {"index": 0, "name": "1", "brightness": BRIGHTNESS},
+        "dfa90633b8e2ed5a" : {"index": 0, "name": "demo", "brightness": DIGIT_COMP_BRIGHTNESS},
         "9c269e8c931ea92c" : {"index": 1, "name": "0", "brightness": BRIGHTNESS},
         "e5e0340e79345125" : {"index": 2, "name": "7", "brightness": BRIGHTNESS},
         "030f3ec3f2755aaf" : {"index": 3, "name": "6", "brightness": BRIGHTNESS},

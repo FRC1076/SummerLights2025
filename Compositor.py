@@ -136,7 +136,7 @@ class Compositor:
         strokes = len(self._composition)
         return strokes
 
-    def digit1HSlices(self, pixel_size=2):
+    def digit1HSlices(self, pixel_size=1, reverse=False):
         """
         Horizontal slices to make grouped pixels for vertical effects
         Works only for the 78 pixel One Digit
@@ -147,7 +147,10 @@ class Compositor:
         middle = [ (21-i, 59+i) for i in range(18) ]
         bottom = [ (77,), (3,), (0, 1, 2) ]
 
-        self._composition = top + middle + bottom
+        if reverse:
+            self._composition = [ c for c in reversed(top + middle + bottom) ]
+        else:
+            self._composition = top + middle + bottom
         self._composition = self.Nple_pixels(pixel_size)
         rows = len(self._composition)
         return rows
@@ -166,7 +169,7 @@ class Compositor:
         columns = len(self._composition)
         return columns
 
-    def digit1Strokes(self,pixel_size=3):
+    def digit1Strokes(self, pixel_size=1, reverse=False):
         """
         Slices to simulate a writing stroke (18)
         """
@@ -175,6 +178,8 @@ class Compositor:
         stem = [ (26-i, 54+i) for i in range(23) ]
         bottom = [ (77, 0, 1, 2, 3) ]
         self._composition = nose + transition + stem + bottom
+        if reverse:
+            self._composition = [c for c in reversed(self._composition) ]
         self._composition = self.Nple_pixels(pixel_size)
         strokes = len(self._composition)
         return strokes
@@ -185,7 +190,7 @@ class Compositor:
         pass
     def digit6Strokes(self):
         pass
-        
+
     def digit7HSlices(self):
         pass
     def digit7VSlices(self):
@@ -193,7 +198,7 @@ class Compositor:
     def digit7Strokes(self):
         pass
 
-    
+
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 

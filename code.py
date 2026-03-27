@@ -181,7 +181,7 @@ class SyntheticDemoer:
         try:
             self._pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1, auto_write=True)
         except ValueError as ve:
-            print("Unable to initialize neopixels:", str(ve))
+            print("Unable to initialize onboard neopixels:", str(ve))
             print("Trying to free up the resource")
             try:
                 import adafruit_circuitplayground as cp
@@ -191,11 +191,12 @@ class SyntheticDemoer:
                 print("Unable to get a reference to free up the resource:", str(ne))
                 print("NeoPixels will likely not work.")
             else:
-                print("NeoPixels initialized successfully!")
+                print("Onboard NeoPixels initialized successfully!")
         else:
-            print("NeoPixels initialized successfully!")
+            print("Onboard NeoPixels initialized successfully!")
 
         self._button_chooser = ColorChooser(self._pixels, board.BUTTON_A, board.BUTTON_B)
+        print("Choose commands using the built-in A and B buttons")
 
     def needsControl(self):
         needs = self._button_chooser.new_effect_requested()
@@ -229,11 +230,11 @@ class SyntheticDemoer:
 
 if __name__ == "__main__":
 
-    hdw = HardwareAwareness() 
+    hdw = HardwareAwareness()
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = hdw.getPixels()
     print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
-    
+
     if hdw.getEnvironment() in ["demo", "wokwi"]:
         demoer = None
     else:

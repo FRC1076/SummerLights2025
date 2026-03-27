@@ -31,7 +31,7 @@ class Compositor:
             Produces a Compositor that presents a 12 value pixel buffer, with each value controlling 10
             successive neo_pixels.
         """
-        assert (num_pixels % num_groups) == 0,  "Groups must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        #assert (num_pixels % num_groups) == 0,  "Groups must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
         group_size = num_pixels // num_groups
         start_index = 0
         group_list = [ ]
@@ -45,7 +45,7 @@ class Compositor:
     def divisionsOfN(self, num_pixels, num_divisions=2):
         """
         """
-        assert (num_pixels % num_divisions) == 0,  "Divisions must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        #assert (num_pixels % num_divisions) == 0,  "Divisions must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
         division_size = num_pixels // num_divisions
         buffer_list = [ PixelBuffer(division_size) for i in range(num_divisions) ]
 
@@ -220,13 +220,16 @@ class Compositor:
         return strokes
 
     def digit6HSlices(self):
-        pass
+        self._composition = [ (4*i, 4*i+1, 4*i+2, 4*i+3) for i in range(136//4) ]
+        return len(self._composition)
     def digit6VSlices(self):
-        pass
+        self._composition = [ (4*i, 4*i+1, 4*i+2, 4*i+3) for i in range(136//4, 0, -1) ]
+        return len(self._composition)
     def digit6Strokes(self):
-        pass
+        self._composition = [ (2*i, 2*i+1, 136-2*i, 136-(2*i+1)) for i in range(136//4) ]
+        return len(self._composition)
 
-    
+
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 

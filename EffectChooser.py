@@ -115,7 +115,9 @@ class EffectChooser:
                 return [ SoundMeterEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
 
         elif effect_name == "clear" and comp_name == "all":
-            return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1) ]
+            return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1, count_pixels=False) ]
+        elif effect_name == "count" and comp_name in topo_comps:
+            return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed, count_pixels=True) ]
         elif effect_name == "clap" and comp_name == "full":
             return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "multi" and comp_name == "4":

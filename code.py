@@ -176,9 +176,9 @@ class SyntheticDemoer:
                          ( "runner 12 digitV purple medium", ),
                          ( "flipflop 8 digitV purple slow", ),
                          ( "flashing digitH purple medium", ),
-                         ( "rainbow digitV purple medium", ),
                          ( "gradient digitS purple medium", ),
                          ( "multicolor digitS purple fast", ),
+                         ( "clear all", ),
                         ]
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice

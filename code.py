@@ -165,18 +165,18 @@ class SyntheticDemoer:
     def __init__(self):
         self._shows =   [( "Wait digitH purple fast", "wipe digitH red medium",
                            "Wait digitH purple fast", "wipe digitV blue medium",
-                           "Wait digitH purple fast", "wipe digitS purple medium", "Repeat" ),
+                           "Wait digitH purple fast", "wipe digitS purple medium", ),
                          ( "Wait digitH red fast", "wipe digitH red medium",
                            "Wait digitH red fast", "wipe digitV red medium",
-                           "Wait digitH red fast", "wipe digitS red medium", "Repeat" ),
+                           "Wait digitH red fast", "wipe digitS red medium", ),
                          ( "Wait digitH blue fast", "wipe digitH blue medium",
                            "Wait digitH blue fast", "wipe digitV blue medium",
-                           "Wait digitH blue fast", "wipe digitS blue medium", "Repeat" ),
+                           "Wait digitH blue fast", "wipe digitS blue medium", ),
                          ( "drip digitH purple medium", ),
                          ( "runner 12 digitV purple medium", ),
                          ( "flipflop 8 digitV purple slow", ),
                          ( "flashing digitH purple medium", ),
-                         ( "gradient digitS purple medium", ),
+                         ("gradient digitS red medium", ), # actually shows rainbow
                          ( "multicolor digitS purple fast", ),
                          ( "clear all", ),
                         ]

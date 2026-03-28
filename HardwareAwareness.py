@@ -2,7 +2,7 @@ import board
 import microcontroller
 import binascii
 import neopixel
-from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS, SYSIPHUS_BRIGHTNESS, COMP_FULL_BRIGHTNESS
+from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS, SYSIPHUS_BRIGHTNESS, COMP_FULL_BRIGHTNESS, OFF
 
 
 class HardwareAwareness:

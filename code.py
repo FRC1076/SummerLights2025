@@ -163,19 +163,23 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._shows =   [ ( "Wait digitH purple fast", "wipe digitH red medium",
-                            "Wait digitH purple fast", "wipe digitV blue medium",
-                            "Wait digitH purple fast", "wipe digitS purple medium", "Repeat" ),
-                         ( "wipe digitS blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
-                         ( "TapWait digitH red slow", "flipflop digitV red slow", ),
-                         ( "drip digitS purple medium", ),
-                         ( "flipflop digitV purple slow", ),
-                         ( "Wait full purple fast", "drip digitH blue tap" ),
-                         ( "gradient digitH blue slow", ),
-                         ( "gradient digitV blue slow", ),
-                         ( "gradient digitS blue slow", ),
-                         ( "runner digitS purple fast", )
-                         ]
+        self._shows =   [( "Wait digitH purple fast", "wipe digitH red medium",
+                           "Wait digitH purple fast", "wipe digitV blue medium",
+                           "Wait digitH purple fast", "wipe digitS purple medium", "Repeat" ),
+                         ( "Wait digitH red fast", "wipe digitH red medium",
+                           "Wait digitH red fast", "wipe digitV red medium",
+                           "Wait digitH red fast", "wipe digitS red medium", "Repeat" ),
+                         ( "Wait digitH blue fast", "wipe digitH blue medium",
+                           "Wait digitH blue fast", "wipe digitV blue medium",
+                           "Wait digitH blue fast", "wipe digitS blue medium", "Repeat" ),
+                         ( "drip digitH purple medium", ),
+                         ( "runner 12 digitV purple medium", ),
+                         ( "flipflop 8 digitV purple slow", ),
+                         ( "flashing digitH purple medium", ),
+                         ( "rainbow digitV purple medium", ),
+                         ( "gradient digitS purple medium", ),
+                         ( "multicolor digitS purple fast", ),
+                        ]
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice
         self._cmd_ndx = 0
@@ -232,11 +236,11 @@ class SyntheticDemoer:
 
 if __name__ == "__main__":
 
-    hdw = HardwareAwareness() 
+    hdw = HardwareAwareness()
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = hdw.getPixels()
     print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
-    
+
     if hdw.getEnvironment() in ["demo", "wokwi"]:
         demoer = None
     else:

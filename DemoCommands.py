@@ -39,7 +39,8 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "multicolor",            #  rainbow color (Amber)
                  "count",                 #  with opposite color every (i % 10 == 0) pixel
                  "Repeat",                #  repeat the previous sequence of effects
-                 "Wait",                  #  wait for a number of seconds  (fast=5, medium=25, slow=100)
+                 "Wait",                  #  wait for a number of seconds  (fast=1, medium=5, slow=20)
+                 "TapWait",               #  wait for a Tap, or or timeout (fast=1, medium=5, slow=20)
                  "Quit",                  #  end the sequence of effects
                  "help" ]
 

@@ -163,12 +163,14 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._shows =   [ ( "multi 4 purple medium", "multi 4 green medium", "multi 4 red medium" ),
+        self._shows =   [ ( "Wait digitH purple fast", "wipe digitH red medium",
+                            "Wait digitH purple fast", "wipe digitV blue medium",
+                            "Wait digitH purple fast", "wipe digitS purple medium", "Repeat" ),
                          ( "wipe digitS blue medium", "wipe digitH red medium", "wipe digitH purple medium" ),
-                         ( "flipflop digitV red slow", ),
+                         ( "TapWait digitH red slow", "flipflop digitV red slow", ),
                          ( "drip digitS purple medium", ),
                          ( "flipflop digitV purple slow", ),
-                         ( "Wait full red fast", "drip digitH blue tap" ),
+                         ( "Wait full purple fast", "drip digitH blue tap" ),
                          ( "gradient digitH blue slow", ),
                          ( "gradient digitV blue slow", ),
                          ( "gradient digitS blue slow", ),
@@ -230,15 +232,15 @@ class SyntheticDemoer:
 
 if __name__ == "__main__":
 
-    hdw = HardwareAwareness()
+    hdw = HardwareAwareness() 
     #Note: for internal(built-in) pixels on CircuitPlayground import of cp takes care of this
     pixels = hdw.getPixels()
     print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
-
+    
     if hdw.getEnvironment() in ["demo", "wokwi"]:
         demoer = None
     else:
-        demoer = SyntheticDemoer()      # comment this out to accept commands from the console
+        demoer = SyntheticDemoer()      # uses ColorChooser to choose the effect
 
     pixels.auto_write = False
 
@@ -267,37 +269,37 @@ if __name__ == "__main__":
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
 
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "oval":
             presentation.oval()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "digitH":
             presentation.digitH()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)    MCJXXX
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "digitV":
             presentation.digitV()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "digitS":
             presentation.digitS()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp == "7segment":
             presentation.sideLight7Segment()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
         elif comp in ValidDivisions:
             try:
@@ -307,14 +309,14 @@ if __name__ == "__main__":
             presentation.sideLightDivisions(num_divisions)
             compositor = presentation.compositor()
             pixel_buffer_list = presentation.pixel_buffer_list()
-            compositor.compose(pixel_buffer_list, pixels)
+            #compositor.compose(pixel_buffer_list, pixels)
             chooser = EffectChooser(pixel_buffer_list=pixel_buffer_list)
         else:
             presentation.sideLight()
             compositor = presentation.compositor()
             pixel_buffer = presentation.pixel_buffer()
 
-            compositor.compose(pixel_buffer, pixels)
+            #compositor.compose(pixel_buffer, pixels)
             chooser = EffectChooser(pixel_buffer=pixel_buffer)
 
 

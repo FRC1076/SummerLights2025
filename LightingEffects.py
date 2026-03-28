@@ -627,22 +627,22 @@ class FlashingLightsEffect:
         self._pixel_buffer = pixel_buffer
         self._color = color
         self._slowness = slowness
-        self._brightness = brightness
+        self._brightness = brightness    
 
     def make_generator(self):
         plen = len(self._pixel_buffer)
         quarter_len = plen // 4
-        half_len = plen // 2
+        half_len = plen // 2 
         thirdquarter_len = plen * 3 // 4
 
         YELLOW = (255, 255, 0)
-        CYAN = (0, 255, 232)
+        CYAN = (0, 255, 232) 
         MAGENTA = (255, 0, 252)
 
         color_list = [ OFF, OFF, OFF, OFF ]
         colors = [ RED, ORANGE, YELLOW, CYAN, MAGENTA, PURPLE ]
 
-        while True:
+        while True: 
 
             for c in colors:
                 color_list.insert(0, c)
@@ -659,7 +659,7 @@ class FlashingLightsEffect:
 
                 for p in range(thirdquarter_len, plen):
                     self._pixel_buffer[p] = color_list[3]
-
+                        
                 for _ in range(self._slowness):
                     yield
 

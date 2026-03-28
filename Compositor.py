@@ -31,7 +31,7 @@ class Compositor:
             Produces a Compositor that presents a 12 value pixel buffer, with each value controlling 10
             successive neo_pixels.
         """
-        assert (num_pixels % num_groups) == 0,  "Groups must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        #assert (num_pixels % num_groups) == 0,  "Groups must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
         group_size = num_pixels // num_groups
         start_index = 0
         group_list = [ ]
@@ -45,7 +45,7 @@ class Compositor:
     def divisionsOfN(self, num_pixels, num_divisions=2):
         """
         """
-        assert (num_pixels % num_divisions) == 0,  "Divisions must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
+        #assert (num_pixels % num_divisions) == 0,  "Divisions must evenly divide pixels, try 2, 3, 4, 5, 6 and multiples"
         division_size = num_pixels // num_divisions
         buffer_list = [ PixelBuffer(division_size) for i in range(num_divisions) ]
 
@@ -270,7 +270,6 @@ class Compositor:
 
 
 
-    
     def oval(self, num_pixels, rows):
         self._composition = [ [ i, num_pixels-i-1 ] for i in range(rows) ]
 

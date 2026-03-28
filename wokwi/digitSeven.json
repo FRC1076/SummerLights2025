@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "author": "PiHi Samurai Developers (FRC1076)",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-pi-pico",
+      "id": "pico",
+      "top": 16.05,
+      "left": 339.6,
+      "attrs": { "env": "circuitpython-8.0.2" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip2",
+      "top": -351.3,
+      "left": 362.2,
+      "rotate": 90,
+      "attrs": { "pixels": "2", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip1",
+      "top": -8.42,
+      "left": -39.46,
+      "rotate": 110,
+      "attrs": { "pixels": "27", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip3",
+      "top": 298.9,
+      "left": 64.8,
+      "rotate": 180,
+      "attrs": { "pixels": "4", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip4",
+      "top": -391.5,
+      "left": -57.6,
+      "attrs": { "pixels": "18", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip5",
+      "top": 3.43,
+      "left": -152.17,
+      "rotate": 290,
+      "attrs": { "pixels": "26", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip6",
+      "top": -348,
+      "left": -109.3,
+      "rotate": 270,
+      "attrs": { "pixels": "3", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip7",
+      "top": -296.3,
+      "left": -92.2,
+      "rotate": 180,
+      "attrs": { "pixels": "15", "pixelShape": "circle" }
+    }
+  ],
+  "connections": [
+    [ "pico:GP15", "strip2:DIN", "gold", [ "h-19.2", "v67.2", "h172.8", "v-691.2", "h-96.4" ] ],
+    [ "strip2:VDD.2", "strip1:VDD", "red", [ "v0", "h11" ] ],
+    [ "strip2:DOUT", "strip1:DIN", "gold", [ "h0" ] ],
+    [ "strip2:VSS.2", "strip1:VSS", "green", [ "h0" ] ],
+    [ "strip3:VDD", "strip1:VDD.2", "red", [ "h0" ] ],
+    [ "strip3:DIN", "strip1:DOUT", "gold", [ "h0" ] ],
+    [ "strip3:VSS", "strip1:VSS.2", "green", [ "h0" ] ],
+    [ "strip3:VDD.2", "strip5:VDD", "red", [ "v0" ] ],
+    [ "strip3:DOUT", "strip5:DIN", "gold", [ "h0" ] ],
+    [ "strip3:VSS.2", "strip5:VSS", "green", [ "h0" ] ],
+    [ "strip6:VSS.2", "strip4:VSS", "green", [ "v0" ] ],
+    [ "strip6:DOUT", "strip4:DIN", "gold", [ "v-15.53", "h29.78" ] ],
+    [ "strip6:VDD.2", "strip4:VDD", "red", [ "v-18.05", "h46.85" ] ],
+    [ "strip5:VDD.2", "strip7:VDD", "red", [ "v0" ] ],
+    [ "strip5:DOUT", "strip7:DIN", "gold", [ "v5.93", "h-20.58" ] ],
+    [ "strip5:VSS.2", "strip7:VSS", "green", [ "v3.4", "h-23.1" ] ],
+    [ "strip7:VDD.2", "strip6:VDD", "red", [ "v0" ] ],
+    [ "strip7:DOUT", "strip6:DIN", "gold", [ "v6.69", "h11.23" ] ],
+    [ "strip7:VSS.2", "strip6:VSS", "green", [ "v9.22", "h37.5" ] ],
+    [ "pico:VBUS", "strip2:VDD", "red", [ "h58.8", "v-403.2", "h-67.2" ] ],
+    [ "pico:GND.4", "strip2:VSS", "green", [ "h-38.4", "v96", "h201.6", "v-710.4", "h-124.8" ] ]
+  ],
+  "dependencies": {}
+}

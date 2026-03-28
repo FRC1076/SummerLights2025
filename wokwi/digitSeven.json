@@ -13,24 +13,24 @@
     {
       "type": "wokwi-led-strip",
       "id": "strip2",
-      "top": -350.8,
-      "left": 362.7,
+      "top": -351.3,
+      "left": 362.2,
       "rotate": 90,
       "attrs": { "pixels": "2", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip1",
-      "top": 4.09,
-      "left": -42.86,
+      "top": -8.42,
+      "left": -39.46,
       "rotate": 110,
-      "attrs": { "pixels": "28", "pixelShape": "circle" }
+      "attrs": { "pixels": "27", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip3",
-      "top": 308.5,
-      "left": 73.4,
+      "top": 298.9,
+      "left": 64.8,
       "rotate": 180,
       "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
@@ -44,24 +44,24 @@
     {
       "type": "wokwi-led-strip",
       "id": "strip5",
-      "top": 3.76,
-      "left": -152.64,
+      "top": 3.43,
+      "left": -152.17,
       "rotate": 290,
-      "attrs": { "pixels": "27", "pixelShape": "circle" }
+      "attrs": { "pixels": "26", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip6",
-      "top": -347.5,
-      "left": -138.6,
+      "top": -348,
+      "left": -109.3,
       "rotate": 270,
       "attrs": { "pixels": "3", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip7",
-      "top": -295.3,
-      "left": -91.2,
+      "top": -296.3,
+      "left": -92.2,
       "rotate": 180,
       "attrs": { "pixels": "15", "pixelShape": "circle" }
     }

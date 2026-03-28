@@ -40,6 +40,7 @@ class HardwareAwareness:
         else:
             self.NEO_PIN=forceNeoPin
         self.pixels = neopixel.NeoPixel(self.NEO_PIN, self.num_pixels, brightness = self._brightness, auto_write = False)
+        self.pixels.fill(OFF)
 
         print("CPU.uid:", self._boardName)
         print("Index:", self._index)

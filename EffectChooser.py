@@ -74,8 +74,8 @@ class EffectChooser:
         print("Name:", effect_name, "Comp:", comp_name, "Color:", color, "Speed:", speed)
 
         if effect_name == "wipe" and comp_name in topo_comps:
-            return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed), WaitEffect(self._pixel_buffer, slowness=speed) ]
-        elif effect_name == "Wait" and comp_name == "full":
+            return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "Wait":
             return [ WaitEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "flipflop":
             div_names = ValidDivisions
@@ -105,15 +105,12 @@ class EffectChooser:
             elif comp_name in div_names:
                 divs = int(comp_name)
                 return [ RainbowColorEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-
-
         elif effect_name == "sound":
             if comp_name in topo_comps:
                 return [ SoundMeterEffect(self._pixel_buffer, color=color, slowness=speed) ]
             elif comp_name in ValidDivisions:
                 divs = int(comp_name)
                 return [ SoundMeterEffect(self._pixel_buffer_list[i], color=color, slowness=speed) for i in range(divs) ]
-
         elif effect_name == "clear" and comp_name == "all":
             return [ WipeFillEffect(self._pixel_buffer, color=OFF, slowness=1, count_pixels=False) ]
         elif effect_name == "count" and comp_name in topo_comps:
@@ -125,6 +122,15 @@ class EffectChooser:
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
                      FlashingLightsEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
                      FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25) ]
+        elif effect_name == "multi" and comp_name == "8":
+            return [ RainbowColorEffect(self._pixel_buffer_list[0], slowness=5),
+                     RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
+                     FlashingLightsEffect(self._pixel_buffer_list[2], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[3], color=RED, slowness=25),
+                     RainbowEffect(self._pixel_buffer_list[4], slowness=5),
+                     RunnerEffect(self._pixel_buffer_list[5], color=color, slowness=speed),
+                     WipeFillEffect(self._pixel_buffer_list[6], color=BUTTERSCOTCH, slowness=5),
+                     FlipFlopEffect(self._pixel_buffer_list[7], color=BLUE, slowness=25) ]
         elif effect_name == "multi" and comp_name == "12":
             return [ RainbowEffect(self._pixel_buffer_list[0], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),
@@ -167,14 +173,10 @@ class EffectChooser:
                 return re + [ FlipFlopEffect(self._pixel_buffer_list[i], color=red, slowness=speed) for i in range(4) ]
         elif effect_name == "gradient":
             if comp_name in topo_comps:
-                # Kind of a KLUDGE here
-                # Run this along with a Wait effect to keep it displayed for a bit
-                return [ GradientEffect(self._pixel_buffer, color=color,), WaitEffect(self._pixel_buffer, slowness=speed) ]
+                return [ GradientEffect(self._pixel_buffer, color=color,) ]
             elif comp_name in ValidDivisions:
                 divs = int(comp_name)
-                ges = [ GradientEffect(self._pixel_buffer_list[i], color=color,) for i in range(divs) ]
-                we = [ WaitEffect(self._pixel_buffer, slowness=speed) ]
-                return ges + we
+                return [ GradientEffect(self._pixel_buffer_list[i], color=color,) for i in range(divs) ]
 
         else:
             print(f"Command [{effect_cmd}] matches nothing.  Just gonna do a purple wipe")

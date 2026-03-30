@@ -241,7 +241,7 @@ if __name__ == "__main__":
     pixels = hdw.getPixels()
     print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
 
-    if hdw.getEnvironment() in ["demo", "wokwi"]:
+    if hdw.getEnvironment() in ["demo", "wokwi", "standalone"]:
         demoer = None
     else:
         demoer = SyntheticDemoer()      # uses ColorChooser to choose the effect

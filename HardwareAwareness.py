@@ -20,7 +20,7 @@ class HardwareAwareness:
         "0000000000000000" : {"index": 6, "name": "wokwi", "brightness": WOKWI_BRIGHTNESS},
     }
 
-    numPixelsList = [ 78, 128, 96, 136, 120, 10, 60 ]
+    numPixelsList = [ 78, 132, 96, 136, 120, 10, 60 ]
 
     def __init__(self, forceNumPixels=None, forceNeoPin=None):
 

@@ -6,136 +6,192 @@
     {
       "type": "wokwi-pi-pico",
       "id": "pico",
-      "top": 92.85,
-      "left": -313.2,
+      "top": -70.35,
+      "left": -294,
       "attrs": { "env": "circuitpython-8.0.2" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip1",
-      "top": 17.46,
-      "left": -217.17,
-      "rotate": 280,
+      "top": -163.44,
+      "left": -154.68,
+      "rotate": 285,
       "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip2",
-      "top": 231.32,
-      "left": -227.35,
-      "rotate": 265,
-      "attrs": { "pixels": "6", "pixelShape": "circle" }
+      "top": 43.7,
+      "left": -178.4,
+      "rotate": 270,
+      "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip3",
-      "top": 369.94,
-      "left": -178.27,
+      "top": 177.27,
+      "left": -177.8,
       "rotate": 250,
       "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip4",
-      "top": -220.14,
-      "left": -82.12,
-      "rotate": 330,
-      "attrs": { "pixels": "6", "pixelShape": "circle" }
+      "top": -265.47,
+      "left": -82.68,
+      "rotate": 320,
+      "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip5",
-      "top": -257.1,
-      "left": 67.2,
+      "top": -324.3,
+      "left": 57.6,
       "rotate": 360,
       "attrs": { "pixels": "8", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip6",
-      "top": -219.94,
-      "left": 263.08,
-      "rotate": 30,
-      "attrs": { "pixels": "6", "pixelShape": "circle" }
+      "top": -301.65,
+      "left": 278.22,
+      "rotate": 40,
+      "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip7",
-      "top": 50.47,
-      "left": 435.32,
-      "rotate": 80,
-      "attrs": { "pixels": "6", "pixelShape": "circle" }
+      "top": -31.2,
+      "left": 415.5,
+      "rotate": 90,
+      "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip8",
-      "top": 213.1,
-      "left": 450.6,
+      "top": 105.1,
+      "left": 414.6,
       "rotate": 90,
-      "attrs": { "pixels": "6", "pixelShape": "circle" }
+      "attrs": { "pixels": "5", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip9",
-      "top": 356.22,
-      "left": 455.73,
+      "top": 230.75,
+      "left": 407.26,
       "rotate": 110,
       "attrs": { "pixels": "4", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip10",
-      "top": 604.4,
-      "left": -21.94,
+      "top": 440.5,
+      "left": -49.56,
       "rotate": 209,
       "attrs": { "pixels": "5", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip11",
-      "top": 592.19,
-      "left": 285.58,
+      "top": 466.71,
+      "left": 255.59,
       "rotate": 150,
       "attrs": { "pixels": "5", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip12",
-      "top": 634.9,
-      "left": 124.4,
+      "top": 480.3,
+      "left": 95.6,
       "rotate": 180,
       "attrs": { "pixels": "6", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip13",
-      "top": 485.78,
-      "left": 375.04,
+      "top": 360.23,
+      "left": 336.21,
       "rotate": 120,
       "attrs": { "pixels": "6", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip14",
-      "top": 496.42,
-      "left": -135.64,
+      "top": 322.87,
+      "left": -164.01,
       "rotate": 240,
       "attrs": { "pixels": "6", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip15",
-      "top": -99.42,
-      "left": 375.24,
-      "rotate": 60,
+      "top": -171.79,
+      "left": 355.56,
+      "rotate": 75,
       "attrs": { "pixels": "6", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-led-strip",
       "id": "strip16",
-      "top": -107.98,
-      "left": -193.04,
-      "rotate": 300,
+      "top": -144.37,
+      "left": -31.2,
+      "rotate": 290,
+      "attrs": { "pixels": "6" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip17",
+      "top": -134.05,
+      "left": 227.47,
+      "rotate": 70,
+      "attrs": { "pixels": "6" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip18",
+      "top": -218.7,
+      "left": 105.6,
+      "rotate": 360,
+      "attrs": { "pixels": "6", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip19",
+      "top": 80.8,
+      "left": -103.9,
+      "rotate": 270,
+      "attrs": { "pixels": "10", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip20",
+      "top": 79.6,
+      "left": 201.1,
+      "rotate": 90,
+      "attrs": { "pixels": "11", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip21",
+      "top": 290.05,
+      "left": -26.27,
+      "rotate": 250,
+      "attrs": { "pixels": "6", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip22",
+      "top": 300.37,
+      "left": 232.4,
+      "rotate": 110,
+      "attrs": { "pixels": "6", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip23",
+      "top": 374.7,
+      "left": 114.8,
+      "rotate": 180,
       "attrs": { "pixels": "6", "pixelShape": "circle" }
     }
   ],
@@ -148,7 +204,7 @@
     [ "strip5:VSS.2", "strip6:VSS", "green", [ "h0" ] ],
     [ "pico:GP15", "strip1:DIN", "gold", [ "h-19.2", "v19.2", "h115.2", "v-163.2", "h57.6" ] ],
     [ "pico:VBUS", "strip1:VDD", "red", [ "h30", "v28.8" ] ],
-    [ "pico:GND.7", "strip1:VSS", "green", [ "h58.8", "v-19.2", "h38.4" ] ],
+    [ "pico:GND.7", "strip1:VSS", "green", [ "h58.8", "v-48", "h57.72" ] ],
     [ "strip7:VDD.2", "strip8:VDD", "red", [ "v0" ] ],
     [ "strip7:DOUT", "strip8:DIN", "gold", [ "v0" ] ],
     [ "strip7:VSS.2", "strip8:VSS", "green", [ "v0" ] ],
@@ -176,18 +232,39 @@
     [ "strip3:VDD.2", "strip2:VDD", "red", [ "v0" ] ],
     [ "strip3:DOUT", "strip2:DIN", "gold", [ "v0" ] ],
     [ "strip3:VSS.2", "strip2:VSS", "green", [ "v0" ] ],
-    [ "strip16:VSS.2", "strip4:VSS", "green", [ "v0" ] ],
-    [ "strip16:DOUT", "strip4:DIN", "gold", [ "v0" ] ],
-    [ "strip16:VDD.2", "strip4:VDD", "red", [ "v0" ] ],
-    [ "strip1:VDD.2", "strip16:VDD", "red", [ "h0" ] ],
-    [ "strip1:DOUT", "strip16:DIN", "gold", [ "v0" ] ],
-    [ "strip1:VSS.2", "strip16:VSS", "green", [ "v0" ] ],
     [ "strip10:VDD.2", "strip14:VDD", "red", [ "v0" ] ],
     [ "strip10:DOUT", "strip14:DIN", "gold", [ "v0" ] ],
     [ "strip10:VSS.2", "strip14:VSS", "green", [ "v0" ] ],
     [ "strip3:VDD", "strip14:VDD.2", "red", [ "v0" ] ],
     [ "strip3:DIN", "strip14:DOUT", "gold", [ "v0" ] ],
-    [ "strip3:VSS", "strip14:VSS.2", "green", [ "v0" ] ]
+    [ "strip3:VSS", "strip14:VSS.2", "green", [ "v0" ] ],
+    [ "strip1:VDD.2", "strip4:VDD", "red", [ "v0" ] ],
+    [ "strip1:DOUT", "strip4:DIN", "gold", [ "v0" ] ],
+    [ "strip1:VSS.2", "strip4:VSS", "green", [ "v0" ] ],
+    [ "strip2:VDD.2", "strip16:VDD", "red", [ "v-74.9", "h0.5" ] ],
+    [ "strip2:VSS.2", "strip16:VSS", "green", [ "v-7.7", "h124.5", "v-38.4", "h18.79" ] ],
+    [ "strip2:DOUT", "strip16:DIN", "gold", [ "v-17.3", "h115.3", "v-48" ] ],
+    [ "strip16:VSS.2", "strip18:VSS", "green", [ "v0" ] ],
+    [ "strip16:DOUT", "strip18:DIN", "gold", [ "v-12.3", "h5.13" ] ],
+    [ "strip16:VDD.2", "strip18:VDD", "red", [ "v-18.48", "h4.93" ] ],
+    [ "strip18:VDD.2", "strip17:VDD", "red", [ "v0", "h18.8" ] ],
+    [ "strip18:DOUT", "strip17:DIN", "gold", [ "h18.8", "v-0.4" ] ],
+    [ "strip18:VSS.2", "strip17:VSS", "green", [ "h0" ] ],
+    [ "strip17:VSS.2", "strip20:VSS", "green", [ "v0" ] ],
+    [ "strip17:DOUT", "strip20:DIN", "gold", [ "v0" ] ],
+    [ "strip17:VDD.2", "strip20:VDD", "red", [ "v0" ] ],
+    [ "strip20:VSS.2", "strip22:VSS", "green", [ "v0" ] ],
+    [ "strip20:DOUT", "strip22:DIN", "gold", [ "v0" ] ],
+    [ "strip20:VDD.2", "strip22:VDD", "red", [ "v0" ] ],
+    [ "strip22:VSS.2", "strip23:VSS", "green", [ "v0" ] ],
+    [ "strip22:DOUT", "strip23:DIN", "gold", [ "v0" ] ],
+    [ "strip22:VDD.2", "strip23:VDD", "red", [ "v0" ] ],
+    [ "strip23:VDD.2", "strip21:VDD", "red", [ "v0", "h-28.4" ] ],
+    [ "strip23:DOUT", "strip21:DIN", "gold", [ "h-18.8", "v0.4" ] ],
+    [ "strip23:VSS.2", "strip21:VSS", "green", [ "h-9.2", "v0.8" ] ],
+    [ "strip21:VSS.2", "strip19:VSS", "green", [ "v0" ] ],
+    [ "strip21:DOUT", "strip19:DIN", "gold", [ "v0" ] ],
+    [ "strip21:VDD.2", "strip19:VDD", "red", [ "v-8.88", "h-14.53" ] ]
   ],
   "dependencies": {}
 }

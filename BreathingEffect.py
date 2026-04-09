@@ -3,17 +3,11 @@ import math
 import board
 import neopixel
 
-PIXEL_PIN = board.D6
-NUM_PIXELS = 64
-
-pixels = neopixel.NeoPixel(
-    PIXEL_PIN,
-    NUM_PIXELS,
-    auto_write=False
-)
-
 class BreathingEffect:
-    def __init__(self, pixels, color=(50, 0, 50), fps=50, breath_seconds=6,
+
+    """
+    """
+    def __init__(self, pixels, color=(255, 0, 255), fps=50, breath_seconds=6,
                  min_brightness=0.05, max_brightness=1.0):
         
         self.pixels = pixels
@@ -37,7 +31,11 @@ class BreathingEffect:
             int(b * brightness)
         )
 
-    def run(self):
+    def make_generator(self):
+        """
+        Change this to make_generator instead.
+        Use yield to return the 
+        """
         while True:
             for brightness in self.brightness_values:
                 scaled = self.scale_color(self.base_color, brightness)
@@ -45,8 +43,24 @@ class BreathingEffect:
                 self.pixels.fill(scaled)
                 self.pixels.show()
 
-                time.sleep(1 / self.fps)
+                yield
 
-effect = BreathingEffect(pixels)
 
-effect.run()
+
+if __name__ == "__main__":
+
+    PIXEL_PIN = board.GP15
+    NUM_PIXELS = 64
+
+    pixels = neopixel.NeoPixel(
+        PIXEL_PIN,
+        NUM_PIXELS,
+        auto_write=False
+    )
+
+    effect = BreathingEffect(pixels)
+    effect_gen = effect.make_generator()
+
+    while True:
+        next(effect_gen)
+        time.sleep(0.020)

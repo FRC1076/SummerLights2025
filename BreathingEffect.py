@@ -1,29 +1,30 @@
-import time
 import math
-import board
-import neopixel
+from NeoConfig import FPS
 
 class BreathingEffect:
 
-    """
-    """
-    def __init__(self, pixels, color=(255, 0, 255), fps=50, breath_seconds=6,
-                 min_brightness=0.05, max_brightness=1.0):
-        
-        self.pixels = pixels
-        self.base_color = color
-        self.fps = fps
-        self.steps = int(fps * breath_seconds)
+    BREATH_SECS = 6
+    MIN_BRIGHTNESS = 0.05
+    MAX_BRIGHTNESS = 1.0
 
-        self.brightness_values = []
-        for step in range(self.steps):
-            radians = (2 * math.pi * step) / self.steps
+    def __init__(self, pixel_buffer, color=(255, 0, 255)):
+        self._pixel_buffer = pixel_buffer
+        self._color = color
+
+        self._steps = int(FPS * BreathingEffect.BREATH_SECS)
+
+        self._brightness_values = []
+        for step in range(self._steps):
+            radians = (2 * math.pi * step) / self._steps
             normalized = (math.sin(radians) + 1) / 2
-            
-            brightness = min_brightness + normalized * (max_brightness - min_brightness)
-            self.brightness_values.append(brightness)
 
-    def scale_color(self, color, brightness):
+            brightness = (
+                BreathingEffect.MIN_BRIGHTNESS +
+                normalized * (BreathingEffect.MAX_BRIGHTNESS - BreathingEffect.MIN_BRIGHTNESS)
+            )
+            self._brightness_values.append(brightness)
+
+    def _scale_color(self, color, brightness):
         r, g, b = color
         return (
             int(r * brightness),
@@ -32,35 +33,11 @@ class BreathingEffect:
         )
 
     def make_generator(self):
-        """
-        Change this to make_generator instead.
-        Use yield to return the 
-        """
         while True:
-            for brightness in self.brightness_values:
-                scaled = self.scale_color(self.base_color, brightness)
+            for brightness in self._brightness_values:
+                scaled = self._scale_color(self._color, brightness)
 
-                self.pixels.fill(scaled)
-                self.pixels.show()
+                self._pixel_buffer.fill(scaled)
+                self._pixel_buffer.show()
 
                 yield
-
-
-
-if __name__ == "__main__":
-
-    PIXEL_PIN = board.GP15
-    NUM_PIXELS = 64
-
-    pixels = neopixel.NeoPixel(
-        PIXEL_PIN,
-        NUM_PIXELS,
-        auto_write=False
-    )
-
-    effect = BreathingEffect(pixels)
-    effect_gen = effect.make_generator()
-
-    while True:
-        next(effect_gen)
-        time.sleep(0.020)

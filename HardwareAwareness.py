@@ -2,8 +2,7 @@ import board
 import microcontroller
 import binascii
 import neopixel
-from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS, SYSIPHUS_BRIGHTNESS
-
+from NeoConfig import BRIGHTNESS, WOKWI_BRIGHTNESS, SYSIPHUS_BRIGHTNESS, COMP_FULL_BRIGHTNESS, OFF
 
 class HardwareAwareness:
 
@@ -15,13 +14,14 @@ class HardwareAwareness:
         "dfa90633b8e2ed5a" : {"index": 0, "name": "1", "brightness": BRIGHTNESS},
         "9c269e8c931ea92c" : {"index": 1, "name": "0", "brightness": BRIGHTNESS},
         "7e75345dc17e7eac" : {"index": 2, "name": "7", "brightness": BRIGHTNESS},
-        "030f3ec3f2755aaf" : {"index": 3, "name": "6", "brightness": BRIGHTNESS},
+        "030f3ec3f2755aaf" : {"index": 3, "name": "demo", "brightness": BRIGHTNESS},
         "28d7e12692c1b153" : {"index": 4, "name": "Spare", "brightness": BRIGHTNESS},
-        "e5e0340e79345125" : {"index": 5, "name": "Spare", "brightness": BRIGHTNESS},
+        "e5e0340e79345125" : {"index": 5, "name": "standalone", "brightness": BRIGHTNESS},
         "0000000000000000" : {"index": 6, "name": "wokwi", "brightness": WOKWI_BRIGHTNESS},
     }
 
-    numPixelsList = [ 78, 128, 96, 136, 120, 120, 60 ]
+    numPixelsList = [ 78, 132, 96, 136, 120, 10, 60 ]
+
     def __init__(self, forceNumPixels=None, forceNeoPin=None):
 
         self.boardID = board.board_id
@@ -39,7 +39,20 @@ class HardwareAwareness:
             self.NEO_PIN=self.getNeoPinOrigin()
         else:
             self.NEO_PIN=forceNeoPin
-        self.pixels = neopixel.NeoPixel(self.NEO_PIN, self.num_pixels, brightness = self._brightness, auto_write = False)
+
+        if self.getEnvironment() == "standalone" and "circuitplayground" in self.boardID:
+            neo_pin = board.NEOPIXEL
+        else:
+            neo_pin = self.NEO_PIN
+
+        try:
+            self.pixels = neopixel.NeoPixel(neo_pin, self.num_pixels, brightness = self._brightness, auto_write = False)
+        except ValueError as ve:
+            import adafruit_circuitplayground as cp
+            cp.cp.pixels.deinit()
+            self.pixels = neopixel.NeoPixel(neo_pin, self.num_pixels, brightness = self._brightness, auto_write = False)
+        self.pixels.fill(OFF)
+
 
         print("CPU.uid:", self._boardName)
         print("Index:", self._index)

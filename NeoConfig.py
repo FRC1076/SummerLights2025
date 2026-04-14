@@ -1,6 +1,6 @@
 """
 SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
+Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076 
 https://github.com/FRC1076
 """
 FEATHER_WING_ROWS = 4
@@ -27,7 +27,9 @@ COMP_FULL_BRIGHTNESS = 1.0
 
 # some ready made colors (feel free to add more)
 OFF = (0, 0, 0)
-PURPLE = (92, 50, 168)
+JAYINS_PERFECT_PURPLE = (80, 16, 140)
+PURPLE = JAYINS_PERFECT_PURPLE
+#PURPLE = (92, 50, 168)
 ORANGE = (235, 122, 52)
 RED = (220, 0, 0)
 FULL_RED = (255, 0, 0)
@@ -35,4 +37,4 @@ BLUE = (24, 30, 214)
 BUTTERSCOTCH = (252, 186, 3)
 GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
-JAYINS_PERFECT_PURPLE = (80, 16, 140)
+

@@ -3,7 +3,7 @@ from NeoConfig import FPS
 
 class BreathingEffect:
 
-    BREATH_SECS = 6
+    BREATH_SECS = 4
     MIN_BRIGHTNESS = 0.05
     MAX_BRIGHTNESS = 1.0
 
@@ -42,7 +42,7 @@ class BreathingEffect:
                 scaled = self._scale_color(self._color, brightness)
 
                 self._pixel_buffer.fill(scaled)
-                self._pixel_buffer.show()
+                # self._pixel_buffer.show()
 
                 # run at the requested speed
                 for _ in range(self._slowness):

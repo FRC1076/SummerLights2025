@@ -13,6 +13,7 @@ from HardwareAwareness import HardwareAwareness
 from PixelBuffer import PixelBuffer
 from ButtonChooser import ColorChooser
 from ControlEffects import WaitEffect
+from BreathingEffect import BreathingEffect
 from EffectChooser import EffectChooser
 from DemoCommands import ValidEffects, ValidDivisions
 

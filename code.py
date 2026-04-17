@@ -164,23 +164,22 @@ class SyntheticDemoer:
     INTERVAL_NS = NANO_SECONDS_PER_SECOND*INTERVAL_SECS
 
     def __init__(self):
-        self._shows =   [( "Wait digitH purple fast", "wipe digitH red medium",
-                           "Wait digitH purple fast", "wipe digitV blue medium",
-                           "Wait digitH purple fast", "wipe digitS purple medium", ),
-                         ( "Wait digitH red fast", "wipe digitH red medium",
-                           "Wait digitH red fast", "wipe digitV red medium",
-                           "Wait digitH red fast", "wipe digitS red medium", ),
-                         ( "Wait digitH blue fast", "wipe digitH blue medium",
-                           "Wait digitH blue fast", "wipe digitV blue medium",
-                           "Wait digitH blue fast", "wipe digitS blue medium", ),
-                         ( "drip digitH purple medium", ),
-                         ( "runner 12 digitV purple medium", ),
-                         ( "flipflop 8 digitV purple slow", ),
-                         ( "flashing digitH purple medium", ),
-                         ("gradient digitS red medium", ), # actually shows rainbow
-                         ( "multicolor digitS purple fast", ),
-                         ( "clear all", ),
-                        ]
+        self._shows =   [( "breathing full digitH purple fast", ),
+                        ( "runner 12 digitV purple medium", ),
+                        ( "Wait digitH red fast", "wipe digitH red medium",
+                          "Wait digitV red fast", "wipe digitV red medium",
+                          "Wait digitS red fast", "wipe digitS red medium", ),
+                        ( "Wait digitH blue fast", "wipe digitH blue medium",
+                          "Wait digitV blue fast", "wipe digitV blue medium",
+                          "Wait digitS blue fast", "wipe digitS blue medium", ),
+                        ( "flipflop 4 digitV red slow", ),
+                        ( "flipflop 4 digitV blue slow", ),
+                        ( "flashing digitH purple medium", ),
+                        ( "gradient digitS red medium", ), # actually shows rainbow
+                        ( "multicolor digitS purple fast", ),
+                        ( "clear all", ),
+                       ]
+
         self._show_ndx = None
         self._previous_show_ndx = 0       # this kicks starts the first choice
         self._cmd_ndx = 0

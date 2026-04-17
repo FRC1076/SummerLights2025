@@ -17,7 +17,7 @@ class HardwareAwareness:
         "030f3ec3f2755aaf" : {"index": 3, "name": "demo", "brightness": BRIGHTNESS},
         "28d7e12692c1b153" : {"index": 4, "name": "Spare", "brightness": BRIGHTNESS},
         "e5e0340e79345125" : {"index": 5, "name": "standalone", "brightness": BRIGHTNESS},
-        "0000000000000000" : {"index": 0, "name": "wokwi", "brightness": WOKWI_BRIGHTNESS},
+        "0000000000000000" : {"index": 6, "name": "wokwi", "brightness": WOKWI_BRIGHTNESS},
     }
 
     numPixelsList = [ 78, 132, 96, 136, 120, 10, 60 ]

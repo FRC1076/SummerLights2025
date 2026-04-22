@@ -172,8 +172,8 @@ class SyntheticDemoer:
                         ( "Wait digitH blue fast", "wipe digitH blue medium",
                           "Wait digitV blue fast", "wipe digitV blue medium",
                           "Wait digitS blue fast", "wipe digitS blue medium", ),
-                        ( "flipflop 4 digitV red slow", ),
-                        ( "flipflop 4 digitV blue slow", ),
+                        ( "flipflop 4 red slow", ),
+                        ( "flipflop 4 blue slow", ),
                         ( "flashing digitH purple medium", ),
                         ( "gradient digitS red medium", ), # actually shows rainbow
                         ( "multicolor digitS purple fast", ),

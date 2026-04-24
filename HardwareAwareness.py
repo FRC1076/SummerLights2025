@@ -11,10 +11,10 @@ class HardwareAwareness:
     # what number is the board in (defulted to 300 as it's not a acceptable number )
 
     boardNumDictionary = {
-        "dfa90633b8e2ed5a" : {"index": 0, "name": "1", "brightness": BRIGHTNESS},
-        "9c269e8c931ea92c" : {"index": 1, "name": "0", "brightness": BRIGHTNESS},
-        "7e75345dc17e7eac" : {"index": 2, "name": "7", "brightness": BRIGHTNESS},
-        "030f3ec3f2755aaf" : {"index": 3, "name": "demo", "brightness": BRIGHTNESS},
+        "dfa90633b8e2ed5a" : {"index": 0, "name": "1", "brightness": COMP_FULL_BRIGHTNESS},
+        "9c269e8c931ea92c" : {"index": 1, "name": "0", "brightness": COMP_FULL_BRIGHTNESS},
+        "7e75345dc17e7eac" : {"index": 2, "name": "7", "brightness": COMP_FULL_BRIGHTNESS},
+        "030f3ec3f2755aaf" : {"index": 3, "name": "6", "brightness": COMP_FULL_BRIGHTNESS},
         "28d7e12692c1b153" : {"index": 4, "name": "Spare", "brightness": BRIGHTNESS},
         "e5e0340e79345125" : {"index": 5, "name": "standalone", "brightness": BRIGHTNESS},
         "0000000000000000" : {"index": 6, "name": "wokwi", "brightness": WOKWI_BRIGHTNESS},

@@ -4,6 +4,7 @@ Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
 https://github.com/FRC1076
 """
 from NeoConfig import *
+from BreathingEffect import BreathingEffect
 from DemoCommands import ValidEffects,ValidDivisions,ValidCompositors,ValidColors,ValidSpeeds,TAP,NO_TAP,show_help
 from LightingEffects import RunnerEffect, FlipFlopEffect, WipeFillEffect, SqueezeFillEffect, BlinkyEffect
 from LightingEffects import DripEffect, RainbowEffect, SoundMeterEffect, GradientEffect, RainbowColorEffect, FlashingLightsEffect
@@ -117,6 +118,8 @@ class EffectChooser:
             return [ WipeFillEffect(self._pixel_buffer, color=color, slowness=speed, count_pixels=True) ]
         elif effect_name == "clap" and comp_name == "full":
             return [ ClapEffect(self._pixel_buffer, color=color, slowness=speed) ]
+        elif effect_name == "breathing" and comp_name == "full":
+            return [ BreathingEffect(self._pixel_buffer, color=color, slowness=speed) ]
         elif effect_name == "multi" and comp_name == "4":
             return [ RainbowColorEffect(self._pixel_buffer_list[0], slowness=5),
                      RunnerEffect(self._pixel_buffer_list[1], color=color, slowness=speed),

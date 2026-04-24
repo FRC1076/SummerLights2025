@@ -37,6 +37,7 @@ ValidEffects = [ "clear",                 #  clear the display (shortcut with si
                  "sound",                 #  sound response demo
                  "flashing",              #  flashing lights (Amber)
                  "multicolor",            #  rainbow color (Amber)
+                 "breathing",             #  breathing effect (Donghui)
                  "count",                 #  with opposite color every (i % 10 == 0) pixel
                  "Repeat",                #  repeat the previous sequence of effects
                  "Wait",                  #  wait for a number of seconds  (fast=1, medium=5, slow=20)

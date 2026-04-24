@@ -38,3 +38,5 @@ BUTTERSCOTCH = (252, 186, 3)
 GREEN = (3, 252, 92)
 PINK = (248, 3, 252)
 
+FPS = 50
+

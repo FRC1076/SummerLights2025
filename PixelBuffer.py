@@ -87,5 +87,3 @@ if __name__ == "__main__":
     print(f"After bacon wrap: {pixbuff[0:4]}")
 
     pixbuff[7] = "tomato"
-
-

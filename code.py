@@ -15,8 +15,9 @@ from ButtonChooser import ColorChooser
 from ControlEffects import WaitEffect
 from EffectChooser import EffectChooser
 from DemoCommands import ValidEffects, ValidDivisions
-
-
+from adafruit_ble import BLERadio
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
+from adafruit_ble.services.nordic import UARTService
 
 #NEO_PIN = PICO_PIN
 
@@ -61,6 +62,45 @@ FULL_RED = (255, 0, 0)
 TIMED = (1, 1, 1)
 
 
+class ConsoleUART():
+    """
+    Prompt for, and accept commands over the serial console connection
+    """
+    def __init__(self):
+        pass
+
+    def needsControl(self):
+        return False
+
+    def nextCommand(self):
+        cmd = input("Effect? ")
+        return cmd
+
+class BluetoothUART():
+    """
+    Prompt for, and accept commands over a bluetooth BLE connection
+    """
+    def __init__(self):
+        self._ble = BLERadio()
+        self._uart = UARTService()
+        self._advertisement = ProvideServicesAdvertisement(self._uart)
+
+    def needsControl(self):
+        return False
+
+    def nextCommand(self):
+        """
+        Might have to wait to establish a connection here.
+        """
+        if not self._ble.connected:
+            self._ble.start_advertising(self._advertisement)
+            print("Waiting to connect")
+            while not ble.connected:
+                time.sleep(0.5)
+                print("...still waiting to connect...")
+        self._uart.write("Effect? ".encode("utf-8"))
+        s = self._uart.readline()
+        return s
 
 class Presentation:
     """
@@ -241,19 +281,19 @@ if __name__ == "__main__":
     pixels = hdw.getPixels()
     print("Hardware allocated:", len(pixels), "NeoPixels at brightness:", pixels.brightness)
 
+    #
     if hdw.getEnvironment() in ["demo", "wokwi", "standalone"]:
-        demoer = None
+        commander = ConsoleUART()
+    elif hdw.getEnvironment() in ["bluetooth"]:
+        commander = BluetoothUART()
     else:
-        demoer = SyntheticDemoer()      # uses ColorChooser to choose the effect
+        commander = SyntheticDemoer()      # uses ColorChooser to choose the effect
 
     pixels.auto_write = False
 
     cmd = ""
     while cmd.split(' ')[0] not in ValidEffects:
-        if not demoer is None:
-            cmd = demoer.nextCommand()
-        else:
-            cmd = input("Effect? ")
+        cmd = commander.nextCommand()
 
     start_time_ns = time.monotonic_ns()
 
@@ -334,7 +374,7 @@ if __name__ == "__main__":
         loop_time_max_ms = 0
         show_time_max_ms = 0
         next_do_effects = []
-        while (len(do_effects) > 0 or len(next_do_effects) > 0) and (demoer is None or not demoer.needsControl()):
+        while (len(do_effects) > 0 or len(next_do_effects) > 0) and (not commander.needsControl()):
 
             all_live_effects_have_run_once = False
 
@@ -390,10 +430,7 @@ if __name__ == "__main__":
         # prompt for another effect
         cmd = ""
         while cmd.split(' ')[0] not in ValidEffects:
-            if not demoer is None:
-                cmd = demoer.nextCommand()
-            else:
-                cmd = input("3ffect? ")
+            cmd = commander.nextCommand()
 
         # rebase start after reading, since we do not want to count that delay
         start_time_ns = time.monotonic_ns()

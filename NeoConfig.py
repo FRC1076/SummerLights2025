@@ -14,7 +14,7 @@ NEON_PIXELS = 64
 NUM_PIXELS = FEATHER_WING_PIXELS
 
 # Useful global constants
-
+CYCLE_TIME = 50
 # color increment ensures that we can cycle through a full
 # range of color intensities from the first to last pixels
 COLOR_INC = 255 / NUM_PIXELS

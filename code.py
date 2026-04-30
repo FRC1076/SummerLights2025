@@ -16,7 +16,7 @@ from ControlEffects import WaitEffect
 from BreathingEffect import BreathingEffect
 from EffectChooser import EffectChooser
 from DemoCommands import ValidEffects, ValidDivisions
-
+from NeoConfig import CYCLE_TIME
 
 
 #NEO_PIN = PICO_PIN
@@ -378,11 +378,11 @@ if __name__ == "__main__":
                 show_time_max_ms = show_time_ms
                 print("Max Showtime: ", show_time_max_ms, "ms")
             adjust = loop_time_ms + show_time_ms
-            if adjust < 20:
-                time.sleep((20 - adjust)/1000.0)
+            if adjust < CYCLE_TIME:
+                time.sleep((CYCLE_TIME - adjust)/1000.0)
                 #print("INFO: Adjust ", adjust, "milliseconds")
-            elif adjust > 40:
-                print("WARNING: Slip of  ", adjust-20, "milliseconds")
+            elif adjust > CYCLE_TIME:
+                print("WARNING: Slip of  ", adjust-CYCLE_TIME, "milliseconds")
 
             # rebase start after sleep, since we do not want to count that
             start_time_ns = time.monotonic_ns()

@@ -7,8 +7,8 @@ from NeoConfig import OFF,PURPLE,ORANGE,BUTTERSCOTCH,BLUE,RED,FULL_RED,GREEN
 TAP = 3
 NO_TAP = 2
 
-ValidSpeeds =   {"slow" :   20,
-                 "medium" :  5,
+ValidSpeeds =   {"slow" :   8,
+                 "medium" :  2,
                  "fast" :    1,
                  "tap" :     TAP,
                  "no-tap" :  NO_TAP}

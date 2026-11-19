@@ -1,27 +1,13 @@
 """
-SPDX-License-Identifier: BSD-3-Clause
-Copyright 2025-2026 Pioneer Robotics: PiHi Samurai, FRC Team 1076
-https://github.com/FRC1076
-"""
-"""
 Lighting effects rely on some global kinds of configuration and some convenience
 variables.
 """
 from NeoConfig import *
 from Physics import Particle,Physics
-try:
-    from TapDetector import TapDetector
-    TapDetectorSupported = True
-except Exception:
-    print("TapDetector is not supported")
-    TapDetectorSupported = False
-
-try:
-    from SoundDetector import SoundDetector
-    SoundDetectorSupported = True
-except Exception as e:
-    print("Error:", str(e), "SoundDetector is not supported")
-    SoundDetectorSupported = False
+#from TapDetector import TapDetector
+TapDetectorSupported = False
+#from SoundDetector import SoundDetector
+SoundDetectorSupported = False
 from rainbowio import colorwheel
 import random
 
@@ -110,7 +96,7 @@ class WipeFillEffect:
     """
 
     """
-    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=2, count_pixels=False):
+    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness=2):
         """
         Create a lighting effect that fills PIXELS in the specified range, with the specified color.
         Defaults are all PURPLE pixels at the global BRIGHTNESS.
@@ -120,7 +106,6 @@ class WipeFillEffect:
         self._color = color
         self._brightness = brightness
         self._slowness = slowness
-        self._count_pixels = count_pixels
 
     def make_generator(self):
         """
@@ -129,13 +114,7 @@ class WipeFillEffect:
         or just agree to use the color passed in
         """
         for i in range(len(self._pixel_buffer)):
-            if (i % 10 == 0) and self._count_pixels:
-                # Use the opposite color to mark every 10th pixel
-                self._pixel_buffer[i] = ( (255-self._color[0]),
-                                          (255-self._color[1]),
-                                          (255-self._color[2]) )
-            else:
-                self._pixel_buffer[i] = self._color
+            self._pixel_buffer[i] = self._color
             """
             The yield command here, turns this function into a generator, so it returns after each
             iteration of the loop.   Subsequent calls pick up where they left off.
@@ -170,10 +149,9 @@ class SqueezeFillEffect:
         maybe just scale the self._color on __init__?
         or just agree to use the color passed in
         """
-        plen = len(self._pixel_buffer)
-        for i in range(plen):
+        for i in range(len(self._pixel_buffer)):
             self._pixel_buffer[i] = self._color
-            self._pixel_buffer[plen-i-1] = self._color
+            self._pixel_buffer[-(i+1)] = self._color
             """
             The yield command here, turns this function into a generator, so it returns after each
             iteration of the loop.   Subsequent calls pick up where they left off.
@@ -290,7 +268,7 @@ class SoundMeterEffect:
         if SoundDetectorSupported:
             sd = SoundDetector()
         else:
-            LevelAsPixels = len(self._pixels) // 4    # synthetic data starts at midpoint
+            LevelAsPixels = len(self._pixels) // 2    # synthetic data starts at midpoint
 
         while True:
 
@@ -302,9 +280,9 @@ class SoundMeterEffect:
                     LevelAsPixels = len(self._pixels)-1
             else:
                 coin3 = random.random()        # synthetic data.  Flip 3 sided coin.  Equal chance for up, down, same
-                if coin3 > 0.70:
+                if coin3 > 0.66:
                     delta = 1
-                elif coin3 > 0.35:
+                elif coin3 > 0.33:
                     delta = -1
                 else:
                     delta = 0
@@ -330,7 +308,6 @@ class SoundMeterEffect:
                 self._pixels[p] = OFF
             for p in range(LevelAsPixels):
                 self._pixels[p] = self._color
-
 
             for _ in range(self._slowness):
                 yield
@@ -525,44 +502,6 @@ class MatrixDisplayMapper:
         else:
             return (new_row_vect, new_col_vect)
 
-class GradientEffect:
-   def __init__(self, pixels, color= FULL_RED, brightness=BRIGHTNESS, slowness=3):
-       self._pixels = pixels
-       self._brightness = brightness
-       self._color = color
-       self._step = 0
-       self._slowness=slowness
-
-   def nextColor(self):
-       increasePerPixel = int(255 / 2)
-       if self._step == 0:
-           newColor = (self._color[0],min(255, self._color[1] + increasePerPixel),self._color[2])
-           if self._color[1] == 255:
-               self._step = 1
-       elif self._step == 1:
-           newColor = (max(0,self._color[0] - increasePerPixel), self._color[1],self._color[2])
-           if self._color[0] == 0:
-               self._step = 2
-       elif self._step == 2:
-           newColor = (self._color[0], self._color[1], min(255,self._color[2] + increasePerPixel))
-           if self._color[2] == 255:
-               self._step = 3
-       elif self._step == 3:
-           newColor = (self._color[0], max(0, self._color[1] - increasePerPixel),self._color[2])
-           if self._color[1] == 0:
-               self._step = 4
-       elif self._step == 4:
-           newColor = ( min(255, self._color[0] + increasePerPixel), self._color[1], self._color[2] )
-           if self._color[0] == 255:
-               self._step = 0
-               newColor = (255,0,0)
-       self._color = newColor
-   def make_generator(self):
-       for i in range(len(self._pixels)):
-           self._pixels[i]=self._color
-           self.nextColor()
-           for _ in range(self._slowness):
-                yield
 
 class OnePixelBall:
 
@@ -613,86 +552,6 @@ class OnePixelBall:
             for _ in range(slowness):
                 yield
 
-class FlashingLightsEffect:
-    """
-    flashes lights in the rainbow order
-    """
-    def __init__(self, pixel_buffer, color=PURPLE, brightness=BRIGHTNESS, slowness = 2):
-        """
-        Base class for lighting effects
-        Could be useful for documentation, or maybe actually used as a base class
-        Note, this relies on constants from elsewhere.    Should probably import them instead of assuming
-        they have been imported.
-        """
-        self._pixel_buffer = pixel_buffer
-        self._color = color
-        self._slowness = slowness
-        self._brightness = brightness    
-
-    def make_generator(self):
-        plen = len(self._pixel_buffer)
-        quarter_len = plen // 4
-        half_len = plen // 2 
-        thirdquarter_len = plen * 3 // 4
-
-        YELLOW = (255, 255, 0)
-        CYAN = (0, 255, 232) 
-        MAGENTA = (255, 0, 252)
-
-        color_list = [ OFF, OFF, OFF, OFF ]
-        colors = [ RED, ORANGE, YELLOW, CYAN, MAGENTA, PURPLE ]
-
-        while True: 
-
-            for c in colors:
-                color_list.insert(0, c)
-                color_list.pop()
-
-                for p in range(quarter_len):
-                    self._pixel_buffer[p] = color_list[0]
-
-                for p in range(quarter_len, half_len):
-                    self._pixel_buffer[p] = color_list[1]
-
-                for p in range(half_len, thirdquarter_len):
-                    self._pixel_buffer[p] = color_list[2]
-
-                for p in range(thirdquarter_len, plen):
-                    self._pixel_buffer[p] = color_list[3]
-                        
-                for _ in range(self._slowness):
-                    yield
-
-class RainbowColorEffect:
-    """
-    Gradually fills in each color of the rainbow
-    """
-    def __init__(self, pixel_buffer, color=PURPLE, slowness=2, brightness=BRIGHTNESS):
-        """
-        Base class for lighting effects
-        Could be useful for documentation, or maybe actually used as a base class
-        Note, this relies on constants from elsewhere. Should probably import them instead of assuming
-        they have been imported.
-        """
-        self._pixel_buffer = pixel_buffer
-        self._color = color
-        self._slowness = slowness
-        self._brightness = brightness
-
-    def make_generator(self):
-        """
-        Make the rainbow color wipe application
-        """
-        YELLOW = (255, 255, 0)
-        INDIGO = (105, 0, 255)
-
-        color_list = [ RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, PURPLE]
-        while True:
-                for c in color_list:
-                    for p in range(len(self._pixel_buffer)):
-                        self._pixel_buffer[p] = c
-                        for _ in range(self._slowness):
-                            yield
 
 if __name__ == "__main__":
 
@@ -727,4 +586,3 @@ if __name__ == "__main__":
         next(do_bouncing_ball)
         pixels.show()
         time.sleep(0.02)
-
